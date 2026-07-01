@@ -1,0 +1,2 @@
+<?php echo $this->Html->link('Register', ['controller'=>'homes', 'action' => 'checkcode', $convention_slug,$season_id], ['escape'=>false, 'class'=>'btn hp-btn-register']); ?>
+<?php echo $this->Html->link('Login', ['controller'=>'users', 'action' => 'login', $convention_slug,$season_id], ['escape'=>false, 'class'=>'btn hp-btn-login']); ?>

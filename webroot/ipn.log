@@ -1,0 +1,415 @@
+[2023-05-04 14:05 Australia/Brisbane] HTTP request of validation request:POST /cgi-bin/webscr HTTP/1.1
+Host: www.sandbox.paypal.com
+Accept: */*
+Connection: Close
+Content-Length: 1008
+Content-Type: application/x-www-form-urlencoded
+
+ for IPN payload: cmd=_notify-validate&mc_gross=805.00&protection_eligibility=Ineligible&payer_id=QRQ4RE2EBD5DY&payment_date=21%3A05%3A07+May+03%2C+2023+PDT&payment_status=Completed&charset=windows-1252&first_name=Mevi&mc_fee=29.28&notify_version=3.9&custom=&payer_status=unverified&business=justincroome%40scee.edu.au&quantity=1&verify_sign=AW2E2ym0Azzl.gS2qYIfeXpKh9R9Al58VUlbmUxakv5D.mJySksfserq&payer_email=mevi.agustine%40efatachristianschool.org&txn_id=1Y153065DF2764631&payment_type=instant&last_name=Agustine&receiver_email=scee.rec%40scee.edu.au&payment_fee=&shipping_discount=0.00&receiver_id=DW8GYFW9G398A&insurance_amount=0.00&txn_type=web_accept&item_name=Accelerate+Payment+for+23+student%28s%29+for+convention+%5BOnline+Student+Convention%5D+and+season+%5B2023%5D+by+school+%5BEfata+Christian+School%5D&discount=0.00&mc_currency=AUD&item_number=transaction-cr-3-1683172673&residence_country=ID&receipt_id=0394-1159-6876-6949&shipping_method=Default&transaction_subject=&payment_gross=&ipn_track_id=f222683e7cd55
+[2023-05-04 14:05 Australia/Brisbane] HTTP response of validation request: HTTP/1.1 200 OK
+Connection: close
+Content-Length: 7
+Content-Type: text/html; charset=utf-8
+Accept-Ch: Sec-CH-UA-Full
+Cache-Control: max-age=0, no-cache, no-store, must-revalidate
+Content-Security-Policy: default-src 'self' https://*.paypal.com https://*.paypalobjects.com 'unsafe-inline'; style-src 'self' https://*.paypal.com https://*.paypalobjects.com 'unsafe-inline'; script-src 'nonce-80in25b78BPKg1bEOdCcTfNdpFUpxeC1ebBdE5IvwTZug4Eu' 'self' 'unsafe-inline' https://*.paypal.com https://*.paypalobjects.com; img-src 'self' https: data:; object-src 'none'; font-src 'self' https://*.paypal.com https://*.paypalobjects.com; frame-src 'self' https://*.paypalobjects.com https://*.paypal.com https://*.qualtrics.com; connect-src 'self' 'unsafe-inline' https://*.paypal.com https://*.paypalobjects.com https://*.qualtrics.com; form-action 'self' https://*.paypal.com; base-uri 'self' https://*.paypal.com; upgrade-insecure-requests;
+Etag: W/"7-Ory3K5VGd+UTzTV4Xd/UXaIbp98"
+Origin-Trial: AlIogV3KFtnbfVCyl9Z2NprE7FD8PYCt+TQiYdE3ppeJjJ0xJKcthYwOxXpRCNopxVWdOIENMcNSvQCGAmj0fw0AAAB2eyJvcmlnaW4iOiJodHRwczovL3BheXBhbC5jb206NDQzIiwiZmVhdHVyZSI6IlNlbmRGdWxsVXNlckFnZW50QWZ0ZXJSZWR1Y3Rpb24iLCJleHBpcnkiOjE2ODQ4ODYzOTksImlzU3ViZG9tYWluIjp0cnVlfQ==
+Paypal-Debug-Id: f2604123356dd
+Set-Cookie: LANG=en_US%3BUS; Max-Age=31556; Domain=.paypal.com; Path=/; Expires=Thu, 04 May 2023 12:51:11 GMT; HttpOnly; Secure
+Set-Cookie: enforce_policy=ccpa; Max-Age=31536000; Domain=.paypal.com; Path=/; Expires=Fri, 03 May 2024 04:05:15 GMT; Secure
+Set-Cookie: x-pp-s=eyJ0IjoiMTY4MzE3MzExNTQwMiIsImwiOiIwIiwibSI6IjAifQ; Domain=.paypal.com; Path=/; HttpOnly; Secure
+Set-Cookie: tsrce=merchantnotifnodeweb; Domain=.paypal.com; Path=/; Expires=Sun, 07 May 2023 04:05:15 GMT; HttpOnly; Secure; SameSite=None
+Set-Cookie: nsid=s%3Ag2TnrQNp-7gjTro6Sz-UH3T8MtwU0JAk.bpMKm164rMFovFWrG6YDjqhDzTCMsr4OqOL5NAFhEkQ; Path=/; HttpOnly; Secure
+Set-Cookie: ts=vreXpYrS%3D1777867515%26vteXpYrS%3D1683174915%26vr%3De4ef85d71870a6022c9bd95bfc01cedd%26vt%3De4ef85d71870a6022c9bd95bfc01cedc%26vtyp%3Dnew; Path=/; Domain=paypal.com; Expires=Sun, 03 May 2026 04:05:15 GMT; HttpOnly; Secure
+Set-Cookie: ts_c=vr%3De4ef85d71870a6022c9bd95bfc01cedd%26vt%3De4ef85d71870a6022c9bd95bfc01cedc; Path=/; Domain=paypal.com; Expires=Sun, 03 May 2026 04:05:15 GMT; Secure
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+X-Xss-Protection: 1; mode=block
+Accept-Ranges: bytes
+Via: 1.1 varnish, 1.1 varnish
+Date: Thu, 04 May 2023 04:05:15 GMT
+Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+X-Served-By: cache-syd10167-SYD, cache-bne12520-BNE
+X-Cache: MISS, MISS
+X-Cache-Hits: 0, 0
+X-Timer: S1683173115.265127,VS0,VE229
+Vary: Accept-Encoding
+Set-Cookie: x-cdn=fastly:BNE; Domain=paypal.com; Path=/; Secure
+
+INVALID
+[2023-05-04 14:05 Australia/Brisbane] Invalid IPN: cmd=_notify-validate&mc_gross=805.00&protection_eligibility=Ineligible&payer_id=QRQ4RE2EBD5DY&payment_date=21%3A05%3A07+May+03%2C+2023+PDT&payment_status=Completed&charset=windows-1252&first_name=Mevi&mc_fee=29.28&notify_version=3.9&custom=&payer_status=unverified&business=justincroome%40scee.edu.au&quantity=1&verify_sign=AW2E2ym0Azzl.gS2qYIfeXpKh9R9Al58VUlbmUxakv5D.mJySksfserq&payer_email=mevi.agustine%40efatachristianschool.org&txn_id=1Y153065DF2764631&payment_type=instant&last_name=Agustine&receiver_email=scee.rec%40scee.edu.au&payment_fee=&shipping_discount=0.00&receiver_id=DW8GYFW9G398A&insurance_amount=0.00&txn_type=web_accept&item_name=Accelerate+Payment+for+23+student%28s%29+for+convention+%5BOnline+Student+Convention%5D+and+season+%5B2023%5D+by+school+%5BEfata+Christian+School%5D&discount=0.00&mc_currency=AUD&item_number=transaction-cr-3-1683172673&residence_country=ID&receipt_id=0394-1159-6876-6949&shipping_method=Default&transaction_subject=&payment_gross=&ipn_track_id=f222683e7cd55
+[2023-05-08 10:30 Australia/Brisbane] HTTP request of validation request:POST /cgi-bin/webscr HTTP/1.1
+Host: www.sandbox.paypal.com
+Accept: */*
+Connection: Close
+Content-Length: 992
+Content-Type: application/x-www-form-urlencoded
+
+ for IPN payload: cmd=_notify-validate&mc_gross=70.00&protection_eligibility=Eligible&payer_id=HJB8LLVA3HGGE&payment_date=17%3A30%3A49+May+07%2C+2023+PDT&payment_status=Completed&charset=windows-1252&first_name=Ruth&mc_fee=2.12&notify_version=3.9&custom=&payer_status=verified&business=justincroome%40scee.edu.au&quantity=1&verify_sign=AHaIq0UWenfZx5QEL.ntiMiyTStRAdBpt8zhsd--JZGPcq81qX2xmBLx&payer_email=ruth%40ruthbosveldart.com&txn_id=7K638323YM1298226&payment_type=instant&payer_business_name=Ruth+Bosveld+Art&last_name=Bosveld&receiver_email=scee.rec%40scee.edu.au&payment_fee=&shipping_discount=0.00&receiver_id=DW8GYFW9G398A&insurance_amount=0.00&txn_type=web_accept&item_name=Accelerate+Payment+for+2+student%28s%29+for+convention+%5BOnline+Student+Convention%5D+and+season+%5B2023%5D+by+school+%5BMr+B+and+Mrs+R+Bosveld%5D&discount=0.00&mc_currency=AUD&item_number=transaction-cr-11-1683505804&residence_country=AU&shipping_method=Default&transaction_subject=&payment_gross=&ipn_track_id=f777679b9acc5
+[2023-05-08 10:30 Australia/Brisbane] HTTP response of validation request: HTTP/1.1 200 OK
+Connection: close
+Content-Length: 7
+Content-Type: text/html; charset=utf-8
+Accept-Ch: Sec-CH-UA-Full
+Cache-Control: max-age=0, no-cache, no-store, must-revalidate
+Content-Security-Policy: default-src 'self' https://*.paypal.com https://*.paypalobjects.com 'unsafe-inline'; style-src 'self' https://*.paypal.com https://*.paypalobjects.com 'unsafe-inline'; script-src 'nonce-8llknwjNC0xVkNEwrvfw4EgvxzcMi1sZAatZIOn7SLG7po8r' 'self' 'unsafe-inline' https://*.paypal.com https://*.paypalobjects.com; img-src 'self' https: data:; object-src 'none'; font-src 'self' https://*.paypal.com https://*.paypalobjects.com; frame-src 'self' https://*.paypalobjects.com https://*.paypal.com https://*.qualtrics.com; connect-src 'self' 'unsafe-inline' https://*.paypal.com https://*.paypalobjects.com https://*.qualtrics.com; form-action 'self' https://*.paypal.com; base-uri 'self' https://*.paypal.com; upgrade-insecure-requests;
+Etag: W/"7-Ory3K5VGd+UTzTV4Xd/UXaIbp98"
+Origin-Trial: AlIogV3KFtnbfVCyl9Z2NprE7FD8PYCt+TQiYdE3ppeJjJ0xJKcthYwOxXpRCNopxVWdOIENMcNSvQCGAmj0fw0AAAB2eyJvcmlnaW4iOiJodHRwczovL3BheXBhbC5jb206NDQzIiwiZmVhdHVyZSI6IlNlbmRGdWxsVXNlckFnZW50QWZ0ZXJSZWR1Y3Rpb24iLCJleHBpcnkiOjE2ODQ4ODYzOTksImlzU3ViZG9tYWluIjp0cnVlfQ==
+Paypal-Debug-Id: f633712208a24
+Set-Cookie: LANG=en_US%3BUS; Max-Age=31556; Domain=.paypal.com; Path=/; Expires=Mon, 08 May 2023 09:16:54 GMT; HttpOnly; Secure
+Set-Cookie: enforce_policy=ccpa; Max-Age=31536000; Domain=.paypal.com; Path=/; Expires=Tue, 07 May 2024 00:30:58 GMT; Secure
+Set-Cookie: x-pp-s=eyJ0IjoiMTY4MzUwNTg1ODQ3OSIsImwiOiIwIiwibSI6IjAifQ; Domain=.paypal.com; Path=/; HttpOnly; Secure
+Set-Cookie: tsrce=merchantnotifnodeweb; Domain=.paypal.com; Path=/; Expires=Thu, 11 May 2023 00:30:58 GMT; HttpOnly; Secure; SameSite=None
+Set-Cookie: nsid=s%3AWRGe0FCPM4N9lFrSr552DZKNwqtZTdSG.LaDmMEnTrXawpbky6IMwTkIbDz04wTf1%2FP6N05xVq9k; Path=/; HttpOnly; Secure
+Set-Cookie: ts=vreXpYrS%3D1778200258%26vteXpYrS%3D1683507658%26vr%3Df8c4c7841870a6022c641ad5fa13679e%26vt%3Df8c4c7841870a6022c641ad5fa13679d%26vtyp%3Dnew; Path=/; Domain=paypal.com; Expires=Thu, 07 May 2026 00:30:58 GMT; HttpOnly; Secure
+Set-Cookie: ts_c=vr%3Df8c4c7841870a6022c641ad5fa13679e%26vt%3Df8c4c7841870a6022c641ad5fa13679d; Path=/; Domain=paypal.com; Expires=Thu, 07 May 2026 00:30:58 GMT; Secure
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+X-Xss-Protection: 1; mode=block
+Accept-Ranges: bytes
+Via: 1.1 varnish, 1.1 varnish
+Date: Mon, 08 May 2023 00:30:58 GMT
+Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+X-Served-By: cache-syd10173-SYD, cache-bne12520-BNE
+X-Cache: MISS, MISS
+X-Cache-Hits: 0, 0
+X-Timer: S1683505858.350106,VS0,VE219
+Vary: Accept-Encoding
+Set-Cookie: x-cdn=fastly:BNE; Domain=paypal.com; Path=/; Secure
+
+INVALID
+[2023-05-08 10:30 Australia/Brisbane] Invalid IPN: cmd=_notify-validate&mc_gross=70.00&protection_eligibility=Eligible&payer_id=HJB8LLVA3HGGE&payment_date=17%3A30%3A49+May+07%2C+2023+PDT&payment_status=Completed&charset=windows-1252&first_name=Ruth&mc_fee=2.12&notify_version=3.9&custom=&payer_status=verified&business=justincroome%40scee.edu.au&quantity=1&verify_sign=AHaIq0UWenfZx5QEL.ntiMiyTStRAdBpt8zhsd--JZGPcq81qX2xmBLx&payer_email=ruth%40ruthbosveldart.com&txn_id=7K638323YM1298226&payment_type=instant&payer_business_name=Ruth+Bosveld+Art&last_name=Bosveld&receiver_email=scee.rec%40scee.edu.au&payment_fee=&shipping_discount=0.00&receiver_id=DW8GYFW9G398A&insurance_amount=0.00&txn_type=web_accept&item_name=Accelerate+Payment+for+2+student%28s%29+for+convention+%5BOnline+Student+Convention%5D+and+season+%5B2023%5D+by+school+%5BMr+B+and+Mrs+R+Bosveld%5D&discount=0.00&mc_currency=AUD&item_number=transaction-cr-11-1683505804&residence_country=AU&shipping_method=Default&transaction_subject=&payment_gross=&ipn_track_id=f777679b9acc5
+[2023-05-12 16:26 Australia/Brisbane] HTTP request of validation request:POST /cgi-bin/webscr HTTP/1.1
+Host: www.sandbox.paypal.com
+Accept: */*
+Connection: Close
+Content-Length: 996
+Content-Type: application/x-www-form-urlencoded
+
+ for IPN payload: cmd=_notify-validate&mc_gross=5.00&protection_eligibility=Ineligible&payer_id=E9CADLWMH57YA&payment_date=23%3A26%3A45+May+11%2C+2023+PDT&payment_status=Completed&charset=windows-1252&first_name=Karl&mc_fee=0.43&notify_version=3.9&custom=&payer_status=unverified&business=justincroome%40scee.edu.au&quantity=1&verify_sign=Ai7QAFsEZFrzMq9uFUtZsxo9k01SAT14eYkyOPR43zj75Hv024eYY2GW&payer_email=mikaelawaqa%40acceleratechurch.com&txn_id=46B81237XR171504Y&payment_type=instant&last_name=Duxfield&receiver_email=scee.rec%40scee.edu.au&payment_fee=&shipping_discount=0.00&receiver_id=DW8GYFW9G398A&insurance_amount=0.00&txn_type=web_accept&item_name=Accelerate+Payment+for+2+student%28s%29+for+convention+%5BOnline+Student+Convention%5D+and+season+%5B2023%5D+by+school+%5BMikaela+Just+Testing%5D&discount=0.00&mc_currency=AUD&item_number=transaction-cr-2-1683872712&residence_country=AU&receipt_id=3512-6499-1546-0421&shipping_method=Default&transaction_subject=&payment_gross=&ipn_track_id=f224529cf63ee
+[2023-05-12 16:26 Australia/Brisbane] HTTP response of validation request: HTTP/1.1 200 OK
+Connection: close
+Content-Length: 7
+Content-Type: text/html; charset=utf-8
+Accept-Ch: Sec-CH-UA-Full
+Cache-Control: max-age=0, no-cache, no-store, must-revalidate
+Content-Security-Policy: default-src 'self' https://*.paypal.com https://*.paypalobjects.com 'unsafe-inline'; style-src 'self' https://*.paypal.com https://*.paypalobjects.com 'unsafe-inline'; script-src 'nonce-xE9zq37qn8PpQ+zbTbxmj3tgGCpDPjMIV0wRoEuS4GFSV/cn' 'self' 'unsafe-inline' https://*.paypal.com https://*.paypalobjects.com; img-src 'self' https: data:; object-src 'none'; font-src 'self' https://*.paypal.com https://*.paypalobjects.com; frame-src 'self' https://*.paypalobjects.com https://*.paypal.com https://*.qualtrics.com; connect-src 'self' 'unsafe-inline' https://*.paypal.com https://*.paypalobjects.com https://*.qualtrics.com; form-action 'self' https://*.paypal.com; base-uri 'self' https://*.paypal.com; upgrade-insecure-requests;
+Etag: W/"7-Ory3K5VGd+UTzTV4Xd/UXaIbp98"
+Origin-Trial: AlIogV3KFtnbfVCyl9Z2NprE7FD8PYCt+TQiYdE3ppeJjJ0xJKcthYwOxXpRCNopxVWdOIENMcNSvQCGAmj0fw0AAAB2eyJvcmlnaW4iOiJodHRwczovL3BheXBhbC5jb206NDQzIiwiZmVhdHVyZSI6IlNlbmRGdWxsVXNlckFnZW50QWZ0ZXJSZWR1Y3Rpb24iLCJleHBpcnkiOjE2ODQ4ODYzOTksImlzU3ViZG9tYWluIjp0cnVlfQ==
+Paypal-Debug-Id: f543351e83183
+Set-Cookie: LANG=en_US%3BUS; Max-Age=31556; Domain=.paypal.com; Path=/; Expires=Fri, 12 May 2023 15:12:53 GMT; HttpOnly; Secure
+Set-Cookie: enforce_policy=ccpa; Max-Age=31536000; Domain=.paypal.com; Path=/; Expires=Sat, 11 May 2024 06:26:57 GMT; Secure
+Set-Cookie: x-pp-s=eyJ0IjoiMTY4Mzg3MjgxNzA2MiIsImwiOiIwIiwibSI6IjAifQ; Domain=.paypal.com; Path=/; HttpOnly; Secure
+Set-Cookie: tsrce=merchantnotifnodeweb; Domain=.paypal.com; Path=/; Expires=Mon, 15 May 2023 06:26:57 GMT; HttpOnly; Secure; SameSite=None
+Set-Cookie: nsid=s%3AnJEF3G4GNKVBGACWDluhsBSs-0e6vcfP.IsyB1WfEbGNRLUXMG5omwjd7wtSIvPplBNku1IFlOmE; Path=/; HttpOnly; Secure
+Set-Cookie: ts=vreXpYrS%3D1778567217%26vteXpYrS%3D1683874617%26vr%3D0ea41f7e1880a6022c85f3ddffc73949%26vt%3D0ea41f7e1880a6022c85f3ddffc73948%26vtyp%3Dnew; Path=/; Domain=paypal.com; Expires=Mon, 11 May 2026 06:26:57 GMT; HttpOnly; Secure
+Set-Cookie: ts_c=vr%3D0ea41f7e1880a6022c85f3ddffc73949%26vt%3D0ea41f7e1880a6022c85f3ddffc73948; Path=/; Domain=paypal.com; Expires=Mon, 11 May 2026 06:26:57 GMT; Secure
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+X-Xss-Protection: 1; mode=block
+Accept-Ranges: bytes
+Via: 1.1 varnish, 1.1 varnish
+Date: Fri, 12 May 2023 06:26:57 GMT
+Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+X-Served-By: cache-syd10131-SYD, cache-bne12520-BNE
+X-Cache: MISS, MISS
+X-Cache-Hits: 0, 0
+X-Timer: S1683872817.936160,VS0,VE215
+Vary: Accept-Encoding
+Set-Cookie: x-cdn=fastly:BNE; Domain=paypal.com; Path=/; Secure
+
+INVALID
+[2023-05-12 16:27 Australia/Brisbane] Invalid IPN: cmd=_notify-validate&mc_gross=5.00&protection_eligibility=Ineligible&payer_id=E9CADLWMH57YA&payment_date=23%3A26%3A45+May+11%2C+2023+PDT&payment_status=Completed&charset=windows-1252&first_name=Karl&mc_fee=0.43&notify_version=3.9&custom=&payer_status=unverified&business=justincroome%40scee.edu.au&quantity=1&verify_sign=Ai7QAFsEZFrzMq9uFUtZsxo9k01SAT14eYkyOPR43zj75Hv024eYY2GW&payer_email=mikaelawaqa%40acceleratechurch.com&txn_id=46B81237XR171504Y&payment_type=instant&last_name=Duxfield&receiver_email=scee.rec%40scee.edu.au&payment_fee=&shipping_discount=0.00&receiver_id=DW8GYFW9G398A&insurance_amount=0.00&txn_type=web_accept&item_name=Accelerate+Payment+for+2+student%28s%29+for+convention+%5BOnline+Student+Convention%5D+and+season+%5B2023%5D+by+school+%5BMikaela+Just+Testing%5D&discount=0.00&mc_currency=AUD&item_number=transaction-cr-2-1683872712&residence_country=AU&receipt_id=3512-6499-1546-0421&shipping_method=Default&transaction_subject=&payment_gross=&ipn_track_id=f224529cf63ee
+[2023-05-13 12:57 Australia/Brisbane] HTTP request of validation request:POST /cgi-bin/webscr HTTP/1.1
+Host: www.sandbox.paypal.com
+Accept: */*
+Connection: Close
+Content-Length: 1031
+Content-Type: application/x-www-form-urlencoded
+
+ for IPN payload: cmd=_notify-validate&mc_gross=70.00&protection_eligibility=Ineligible&payer_id=FZCWFB7CXPW86&payment_date=19%3A57%3A30+May+12%2C+2023+PDT&payment_status=Completed&charset=windows-1252&first_name=Edith&mc_fee=2.82&notify_version=3.9&custom=&payer_status=unverified&business=justincroome%40scee.edu.au&quantity=1&verify_sign=A.Uc-kraUyFHKmQHgO7fZfqdXhGkAYIT4QdsyHzEGrOmdXJJadHO7NNW&payer_email=woned707%40gmail.com&txn_id=13L46873C4028922E&payment_type=instant&last_name=Wong&receiver_email=scee.rec%40scee.edu.au&payment_fee=&shipping_discount=0.00&receiver_id=DW8GYFW9G398A&insurance_amount=0.00&txn_type=web_accept&item_name=Accelerate+Payment+for+2+student%28s%29+for+convention+%5BOnline+Student+Convention%5D+and+season+%5B2023%5D+by+school+%5BHope+Tikvah+-+Accelerate+HomeSchooling+%5D+Customer+Code%3A+%5BWong1120%5D&discount=0.00&mc_currency=AUD&item_number=transaction-cr-7-1683946529&residence_country=BN&receipt_id=2968-4095-1052-3151&shipping_method=Default&transaction_subject=&payment_gross=&ipn_track_id=07a97b817284a
+[2023-05-13 12:57 Australia/Brisbane] HTTP response of validation request: HTTP/1.1 200 OK
+Connection: close
+Content-Length: 7
+Content-Type: text/html; charset=utf-8
+Accept-Ch: Sec-CH-UA-Full
+Cache-Control: max-age=0, no-cache, no-store, must-revalidate
+Content-Security-Policy: default-src 'self' https://*.paypal.com https://*.paypalobjects.com 'unsafe-inline'; style-src 'self' https://*.paypal.com https://*.paypalobjects.com 'unsafe-inline'; script-src 'nonce-zFPtwQtf17Eqr3w1blXsyjapHUyKbMau6oCs0g29bCrCFCAD' 'self' 'unsafe-inline' https://*.paypal.com https://*.paypalobjects.com; img-src 'self' https: data:; object-src 'none'; font-src 'self' https://*.paypal.com https://*.paypalobjects.com; frame-src 'self' https://*.paypalobjects.com https://*.paypal.com https://*.qualtrics.com; connect-src 'self' 'unsafe-inline' https://*.paypal.com https://*.paypalobjects.com https://*.qualtrics.com; form-action 'self' https://*.paypal.com; base-uri 'self' https://*.paypal.com; upgrade-insecure-requests;
+Etag: W/"7-Ory3K5VGd+UTzTV4Xd/UXaIbp98"
+Origin-Trial: AlIogV3KFtnbfVCyl9Z2NprE7FD8PYCt+TQiYdE3ppeJjJ0xJKcthYwOxXpRCNopxVWdOIENMcNSvQCGAmj0fw0AAAB2eyJvcmlnaW4iOiJodHRwczovL3BheXBhbC5jb206NDQzIiwiZmVhdHVyZSI6IlNlbmRGdWxsVXNlckFnZW50QWZ0ZXJSZWR1Y3Rpb24iLCJleHBpcnkiOjE2ODQ4ODYzOTksImlzU3ViZG9tYWluIjp0cnVlfQ==
+Paypal-Debug-Id: f40711995c635
+Set-Cookie: LANG=en_US%3BUS; Max-Age=31556; Domain=.paypal.com; Path=/; Expires=Sat, 13 May 2023 11:43:37 GMT; HttpOnly; Secure
+Set-Cookie: enforce_policy=ccpa; Max-Age=31536000; Domain=.paypal.com; Path=/; Expires=Sun, 12 May 2024 02:57:41 GMT; Secure
+Set-Cookie: x-pp-s=eyJ0IjoiMTY4Mzk0NjY2MTc3NiIsImwiOiIwIiwibSI6IjAifQ; Domain=.paypal.com; Path=/; HttpOnly; Secure
+Set-Cookie: tsrce=merchantnotifnodeweb; Domain=.paypal.com; Path=/; Expires=Tue, 16 May 2023 02:57:41 GMT; HttpOnly; Secure; SameSite=None
+Set-Cookie: nsid=s%3AjBHEVVnW63RtxlP4cnS_NhyjmPO0Q2IH.EJEdvCeVfgJ2iSQHv8VxyHFsBplt2MlYVMt6D2ktcq4; Path=/; HttpOnly; Secure
+Set-Cookie: ts=vreXpYrS%3D1778641061%26vteXpYrS%3D1683948461%26vr%3D130ae7641880a60205f3e9f2ff34b9fd%26vt%3D130ae7641880a60205f3e9f2ff34b9fc%26vtyp%3Dnew; Path=/; Domain=paypal.com; Expires=Tue, 12 May 2026 02:57:41 GMT; HttpOnly; Secure
+Set-Cookie: ts_c=vr%3D130ae7641880a60205f3e9f2ff34b9fd%26vt%3D130ae7641880a60205f3e9f2ff34b9fc; Path=/; Domain=paypal.com; Expires=Tue, 12 May 2026 02:57:41 GMT; Secure
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+X-Xss-Protection: 1; mode=block
+Accept-Ranges: bytes
+Via: 1.1 varnish, 1.1 varnish
+Date: Sat, 13 May 2023 02:57:41 GMT
+Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+X-Served-By: cache-syd10176-SYD, cache-bne12520-BNE
+X-Cache: MISS, MISS
+X-Cache-Hits: 0, 0
+X-Timer: S1683946662.640198,VS0,VE226
+Vary: Accept-Encoding
+Set-Cookie: x-cdn=fastly:BNE; Domain=paypal.com; Path=/; Secure
+
+INVALID
+[2023-05-13 12:57 Australia/Brisbane] Invalid IPN: cmd=_notify-validate&mc_gross=70.00&protection_eligibility=Ineligible&payer_id=FZCWFB7CXPW86&payment_date=19%3A57%3A30+May+12%2C+2023+PDT&payment_status=Completed&charset=windows-1252&first_name=Edith&mc_fee=2.82&notify_version=3.9&custom=&payer_status=unverified&business=justincroome%40scee.edu.au&quantity=1&verify_sign=A.Uc-kraUyFHKmQHgO7fZfqdXhGkAYIT4QdsyHzEGrOmdXJJadHO7NNW&payer_email=woned707%40gmail.com&txn_id=13L46873C4028922E&payment_type=instant&last_name=Wong&receiver_email=scee.rec%40scee.edu.au&payment_fee=&shipping_discount=0.00&receiver_id=DW8GYFW9G398A&insurance_amount=0.00&txn_type=web_accept&item_name=Accelerate+Payment+for+2+student%28s%29+for+convention+%5BOnline+Student+Convention%5D+and+season+%5B2023%5D+by+school+%5BHope+Tikvah+-+Accelerate+HomeSchooling+%5D+Customer+Code%3A+%5BWong1120%5D&discount=0.00&mc_currency=AUD&item_number=transaction-cr-7-1683946529&residence_country=BN&receipt_id=2968-4095-1052-3151&shipping_method=Default&transaction_subject=&payment_gross=&ipn_track_id=07a97b817284a
+[2023-05-15 11:53 Australia/Brisbane] HTTP request of validation request:POST /cgi-bin/webscr HTTP/1.1
+Host: www.sandbox.paypal.com
+Accept: */*
+Connection: Close
+Content-Length: 1023
+Content-Type: application/x-www-form-urlencoded
+
+ for IPN payload: cmd=_notify-validate&mc_gross=-4.57&protection_eligibility=Ineligible&payer_id=E9CADLWMH57YA&payment_date=18%3A53%3A29+May+14%2C+2023+PDT&payment_status=Refunded&charset=windows-1252&first_name=Karl&mc_fee=0.00&notify_version=3.9&reason_code=refund&custom=&business=justincroome%40scee.edu.au&verify_sign=ATDcb8D5im6Nr8Wd7jmXHQ7WkG15AbVjB6LW-jz7eK45WntXS2dLrPdr&payer_email=mikaelawaqa%40acceleratechurch.com&parent_txn_id=46B81237XR171504Y&txn_id=0SJ32397ND6248634&payment_type=instant&last_name=Duxfield&receiver_email=scee.rec%40scee.edu.au&payment_fee=&shipping_discount=0.00&receiver_id=DW8GYFW9G398A&insurance_amount=0.00&item_name=Accelerate+Payment+for+2+student%28s%29+for+convention+%5BOnline+Student+Convention%5D+and+season+%5B2023%5D+by+school+%5BMikaela+Just+Testin&discount=0.00&mc_currency=AUD&item_number=transaction-cr-2-1683872712&residence_country=AU&receipt_id=3512-6499-1546-0421&handling_amount=0.00&shipping_method=Default&transaction_subject=&payment_gross=&shipping=0.00&ipn_track_id=f1118298a71ea
+[2023-05-15 11:53 Australia/Brisbane] HTTP response of validation request: HTTP/1.1 200 OK
+Connection: close
+Content-Length: 7
+Content-Type: text/html; charset=utf-8
+Accept-Ch: Sec-CH-UA-Full
+Cache-Control: max-age=0, no-cache, no-store, must-revalidate
+Content-Security-Policy: default-src 'self' https://*.paypal.com https://*.paypalobjects.com 'unsafe-inline'; style-src 'self' https://*.paypal.com https://*.paypalobjects.com 'unsafe-inline'; script-src 'nonce-eVG0mecACdkt3aF1Hv3oqekzc84qJUcIKGsxlJlR55t90fZN' 'self' 'unsafe-inline' https://*.paypal.com https://*.paypalobjects.com; img-src 'self' https: data:; object-src 'none'; font-src 'self' https://*.paypal.com https://*.paypalobjects.com; frame-src 'self' https://*.paypalobjects.com https://*.paypal.com https://*.qualtrics.com; connect-src 'self' 'unsafe-inline' https://*.paypal.com https://*.paypalobjects.com https://*.qualtrics.com; form-action 'self' https://*.paypal.com; base-uri 'self' https://*.paypal.com; upgrade-insecure-requests;
+Etag: W/"7-Ory3K5VGd+UTzTV4Xd/UXaIbp98"
+Origin-Trial: AlIogV3KFtnbfVCyl9Z2NprE7FD8PYCt+TQiYdE3ppeJjJ0xJKcthYwOxXpRCNopxVWdOIENMcNSvQCGAmj0fw0AAAB2eyJvcmlnaW4iOiJodHRwczovL3BheXBhbC5jb206NDQzIiwiZmVhdHVyZSI6IlNlbmRGdWxsVXNlckFnZW50QWZ0ZXJSZWR1Y3Rpb24iLCJleHBpcnkiOjE2ODQ4ODYzOTksImlzU3ViZG9tYWluIjp0cnVlfQ==
+Paypal-Debug-Id: f86847658397a
+Set-Cookie: LANG=en_US%3BUS; Max-Age=31556; Domain=.paypal.com; Path=/; Expires=Mon, 15 May 2023 10:39:37 GMT; HttpOnly; Secure
+Set-Cookie: enforce_policy=ccpa; Max-Age=31536000; Domain=.paypal.com; Path=/; Expires=Tue, 14 May 2024 01:53:41 GMT; Secure
+Set-Cookie: x-pp-s=eyJ0IjoiMTY4NDExNTYyMTIyMCIsImwiOiIwIiwibSI6IjAifQ; Domain=.paypal.com; Path=/; HttpOnly; Secure
+Set-Cookie: tsrce=merchantnotifnodeweb; Domain=.paypal.com; Path=/; Expires=Thu, 18 May 2023 01:53:41 GMT; HttpOnly; Secure; SameSite=None
+Set-Cookie: nsid=s%3AvMhKkjHdihcMXzvA9aObfQ4-IA3WvXL2.psRnN%2FFkAbyG7Yksdv61djLBu5m7jQ3%2FBCVXWlwjQME; Path=/; HttpOnly; Secure
+Set-Cookie: ts=vreXpYrS%3D1778810021%26vteXpYrS%3D1684117421%26vr%3D1d1d05391880a6022c46769afe129a72%26vt%3D1d1d05391880a6022c46769afe129a71%26vtyp%3Dnew; Path=/; Domain=paypal.com; Expires=Thu, 14 May 2026 01:53:41 GMT; HttpOnly; Secure
+Set-Cookie: ts_c=vr%3D1d1d05391880a6022c46769afe129a72%26vt%3D1d1d05391880a6022c46769afe129a71; Path=/; Domain=paypal.com; Expires=Thu, 14 May 2026 01:53:41 GMT; Secure
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+X-Xss-Protection: 1; mode=block
+Accept-Ranges: bytes
+Via: 1.1 varnish, 1.1 varnish
+Date: Mon, 15 May 2023 01:53:41 GMT
+Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+X-Served-By: cache-syd10164-SYD, cache-bne12528-BNE
+X-Cache: MISS, MISS
+X-Cache-Hits: 0, 0
+X-Timer: S1684115621.089307,VS0,VE222
+Vary: Accept-Encoding
+Set-Cookie: x-cdn=fastly:BNE; Domain=paypal.com; Path=/; Secure
+
+INVALID
+[2023-05-15 11:53 Australia/Brisbane] Invalid IPN: cmd=_notify-validate&mc_gross=-4.57&protection_eligibility=Ineligible&payer_id=E9CADLWMH57YA&payment_date=18%3A53%3A29+May+14%2C+2023+PDT&payment_status=Refunded&charset=windows-1252&first_name=Karl&mc_fee=0.00&notify_version=3.9&reason_code=refund&custom=&business=justincroome%40scee.edu.au&verify_sign=ATDcb8D5im6Nr8Wd7jmXHQ7WkG15AbVjB6LW-jz7eK45WntXS2dLrPdr&payer_email=mikaelawaqa%40acceleratechurch.com&parent_txn_id=46B81237XR171504Y&txn_id=0SJ32397ND6248634&payment_type=instant&last_name=Duxfield&receiver_email=scee.rec%40scee.edu.au&payment_fee=&shipping_discount=0.00&receiver_id=DW8GYFW9G398A&insurance_amount=0.00&item_name=Accelerate+Payment+for+2+student%28s%29+for+convention+%5BOnline+Student+Convention%5D+and+season+%5B2023%5D+by+school+%5BMikaela+Just+Testin&discount=0.00&mc_currency=AUD&item_number=transaction-cr-2-1683872712&residence_country=AU&receipt_id=3512-6499-1546-0421&handling_amount=0.00&shipping_method=Default&transaction_subject=&payment_gross=&shipping=0.00&ipn_track_id=f1118298a71ea
+[2023-05-23 14:09 Australia/Brisbane] HTTP request of validation request:POST /cgi-bin/webscr HTTP/1.1
+Host: www.sandbox.paypal.com
+Accept: */*
+Connection: Close
+Content-Length: 1033
+Content-Type: application/x-www-form-urlencoded
+
+ for IPN payload: cmd=_notify-validate&mc_gross=70.00&protection_eligibility=Ineligible&payer_id=YPPFTDCR8QM6U&payment_date=21%3A09%3A07+May+22%2C+2023+PDT&payment_status=Completed&charset=windows-1252&first_name=Fiona&mc_fee=2.12&notify_version=3.9&custom=&payer_status=unverified&business=justincroome%40scee.edu.au&quantity=1&verify_sign=AbeWSu3FHaXyvgBDdFhDuEeAqSBsATN9JerHr6LJ6.fy5fFTzcqF0AEP&payer_email=fiona.a.coles%40gmail.com&txn_id=16T04619F47495840&payment_type=instant&last_name=Coles&receiver_email=scee.rec%40scee.edu.au&payment_fee=&shipping_discount=0.00&receiver_id=DW8GYFW9G398A&insurance_amount=0.00&txn_type=web_accept&item_name=Accelerate+Payment+for+2+student%28s%29+for+convention+%5BOnline+Student+Convention%5D+and+season+%5B2023%5D+by+school+%5BAccelerate+Christian+Home+Schooling%5D+Customer+Code%3A+%5BCOLE901%5D&discount=0.00&mc_currency=AUD&item_number=transaction-cr-12-1684814403&residence_country=AU&receipt_id=1132-2444-7256-9451&shipping_method=Default&transaction_subject=&payment_gross=&ipn_track_id=0614448527307
+[2023-05-23 14:09 Australia/Brisbane] HTTP response of validation request: HTTP/1.1 200 OK
+Connection: close
+Content-Length: 7
+Content-Type: text/html; charset=utf-8
+Accept-Ch: sec-ch-ua-full, sec-ch-ua-arch, sec-ch-ua-model, sec-ch-ua-platform-version, sec-ch-ua-full-version, sec-ch-ua-full-version-list, sec-ch-ua-bitness, sec-ch-ua-wow64
+Cache-Control: max-age=0, no-cache, no-store, must-revalidate
+Content-Security-Policy: default-src 'self' https://*.paypal.com https://*.paypalobjects.com 'unsafe-inline'; style-src 'self' https://*.paypal.com https://*.paypalobjects.com 'unsafe-inline'; script-src 'nonce-rp4M6bHoGOCpQPWZZcNEvb5HFCyMrQmMEBOEmW7GVQac9Q4s' 'self' 'unsafe-inline' https://*.paypal.com https://*.paypalobjects.com; img-src 'self' https: data:; object-src 'none'; font-src 'self' https://*.paypal.com https://*.paypalobjects.com; frame-src 'self' https://*.paypalobjects.com https://*.paypal.com https://*.qualtrics.com; connect-src 'self' 'unsafe-inline' https://*.paypal.com https://*.paypalobjects.com https://*.qualtrics.com; form-action 'self' https://*.paypal.com; base-uri 'self' https://*.paypal.com; upgrade-insecure-requests;
+Etag: W/"7-Ory3K5VGd+UTzTV4Xd/UXaIbp98"
+Origin-Trial: AlIogV3KFtnbfVCyl9Z2NprE7FD8PYCt+TQiYdE3ppeJjJ0xJKcthYwOxXpRCNopxVWdOIENMcNSvQCGAmj0fw0AAAB2eyJvcmlnaW4iOiJodHRwczovL3BheXBhbC5jb206NDQzIiwiZmVhdHVyZSI6IlNlbmRGdWxsVXNlckFnZW50QWZ0ZXJSZWR1Y3Rpb24iLCJleHBpcnkiOjE2ODQ4ODYzOTksImlzU3ViZG9tYWluIjp0cnVlfQ==
+Paypal-Debug-Id: f886693d35b8c
+Permissions-Policy: ch-ua-platform-version=(self "https://c.paypal.com"),ch-ua-arch=(self "https://c.paypal.com"),ch-ua-wow64=(self "https://c.paypal.com"),ch-ua-model=(self "https://c.paypal.com"),ch-ua-bitness=(self "https://c.paypal.com"),ch-ua-full-version=(self "https://c.paypal.com"),ch-ua-full-version-list=(self "https://c.paypal.com")
+Set-Cookie: LANG=en_US%3BUS; Max-Age=31556; Domain=.paypal.com; Path=/; Expires=Tue, 23 May 2023 12:55:14 GMT; HttpOnly; Secure
+Set-Cookie: enforce_policy=ccpa; Max-Age=31536000; Domain=.paypal.com; Path=/; Expires=Wed, 22 May 2024 04:09:18 GMT; Secure
+Set-Cookie: x-pp-s=eyJ0IjoiMTY4NDgxNDk1ODg2MCIsImwiOiIwIiwibSI6IjAifQ; Domain=.paypal.com; Path=/; HttpOnly; Secure
+Set-Cookie: tsrce=merchantnotifnodeweb; Domain=.paypal.com; Path=/; Expires=Fri, 26 May 2023 04:09:18 GMT; HttpOnly; Secure; SameSite=None
+Set-Cookie: nsid=s%3AcW0F8rOt7CS891C48__Fd-CCZlgCnNpY.uGkUoQ7u2h6ZhJrOjQO4655dO%2FsjXe4QHYOERev7MxM; Path=/; HttpOnly; Secure
+Set-Cookie: ts=vreXpYrS%3D1779509358%26vteXpYrS%3D1684816758%26vr%3D46cc10eb1880a60205f31686fd326ba8%26vt%3D46cc10eb1880a60205f31686fd326ba7%26vtyp%3Dnew; Path=/; Domain=paypal.com; Expires=Fri, 22 May 2026 04:09:18 GMT; HttpOnly; Secure
+Set-Cookie: ts_c=vr%3D46cc10eb1880a60205f31686fd326ba8%26vt%3D46cc10eb1880a60205f31686fd326ba7; Path=/; Domain=paypal.com; Expires=Fri, 22 May 2026 04:09:18 GMT; Secure
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+X-Xss-Protection: 1; mode=block
+Accept-Ranges: bytes
+Via: 1.1 varnish, 1.1 varnish
+Date: Tue, 23 May 2023 04:09:18 GMT
+Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+X-Served-By: cache-syd10162-SYD, cache-bne12522-BNE
+X-Cache: MISS, MISS
+X-Cache-Hits: 0, 0
+X-Timer: S1684814959.740525,VS0,VE210
+Vary: Accept-Encoding
+Set-Cookie: x-cdn=fastly:BNE; Domain=paypal.com; Path=/; Secure
+
+INVALID
+[2023-05-23 14:09 Australia/Brisbane] Invalid IPN: cmd=_notify-validate&mc_gross=70.00&protection_eligibility=Ineligible&payer_id=YPPFTDCR8QM6U&payment_date=21%3A09%3A07+May+22%2C+2023+PDT&payment_status=Completed&charset=windows-1252&first_name=Fiona&mc_fee=2.12&notify_version=3.9&custom=&payer_status=unverified&business=justincroome%40scee.edu.au&quantity=1&verify_sign=AbeWSu3FHaXyvgBDdFhDuEeAqSBsATN9JerHr6LJ6.fy5fFTzcqF0AEP&payer_email=fiona.a.coles%40gmail.com&txn_id=16T04619F47495840&payment_type=instant&last_name=Coles&receiver_email=scee.rec%40scee.edu.au&payment_fee=&shipping_discount=0.00&receiver_id=DW8GYFW9G398A&insurance_amount=0.00&txn_type=web_accept&item_name=Accelerate+Payment+for+2+student%28s%29+for+convention+%5BOnline+Student+Convention%5D+and+season+%5B2023%5D+by+school+%5BAccelerate+Christian+Home+Schooling%5D+Customer+Code%3A+%5BCOLE901%5D&discount=0.00&mc_currency=AUD&item_number=transaction-cr-12-1684814403&residence_country=AU&receipt_id=1132-2444-7256-9451&shipping_method=Default&transaction_subject=&payment_gross=&ipn_track_id=0614448527307
+[2023-05-23 17:40 Australia/Brisbane] HTTP request of validation request:POST /cgi-bin/webscr HTTP/1.1
+Host: www.sandbox.paypal.com
+Accept: */*
+Connection: Close
+Content-Length: 1015
+Content-Type: application/x-www-form-urlencoded
+
+ for IPN payload: cmd=_notify-validate&mc_gross=770.00&protection_eligibility=Ineligible&payer_id=QY4QM6PLEVEL6&payment_date=00%3A40%3A30+May+23%2C+2023+PDT&payment_status=Completed&charset=windows-1252&first_name=Nany&mc_fee=28.02&notify_version=3.9&custom=&payer_status=unverified&business=justincroome%40scee.edu.au&quantity=1&verify_sign=AOFM0UioguvD4FiDVYN6oqhgd-bFAe74f-8KQcRg2DHWFyuT09fdP6-T&payer_email=nanywidjaja88%40gmail.com&txn_id=3D705766CA917392D&payment_type=instant&last_name=Widjaja&receiver_email=scee.rec%40scee.edu.au&payment_fee=&shipping_discount=0.00&receiver_id=DW8GYFW9G398A&insurance_amount=0.00&txn_type=web_accept&item_name=Accelerate+Payment+for+22+student%28s%29+for+convention+%5BOnline+Student+Convention%5D+and+season+%5B2023%5D+by+school+%5BVictory+Academy%5D+Customer+Code%3A+%5BVICT01%5D&discount=0.00&mc_currency=AUD&item_number=transaction-cr-8-1684826816&residence_country=ID&receipt_id=5181-1884-2128-3238&shipping_method=Default&transaction_subject=&payment_gross=&ipn_track_id=f5351626d3964
+[2023-05-23 17:40 Australia/Brisbane] HTTP response of validation request: HTTP/1.1 200 OK
+Connection: close
+Content-Length: 7
+Content-Type: text/html; charset=utf-8
+Accept-Ch: sec-ch-ua-full, sec-ch-ua-arch, sec-ch-ua-model, sec-ch-ua-platform-version, sec-ch-ua-full-version, sec-ch-ua-full-version-list, sec-ch-ua-bitness, sec-ch-ua-wow64
+Cache-Control: max-age=0, no-cache, no-store, must-revalidate
+Content-Security-Policy: default-src 'self' https://*.paypal.com https://*.paypalobjects.com 'unsafe-inline'; style-src 'self' https://*.paypal.com https://*.paypalobjects.com 'unsafe-inline'; script-src 'nonce-bImPizlulyNDnIzA9g7L1yZ6VEibsype+qVLSOSGDZsCw3fG' 'self' 'unsafe-inline' https://*.paypal.com https://*.paypalobjects.com; img-src 'self' https: data:; object-src 'none'; font-src 'self' https://*.paypal.com https://*.paypalobjects.com; frame-src 'self' https://*.paypalobjects.com https://*.paypal.com https://*.qualtrics.com; connect-src 'self' 'unsafe-inline' https://*.paypal.com https://*.paypalobjects.com https://*.qualtrics.com; form-action 'self' https://*.paypal.com; base-uri 'self' https://*.paypal.com; upgrade-insecure-requests;
+Etag: W/"7-Ory3K5VGd+UTzTV4Xd/UXaIbp98"
+Origin-Trial: AlIogV3KFtnbfVCyl9Z2NprE7FD8PYCt+TQiYdE3ppeJjJ0xJKcthYwOxXpRCNopxVWdOIENMcNSvQCGAmj0fw0AAAB2eyJvcmlnaW4iOiJodHRwczovL3BheXBhbC5jb206NDQzIiwiZmVhdHVyZSI6IlNlbmRGdWxsVXNlckFnZW50QWZ0ZXJSZWR1Y3Rpb24iLCJleHBpcnkiOjE2ODQ4ODYzOTksImlzU3ViZG9tYWluIjp0cnVlfQ==
+Paypal-Debug-Id: f277814dc7fa0
+Permissions-Policy: ch-ua-platform-version=(self "https://c.paypal.com"),ch-ua-arch=(self "https://c.paypal.com"),ch-ua-wow64=(self "https://c.paypal.com"),ch-ua-model=(self "https://c.paypal.com"),ch-ua-bitness=(self "https://c.paypal.com"),ch-ua-full-version=(self "https://c.paypal.com"),ch-ua-full-version-list=(self "https://c.paypal.com")
+Set-Cookie: LANG=en_US%3BUS; Max-Age=31556; Domain=.paypal.com; Path=/; Expires=Tue, 23 May 2023 16:26:38 GMT; HttpOnly; Secure
+Set-Cookie: enforce_policy=ccpa; Max-Age=31536000; Domain=.paypal.com; Path=/; Expires=Wed, 22 May 2024 07:40:42 GMT; Secure
+Set-Cookie: x-pp-s=eyJ0IjoiMTY4NDgyNzY0MjA5MSIsImwiOiIwIiwibSI6IjAifQ; Domain=.paypal.com; Path=/; HttpOnly; Secure
+Set-Cookie: tsrce=merchantnotifnodeweb; Domain=.paypal.com; Path=/; Expires=Fri, 26 May 2023 07:40:42 GMT; HttpOnly; Secure; SameSite=None
+Set-Cookie: nsid=s%3AhuoZooxZmvRolu8mAUd3iGI9Tr8TNmwE.vofFih8h4zQarhrz02J47Jk4DWyN2XrwEFGG%2FQR%2BibQ; Path=/; HttpOnly; Secure
+Set-Cookie: ts=vreXpYrS%3D1779522042%26vteXpYrS%3D1684829442%26vr%3D478d98cd1880a60205f31686fd203770%26vt%3D478d98cd1880a60205f31686fd20376f%26vtyp%3Dnew; Path=/; Domain=paypal.com; Expires=Fri, 22 May 2026 07:40:42 GMT; HttpOnly; Secure
+Set-Cookie: ts_c=vr%3D478d98cd1880a60205f31686fd203770%26vt%3D478d98cd1880a60205f31686fd20376f; Path=/; Domain=paypal.com; Expires=Fri, 22 May 2026 07:40:42 GMT; Secure
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+X-Xss-Protection: 1; mode=block
+Accept-Ranges: bytes
+Via: 1.1 varnish, 1.1 varnish
+Date: Tue, 23 May 2023 07:40:42 GMT
+Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+X-Served-By: cache-syd10128-SYD, cache-bne12528-BNE
+X-Cache: MISS, MISS
+X-Cache-Hits: 0, 0
+X-Timer: S1684827642.974103,VS0,VE210
+Vary: Accept-Encoding
+Set-Cookie: x-cdn=fastly:BNE; Domain=paypal.com; Path=/; Secure
+
+INVALID
+[2023-05-23 17:40 Australia/Brisbane] Invalid IPN: cmd=_notify-validate&mc_gross=770.00&protection_eligibility=Ineligible&payer_id=QY4QM6PLEVEL6&payment_date=00%3A40%3A30+May+23%2C+2023+PDT&payment_status=Completed&charset=windows-1252&first_name=Nany&mc_fee=28.02&notify_version=3.9&custom=&payer_status=unverified&business=justincroome%40scee.edu.au&quantity=1&verify_sign=AOFM0UioguvD4FiDVYN6oqhgd-bFAe74f-8KQcRg2DHWFyuT09fdP6-T&payer_email=nanywidjaja88%40gmail.com&txn_id=3D705766CA917392D&payment_type=instant&last_name=Widjaja&receiver_email=scee.rec%40scee.edu.au&payment_fee=&shipping_discount=0.00&receiver_id=DW8GYFW9G398A&insurance_amount=0.00&txn_type=web_accept&item_name=Accelerate+Payment+for+22+student%28s%29+for+convention+%5BOnline+Student+Convention%5D+and+season+%5B2023%5D+by+school+%5BVictory+Academy%5D+Customer+Code%3A+%5BVICT01%5D&discount=0.00&mc_currency=AUD&item_number=transaction-cr-8-1684826816&residence_country=ID&receipt_id=5181-1884-2128-3238&shipping_method=Default&transaction_subject=&payment_gross=&ipn_track_id=f5351626d3964
+[2023-05-24 16:28 Australia/Brisbane] HTTP request of validation request:POST /cgi-bin/webscr HTTP/1.1
+Host: www.sandbox.paypal.com
+Accept: */*
+Connection: Close
+Content-Length: 1010
+Content-Type: application/x-www-form-urlencoded
+
+ for IPN payload: cmd=_notify-validate&mc_gross=35.00&protection_eligibility=Eligible&payer_id=TQ549JF8NKR4L&payment_date=23%3A27%3A53+May+23%2C+2023+PDT&payment_status=Completed&charset=windows-1252&first_name=Ferdinand&mc_fee=1.56&notify_version=3.9&custom=&payer_status=unverified&business=justincroome%40scee.edu.au&quantity=1&verify_sign=AJypXhTJkIMb8reYnc8Uyewelc.yA6eWblnYh4IUvMjNbv6j0sxIQKTf&payer_email=ferdinand.lisaldy%40gmail.com&txn_id=2NH702541K8990419&payment_type=instant&last_name=Lisaldy&receiver_email=scee.rec%40scee.edu.au&payment_fee=&shipping_discount=0.00&receiver_id=DW8GYFW9G398A&insurance_amount=0.00&txn_type=web_accept&item_name=Accelerate+Payment+for+1+student%28s%29+for+convention+%5BOnline+Student+Convention%5D+and+season+%5B2023%5D+by+school+%5BAccelerate+Christian+Homeschooling%5D+Customer+Code%3A+%5BBUDI0922%5D&discount=0.00&mc_currency=AUD&item_number=transaction-cr-30-1684909638&residence_country=ID&shipping_method=Default&transaction_subject=&payment_gross=&ipn_track_id=f627219fbf3b4
+[2023-05-24 16:28 Australia/Brisbane] HTTP response of validation request: HTTP/1.1 200 OK
+Connection: close
+Content-Length: 7
+Content-Type: text/html; charset=utf-8
+Accept-Ch: sec-ch-ua-full, sec-ch-ua-arch, sec-ch-ua-model, sec-ch-ua-platform-version, sec-ch-ua-full-version, sec-ch-ua-full-version-list, sec-ch-ua-bitness, sec-ch-ua-wow64
+Cache-Control: max-age=0, no-cache, no-store, must-revalidate
+Content-Security-Policy: default-src 'self' https://*.paypal.com https://*.paypalobjects.com 'unsafe-inline'; style-src 'self' https://*.paypal.com https://*.paypalobjects.com 'unsafe-inline'; script-src 'nonce-eEOtmmeKzMb1wgs4t8y441HPO8G65qhPaZGYf0TFK1ankWDE' 'self' 'unsafe-inline' https://*.paypal.com https://*.paypalobjects.com; img-src 'self' https: data:; object-src 'none'; font-src 'self' https://*.paypal.com https://*.paypalobjects.com; frame-src 'self' https://*.paypalobjects.com https://*.paypal.com https://*.qualtrics.com; connect-src 'self' 'unsafe-inline' https://*.paypal.com https://*.paypalobjects.com https://*.qualtrics.com; form-action 'self' https://*.paypal.com; base-uri 'self' https://*.paypal.com; upgrade-insecure-requests;
+Etag: W/"7-Ory3K5VGd+UTzTV4Xd/UXaIbp98"
+Origin-Trial: AlIogV3KFtnbfVCyl9Z2NprE7FD8PYCt+TQiYdE3ppeJjJ0xJKcthYwOxXpRCNopxVWdOIENMcNSvQCGAmj0fw0AAAB2eyJvcmlnaW4iOiJodHRwczovL3BheXBhbC5jb206NDQzIiwiZmVhdHVyZSI6IlNlbmRGdWxsVXNlckFnZW50QWZ0ZXJSZWR1Y3Rpb24iLCJleHBpcnkiOjE2ODQ4ODYzOTksImlzU3ViZG9tYWluIjp0cnVlfQ==
+Paypal-Debug-Id: f6148875e6b2e
+Permissions-Policy: ch-ua-platform-version=(self "https://c.paypal.com"),ch-ua-arch=(self "https://c.paypal.com"),ch-ua-wow64=(self "https://c.paypal.com"),ch-ua-model=(self "https://c.paypal.com"),ch-ua-bitness=(self "https://c.paypal.com"),ch-ua-full-version=(self "https://c.paypal.com"),ch-ua-full-version-list=(self "https://c.paypal.com")
+Set-Cookie: LANG=en_US%3BUS; Max-Age=31556; Domain=.paypal.com; Path=/; Expires=Wed, 24 May 2023 15:14:01 GMT; HttpOnly; Secure
+Set-Cookie: enforce_policy=ccpa; Max-Age=31536000; Domain=.paypal.com; Path=/; Expires=Thu, 23 May 2024 06:28:05 GMT; Secure
+Set-Cookie: x-pp-s=eyJ0IjoiMTY4NDkwOTY4NTUzMSIsImwiOiIwIiwibSI6IjAifQ; Domain=.paypal.com; Path=/; HttpOnly; Secure
+Set-Cookie: tsrce=merchantnotifnodeweb; Domain=.paypal.com; Path=/; Expires=Sat, 27 May 2023 06:28:05 GMT; HttpOnly; Secure; SameSite=None
+Set-Cookie: nsid=s%3AJslEaS4SWniGLRYrPmlrKUGj7V16JYwa.puhCH4IBEH9yKhq%2Ftb%2FzwRGOBWvzPKGWgGZLf4t%2F988; Path=/; HttpOnly; Secure
+Set-Cookie: ts=vreXpYrS%3D1779604085%26vteXpYrS%3D1684911485%26vr%3D4c717af51880a602060e52f6fc8bc0cb%26vt%3D4c717af51880a602060e52f6fc8bc0ca%26vtyp%3Dnew; Path=/; Domain=paypal.com; Expires=Sat, 23 May 2026 06:28:05 GMT; HttpOnly; Secure
+Set-Cookie: ts_c=vr%3D4c717af51880a602060e52f6fc8bc0cb%26vt%3D4c717af51880a602060e52f6fc8bc0ca; Path=/; Domain=paypal.com; Expires=Sat, 23 May 2026 06:28:05 GMT; Secure
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+X-Xss-Protection: 1; mode=block
+Accept-Ranges: bytes
+Via: 1.1 varnish, 1.1 varnish
+Date: Wed, 24 May 2023 06:28:05 GMT
+Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+X-Served-By: cache-syd10123-SYD, cache-bne12521-BNE
+X-Cache: MISS, MISS
+X-Cache-Hits: 0, 0
+X-Timer: S1684909685.393481,VS0,VE228
+Vary: Accept-Encoding
+Set-Cookie: x-cdn=fastly:BNE; Domain=paypal.com; Path=/; Secure
+
+INVALID
+[2023-05-24 16:28 Australia/Brisbane] Invalid IPN: cmd=_notify-validate&mc_gross=35.00&protection_eligibility=Eligible&payer_id=TQ549JF8NKR4L&payment_date=23%3A27%3A53+May+23%2C+2023+PDT&payment_status=Completed&charset=windows-1252&first_name=Ferdinand&mc_fee=1.56&notify_version=3.9&custom=&payer_status=unverified&business=justincroome%40scee.edu.au&quantity=1&verify_sign=AJypXhTJkIMb8reYnc8Uyewelc.yA6eWblnYh4IUvMjNbv6j0sxIQKTf&payer_email=ferdinand.lisaldy%40gmail.com&txn_id=2NH702541K8990419&payment_type=instant&last_name=Lisaldy&receiver_email=scee.rec%40scee.edu.au&payment_fee=&shipping_discount=0.00&receiver_id=DW8GYFW9G398A&insurance_amount=0.00&txn_type=web_accept&item_name=Accelerate+Payment+for+1+student%28s%29+for+convention+%5BOnline+Student+Convention%5D+and+season+%5B2023%5D+by+school+%5BAccelerate+Christian+Homeschooling%5D+Customer+Code%3A+%5BBUDI0922%5D&discount=0.00&mc_currency=AUD&item_number=transaction-cr-30-1684909638&residence_country=ID&shipping_method=Default&transaction_subject=&payment_gross=&ipn_track_id=f627219fbf3b4
+[2023-05-26 10:00 Australia/Brisbane] HTTP request of validation request:POST /cgi-bin/webscr HTTP/1.1
+Host: www.sandbox.paypal.com
+Accept: */*
+Connection: Close
+Content-Length: 1034
+Content-Type: application/x-www-form-urlencoded
+
+ for IPN payload: cmd=_notify-validate&mc_gross=285.00&protection_eligibility=Ineligible&payer_id=35HXLSUQAYAH8&payment_date=16%3A59%3A58+May+25%2C+2023+PDT&payment_status=Completed&charset=windows-1252&first_name=Paula&mc_fee=10.56&notify_version=3.9&custom=&payer_status=unverified&business=justincroome%40scee.edu.au&quantity=1&verify_sign=Aq3ttEatJvcSh5vXy4OZ7UklOq80AYNTIEiA2IkZ-aJgJAjDisBktZ6B&payer_email=cokanasigapaula%40gmail.com&txn_id=4B893662131501326&payment_type=instant&last_name=Cokanasiga&receiver_email=scee.rec%40scee.edu.au&payment_fee=&shipping_discount=0.00&receiver_id=DW8GYFW9G398A&insurance_amount=0.00&txn_type=web_accept&item_name=Accelerate+Payment+for+19+student%28s%29+for+convention+%5BOnline+Student+Convention%5D+and+season+%5B2023%5D+by+school+%5BDAYSPRING+CHRISTIAN+COLLEGE%5D+Customer+Code%3A+%5BDAYS01%5D&discount=0.00&mc_currency=AUD&item_number=transaction-cr-26-1685058942&residence_country=FJ&receipt_id=4678-0999-9884-1469&shipping_method=Default&transaction_subject=&payment_gross=&ipn_track_id=f6379282103c2
+[2023-05-26 10:00 Australia/Brisbane] HTTP response of validation request: HTTP/1.1 200 OK
+Connection: close
+Content-Length: 7
+Content-Type: text/html; charset=utf-8
+Accept-Ch: sec-ch-ua-full, sec-ch-ua-arch, sec-ch-ua-model, sec-ch-ua-platform-version, sec-ch-ua-full-version, sec-ch-ua-full-version-list, sec-ch-ua-bitness, sec-ch-ua-wow64
+Cache-Control: max-age=0, no-cache, no-store, must-revalidate
+Content-Security-Policy: default-src 'self' https://*.paypal.com https://*.paypalobjects.com 'unsafe-inline'; style-src 'self' https://*.paypal.com https://*.paypalobjects.com 'unsafe-inline'; script-src 'nonce-W5C0uFuVo7OwSgfNzEIbhHoUBXE3EOQYp8RRXDtpXNL5MaD7' 'self' 'unsafe-inline' https://*.paypal.com https://*.paypalobjects.com; img-src 'self' https: data:; object-src 'none'; font-src 'self' https://*.paypal.com https://*.paypalobjects.com; frame-src 'self' https://*.paypalobjects.com https://*.paypal.com https://*.qualtrics.com; connect-src 'self' 'unsafe-inline' https://*.paypal.com https://*.paypalobjects.com https://*.qualtrics.com; form-action 'self' https://*.paypal.com; base-uri 'self' https://*.paypal.com; upgrade-insecure-requests;
+Etag: W/"7-Ory3K5VGd+UTzTV4Xd/UXaIbp98"
+Origin-Trial: AlIogV3KFtnbfVCyl9Z2NprE7FD8PYCt+TQiYdE3ppeJjJ0xJKcthYwOxXpRCNopxVWdOIENMcNSvQCGAmj0fw0AAAB2eyJvcmlnaW4iOiJodHRwczovL3BheXBhbC5jb206NDQzIiwiZmVhdHVyZSI6IlNlbmRGdWxsVXNlckFnZW50QWZ0ZXJSZWR1Y3Rpb24iLCJleHBpcnkiOjE2ODQ4ODYzOTksImlzU3ViZG9tYWluIjp0cnVlfQ==
+Paypal-Debug-Id: f3034295fb0c2
+Permissions-Policy: ch-ua-platform-version=(self "https://c.paypal.com"),ch-ua-arch=(self "https://c.paypal.com"),ch-ua-wow64=(self "https://c.paypal.com"),ch-ua-model=(self "https://c.paypal.com"),ch-ua-bitness=(self "https://c.paypal.com"),ch-ua-full-version=(self "https://c.paypal.com"),ch-ua-full-version-list=(self "https://c.paypal.com")
+Set-Cookie: LANG=en_US%3BUS; Max-Age=31556; Domain=.paypal.com; Path=/; Expires=Fri, 26 May 2023 08:46:07 GMT; HttpOnly; Secure
+Set-Cookie: enforce_policy=ccpa; Max-Age=31536000; Domain=.paypal.com; Path=/; Expires=Sat, 25 May 2024 00:00:11 GMT; Secure
+Set-Cookie: x-pp-s=eyJ0IjoiMTY4NTA1OTIxMTc4NiIsImwiOiIwIiwibSI6IjAifQ; Domain=.paypal.com; Path=/; HttpOnly; Secure
+Set-Cookie: tsrce=merchantnotifnodeweb; Domain=.paypal.com; Path=/; Expires=Mon, 29 May 2023 00:00:11 GMT; HttpOnly; Secure; SameSite=None
+Set-Cookie: nsid=s%3AvXv70yTlqRJ6tb-H79bxvajMmGvU4Bwi.4zZ6qEyQhN6MjPon3c0bLhBh%2ByrEE8m4JvTVJ7zRxDg; Path=/; HttpOnly; Secure
+Set-Cookie: ts=vreXpYrS%3D1779753611%26vteXpYrS%3D1685061011%26vr%3D555b11f01880a6022c8cd965fffd4673%26vt%3D555b11f01880a6022c8cd965fffd4672%26vtyp%3Dnew; Path=/; Domain=paypal.com; Expires=Mon, 25 May 2026 00:00:11 GMT; HttpOnly; Secure
+Set-Cookie: ts_c=vr%3D555b11f01880a6022c8cd965fffd4673%26vt%3D555b11f01880a6022c8cd965fffd4672; Path=/; Domain=paypal.com; Expires=Mon, 25 May 2026 00:00:11 GMT; Secure
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+X-Xss-Protection: 1; mode=block
+Accept-Ranges: bytes
+Via: 1.1 varnish, 1.1 varnish
+Date: Fri, 26 May 2023 00:00:11 GMT
+Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+X-Served-By: cache-syd10141-SYD, cache-bne12520-BNE
+X-Cache: MISS, MISS
+X-Cache-Hits: 0, 0
+X-Timer: S1685059212.676131,VS0,VE202
+Vary: Accept-Encoding
+Set-Cookie: x-cdn=fastly:BNE; Domain=paypal.com; Path=/; Secure
+
+INVALID
+[2023-05-26 10:00 Australia/Brisbane] Invalid IPN: cmd=_notify-validate&mc_gross=285.00&protection_eligibility=Ineligible&payer_id=35HXLSUQAYAH8&payment_date=16%3A59%3A58+May+25%2C+2023+PDT&payment_status=Completed&charset=windows-1252&first_name=Paula&mc_fee=10.56&notify_version=3.9&custom=&payer_status=unverified&business=justincroome%40scee.edu.au&quantity=1&verify_sign=Aq3ttEatJvcSh5vXy4OZ7UklOq80AYNTIEiA2IkZ-aJgJAjDisBktZ6B&payer_email=cokanasigapaula%40gmail.com&txn_id=4B893662131501326&payment_type=instant&last_name=Cokanasiga&receiver_email=scee.rec%40scee.edu.au&payment_fee=&shipping_discount=0.00&receiver_id=DW8GYFW9G398A&insurance_amount=0.00&txn_type=web_accept&item_name=Accelerate+Payment+for+19+student%28s%29+for+convention+%5BOnline+Student+Convention%5D+and+season+%5B2023%5D+by+school+%5BDAYSPRING+CHRISTIAN+COLLEGE%5D+Customer+Code%3A+%5BDAYS01%5D&discount=0.00&mc_currency=AUD&item_number=transaction-cr-26-1685058942&residence_country=FJ&receipt_id=4678-0999-9884-1469&shipping_method=Default&transaction_subject=&payment_gross=&ipn_track_id=f6379282103c2
+[2023-05-29 14:29 Australia/Brisbane] HTTP request of validation request:POST /cgi-bin/webscr HTTP/1.1
+Host: www.sandbox.paypal.com
+Accept: */*
+Connection: Close
+Content-Length: 1042
+Content-Type: application/x-www-form-urlencoded
+
+ for IPN payload: cmd=_notify-validate&mc_gross=70.00&protection_eligibility=Ineligible&payer_id=3K8USZLF2E9ZN&payment_date=21%3A29%3A43+May+28%2C+2023+PDT&payment_status=Completed&charset=windows-1252&first_name=Gutua&mc_fee=2.12&notify_version=3.9&custom=&payer_status=unverified&business=justincroome%40scee.edu.au&quantity=1&verify_sign=A1ZFaxNY6swTs1W1h.ynvBItSaU0AKSiZHBR.bajX6QFNXv8T6tmcsfr&payer_email=ellejai79%40hotmail.com&txn_id=99581527K42753329&payment_type=instant&last_name=Szabo&receiver_email=scee.rec%40scee.edu.au&payment_fee=&shipping_discount=0.00&receiver_id=DW8GYFW9G398A&insurance_amount=0.00&txn_type=web_accept&item_name=Accelerate+Payment+for+2+student%28s%29+for+convention+%5BOnline+Student+Convention%5D+and+season+%5B2023%5D+by+school+%5BAccelerate+Christian+Home+Schooling+Australia%5D+Customer+Code%3A+%5BSZAB0221%5D&discount=0.00&mc_currency=AUD&item_number=transaction-cr-32-1685334409&residence_country=AU&receipt_id=0541-2783-0190-9170&shipping_method=Default&transaction_subject=&payment_gross=&ipn_track_id=0b83114090b10
+[2023-05-29 14:29 Australia/Brisbane] HTTP response of validation request: HTTP/1.1 200 OK
+Connection: close
+Content-Length: 7
+Content-Type: text/html; charset=utf-8
+Accept-Ch: sec-ch-ua-full, sec-ch-ua-arch, sec-ch-ua-model, sec-ch-ua-platform-version, sec-ch-ua-full-version, sec-ch-ua-full-version-list, sec-ch-ua-bitness, sec-ch-ua-wow64
+Cache-Control: max-age=0, no-cache, no-store, must-revalidate
+Content-Security-Policy: default-src 'self' https://*.paypal.com https://*.paypalobjects.com 'unsafe-inline'; style-src 'self' https://*.paypal.com https://*.paypalobjects.com 'unsafe-inline'; script-src 'nonce-oml/JsSRv3geqnmbwQ0QtG5wY70SfvdAyBMfRX4kIMNVZ3Xp' 'self' 'unsafe-inline' https://*.paypal.com https://*.paypalobjects.com; img-src 'self' https: data:; object-src 'none'; font-src 'self' https://*.paypal.com https://*.paypalobjects.com; frame-src 'self' https://*.paypalobjects.com https://*.paypal.com https://*.qualtrics.com; connect-src 'self' 'unsafe-inline' https://*.paypal.com https://*.paypalobjects.com https://*.qualtrics.com; form-action 'self' https://*.paypal.com; base-uri 'self' https://*.paypal.com; upgrade-insecure-requests;
+Etag: W/"7-Ory3K5VGd+UTzTV4Xd/UXaIbp98"
+Origin-Trial: AlIogV3KFtnbfVCyl9Z2NprE7FD8PYCt+TQiYdE3ppeJjJ0xJKcthYwOxXpRCNopxVWdOIENMcNSvQCGAmj0fw0AAAB2eyJvcmlnaW4iOiJodHRwczovL3BheXBhbC5jb206NDQzIiwiZmVhdHVyZSI6IlNlbmRGdWxsVXNlckFnZW50QWZ0ZXJSZWR1Y3Rpb24iLCJleHBpcnkiOjE2ODQ4ODYzOTksImlzU3ViZG9tYWluIjp0cnVlfQ==
+Paypal-Debug-Id: f897669e7ba06
+Permissions-Policy: ch-ua-platform-version=(self "https://c.paypal.com"),ch-ua-arch=(self "https://c.paypal.com"),ch-ua-wow64=(self "https://c.paypal.com"),ch-ua-model=(self "https://c.paypal.com"),ch-ua-bitness=(self "https://c.paypal.com"),ch-ua-full-version=(self "https://c.paypal.com"),ch-ua-full-version-list=(self "https://c.paypal.com")
+Set-Cookie: LANG=en_US%3BUS; Max-Age=31556; Domain=.paypal.com; Path=/; Expires=Mon, 29 May 2023 13:15:51 GMT; HttpOnly; Secure
+Set-Cookie: enforce_policy=ccpa; Max-Age=31536000; Domain=.paypal.com; Path=/; Expires=Tue, 28 May 2024 04:29:55 GMT; Secure
+Set-Cookie: x-pp-s=eyJ0IjoiMTY4NTMzNDU5NTc3MyIsImwiOiIwIiwibSI6IjAifQ; Domain=.paypal.com; Path=/; HttpOnly; Secure
+Set-Cookie: tsrce=merchantnotifnodeweb; Domain=.paypal.com; Path=/; Expires=Thu, 01 Jun 2023 04:29:55 GMT; HttpOnly; Secure; SameSite=None
+Set-Cookie: nsid=s%3ACimP9CoKzohN5cmSyovnhTcIX-ZCL0YP.fj9xBgVrlBSxP1XBjma75meT%2BLvclIqaRY7BDEZsKiI; Path=/; HttpOnly; Secure
+Set-Cookie: ts=vreXpYrS%3D1780028995%26vteXpYrS%3D1685336395%26vr%3D65c5189e1880a6022c8757b3fe928614%26vt%3D65c5189e1880a6022c8757b3fe928613%26vtyp%3Dnew; Path=/; Domain=paypal.com; Expires=Thu, 28 May 2026 04:29:55 GMT; HttpOnly; Secure
+Set-Cookie: ts_c=vr%3D65c5189e1880a6022c8757b3fe928614%26vt%3D65c5189e1880a6022c8757b3fe928613; Path=/; Domain=paypal.com; Expires=Thu, 28 May 2026 04:29:55 GMT; Secure
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+X-Xss-Protection: 1; mode=block
+Accept-Ranges: bytes
+Via: 1.1 varnish, 1.1 varnish
+Date: Mon, 29 May 2023 04:29:55 GMT
+Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+X-Served-By: cache-syd10164-SYD, cache-bne12525-BNE
+X-Cache: MISS, MISS
+X-Cache-Hits: 0, 0
+X-Timer: S1685334596.653693,VS0,VE210
+Vary: Accept-Encoding
+Set-Cookie: x-cdn=fastly:BNE; Domain=paypal.com; Path=/; Secure
+
+INVALID
+[2023-05-29 14:29 Australia/Brisbane] Invalid IPN: cmd=_notify-validate&mc_gross=70.00&protection_eligibility=Ineligible&payer_id=3K8USZLF2E9ZN&payment_date=21%3A29%3A43+May+28%2C+2023+PDT&payment_status=Completed&charset=windows-1252&first_name=Gutua&mc_fee=2.12&notify_version=3.9&custom=&payer_status=unverified&business=justincroome%40scee.edu.au&quantity=1&verify_sign=A1ZFaxNY6swTs1W1h.ynvBItSaU0AKSiZHBR.bajX6QFNXv8T6tmcsfr&payer_email=ellejai79%40hotmail.com&txn_id=99581527K42753329&payment_type=instant&last_name=Szabo&receiver_email=scee.rec%40scee.edu.au&payment_fee=&shipping_discount=0.00&receiver_id=DW8GYFW9G398A&insurance_amount=0.00&txn_type=web_accept&item_name=Accelerate+Payment+for+2+student%28s%29+for+convention+%5BOnline+Student+Convention%5D+and+season+%5B2023%5D+by+school+%5BAccelerate+Christian+Home+Schooling+Australia%5D+Customer+Code%3A+%5BSZAB0221%5D&discount=0.00&mc_currency=AUD&item_number=transaction-cr-32-1685334409&residence_country=AU&receipt_id=0541-2783-0190-9170&shipping_method=Default&transaction_subject=&payment_gross=&ipn_track_id=0b83114090b10
