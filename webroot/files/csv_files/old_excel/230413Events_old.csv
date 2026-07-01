@@ -1,0 +1,346 @@
+Event ID Number,Division Name,Event Name,Upload Type,Report ,Context Box,Score Sheet,Additional Documents,Convention Type,EventGrpName,EventGender
+1,Academics,Checkers,Nil ,No,No,No,No,2,2,
+2,Academics,Chess,Nil ,No,No,No,No,2,2,
+3,Academics,Spelling,Nil ,No,No,No,No,2,2,
+5,Academics,Science Collection,Document ,Yes,No,No,No,0,2,
+9,Academics,Social Studies Collection,Document ,Yes,No,No,No,0,2,
+12,Academics,Poetry Writing,Document ,Yes,No,No,No,2,2,
+13,Academics,Short Story Writing,Document ,Yes,No,No,No,2,2,
+14,Academics,Book Report,Document ,Yes,No,No,No,2,2,
+51,Academics,Checkers,Nil ,No,No,No,No,2,4,
+52,Academics,Chess,Nil ,No,No,No,No,2,4,
+53,Academics,Spelling,Nil ,No,No,No,No,2,4,
+54,Academics,PACE Bowl,Nil ,No,No,No,No,2,4,
+55,Academics,Science Collection,Document ,Yes,No,No,No,0,4,
+56,Academics,Science Research,Document ,Yes,No,No,No,1,4,
+57,Academics,Science Engineering,Document ,Yes,No,No,No,0,4,
+58,Academics,Science Theoretical,Document ,Yes,No,No,No,1,4,
+59,Academics,Social Studies Collection,Document ,Yes,No,No,No,0,4,
+60,Academics,Social Studies Research,Document ,Yes,No,No,No,1,4,
+61,Academics,Persuasive Essay Writing,Document ,Yes,No,No,No,2,4,
+62,Academics,Poetry Writing,Document ,No,No,No,No,2,4,
+63,Academics,Short Story Writing,Document ,No,No,No,No,2,4,
+64,Academics,Book Report,Document ,No,No,No,No,2,4,
+100,Physical Education - Athletics,100m (Male),Nil ,No,No,No,No,0,1,M
+101,Physical Education - Athletics,200m (Male),Nil ,No,No,No,No,0,1,M
+102,Physical Education - Athletics,400m (Male),Nil ,No,No,No,No,0,1,M
+103,Physical Education - Athletics,800m (Male),Nil ,No,No,No,No,0,1,M
+104,Physical Education - Athletics,1500m (Male),Nil ,No,No,No,No,0,1,M
+105,Physical Education - Athletics,4 x 100m Relay (Male),Nil ,No,No,No,No,0,1,M
+106,Physical Education - Athletics,Long Jump (Male),Nil ,No,No,No,No,0,1,M
+109,Physical Education - Sports,Table Tennis - Singles (Male),Nil ,No,No,No,No,0,1,M
+110,Physical Education - Sports,Table Tennis - Doubles (Male),Nil ,No,No,No,No,0,1,M
+111,Physical Education - Sports,Football Kick (Male),Nil ,No,No,No,No,0,1,M
+112,Physical Education - Sports,Soccer Kick (Male),Nil ,No,No,No,No,0,1,M
+113,Physical Education - Sports,Netball Shoot (Male),Nil ,No,No,No,No,0,1,M
+130,Physical Education - Athletics,100m (Male),Nil ,No,No,No,No,0,3,M
+131,Physical Education - Athletics,200m (Male),Nil ,No,No,No,No,0,3,M
+132,Physical Education - Athletics,400m (Male),Nil ,No,No,No,No,0,3,M
+133,Physical Education - Athletics,800m (Male),Nil ,No,No,No,No,0,3,M
+134,Physical Education - Athletics,1500m (Male),Nil ,No,No,No,No,0,3,M
+135,Physical Education - Athletics,4 x 100m Relay (Male),Nil ,No,No,No,No,0,3,M
+136,Physical Education - Athletics,Long Jump (Male),Nil ,No,No,No,No,0,3,M
+137,Physical Education - Athletics,Shot Put (Male),Nil ,No,No,No,No,0,3,M
+138,Physical Education - Athletics,Discus (Male),Nil ,No,No,No,No,0,3,M
+139,Physical Education - Sports,Table Tennis - Singles (Male),Nil ,No,No,No,No,0,3,M
+140,Physical Education - Sports,Table Tennis - Doubles (Male),Nil ,No,No,No,No,0,3,M
+141,Physical Education - Sports,Football Kick (Male),Nil ,No,No,No,No,0,3,M
+142,Physical Education - Sports,Soccer Kick (Male),Nil ,No,No,No,No,0,3,M
+143,Physical Education - Sports,Netball Shoot (Male),Nil ,No,No,No,No,0,3,M
+160,Physical Education - Athletics,100m (Male),Nil ,No,No,No,No,0,4,M
+161,Physical Education - Athletics,200m (Male),Nil ,No,No,No,No,0,4,M
+162,Physical Education - Athletics,400m (Male),Nil ,No,No,No,No,0,4,M
+163,Physical Education - Athletics,800m (Male),Nil ,No,No,No,No,0,4,M
+164,Physical Education - Athletics,1500m (Male),Nil ,No,No,No,No,0,4,M
+165,Physical Education - Athletics,4 x 100m Relay (Male),Nil ,No,No,No,No,0,4,M
+166,Physical Education - Athletics,Long Jump (Male),Nil ,No,No,No,No,0,4,M
+167,Physical Education - Athletics,Shot Put (Male),Nil ,No,No,No,No,0,4,M
+168,Physical Education - Athletics,Discus (Male),Nil ,No,No,No,No,0,4,M
+169,Physical Education - Sports,Table Tennis - Singles (Male),Nil ,No,No,No,No,0,4,M
+170,Physical Education - Sports,Table Tennis - Doubles (Male),Nil ,No,No,No,No,0,4,M
+171,Physical Education - Sports,Football Kick (Male),Nil ,No,No,No,No,0,4,M
+172,Physical Education - Sports,Soccer Kick (Male),Nil ,No,No,No,No,0,4,M
+173,Physical Education - Sports,Netball Shoot (Male),Nil ,No,No,No,No,0,4,M
+174,Physical Education - Sports,Basketball (Male),Nil ,No,No,No,No,0,4,M
+175,Physical Education - Sports,Tennis - singles (Male),Nil ,No,No,No,No,0,4,M
+176,Physical Education - Sports,Futsal (Male),Nil ,No,No,No,No,0,4,M
+177,Physical Education - Sports,Volleyball (Male),Nil ,No,No,No,No,0,4,M
+200,Physical Education - Athletics,100m (Female),Nil ,No,No,No,No,0,1,F
+201,Physical Education - Athletics,200m (Female),Nil ,No,No,No,No,0,1,F
+202,Physical Education - Athletics,400m (Female),Nil ,No,No,No,No,0,1,F
+203,Physical Education - Athletics,800m (Female),Nil ,No,No,No,No,0,1,F
+204,Physical Education - Athletics,1500m (Female),Nil ,No,No,No,No,0,1,F
+205,Physical Education - Athletics,4 x 100m Relay (Female),Nil ,No,No,No,No,0,1,F
+206,Physical Education - Athletics,Long Jump (Female),Nil ,No,No,No,No,0,1,F
+209,Physical Education - Sports,Table Tennis - Singles (Female),Nil ,No,No,No,No,0,1,F
+210,Physical Education - Sports,Table Tennis - Doubles (Female),Nil ,No,No,No,No,0,1,F
+211,Physical Education - Sports,Football Kick (Female),Nil ,No,No,No,No,0,1,F
+212,Physical Education - Sports,Soccer Kick (Female),Nil ,No,No,No,No,0,1,F
+213,Physical Education - Sports,Netball Shoot (Female),Nil ,No,No,No,No,0,1,F
+230,Physical Education - Athletics,100m (Female),Nil ,No,No,No,No,0,3,F
+231,Physical Education - Athletics,200m (Female),Nil ,No,No,No,No,0,3,F
+232,Physical Education - Athletics,400m (Female),Nil ,No,No,No,No,0,3,F
+233,Physical Education - Athletics,800m (Female),Nil ,No,No,No,No,0,3,F
+234,Physical Education - Athletics,1500m (Female),Nil ,No,No,No,No,0,3,F
+235,Physical Education - Athletics,4 x 100m Relay (Female),Nil ,No,No,No,No,0,3,F
+236,Physical Education - Athletics,Long Jump (Female),Nil ,No,No,No,No,0,3,F
+237,Physical Education - Athletics,Shot Put (Female),Nil ,No,No,No,No,0,3,F
+238,Physical Education - Athletics,Discus (Female),Nil ,No,No,No,No,0,3,F
+239,Physical Education - Sports,Table Tennis - Singles (Female),Nil ,No,No,No,No,0,3,F
+240,Physical Education - Sports,Table Tennis - Doubles (Female),Nil ,No,No,No,No,0,3,F
+241,Physical Education - Sports,Football Kick (Female),Nil ,No,No,No,No,0,3,F
+242,Physical Education - Sports,Soccer Kick (Female),Nil ,No,No,No,No,0,3,F
+243,Physical Education - Sports,Netball Shoot (Female),Nil ,No,No,No,No,0,3,F
+260,Physical Education - Athletics,100m (Female),Nil ,No,No,No,No,0,4,F
+261,Physical Education - Athletics,200m (Female),Nil ,No,No,No,No,0,4,F
+262,Physical Education - Athletics,400m (Female),Nil ,No,No,No,No,0,4,F
+263,Physical Education - Athletics,800m (Female),Nil ,No,No,No,No,0,4,F
+264,Physical Education - Athletics,1500m (Female),Nil ,No,No,No,No,0,4,F
+265,Physical Education - Athletics,4 x 100m Relay (Female),Nil ,No,No,No,No,0,4,F
+266,Physical Education - Athletics,Long Jump (Female),Nil ,No,No,No,No,0,4,F
+267,Physical Education - Athletics,Shot Put (Female),Nil ,No,No,No,No,0,4,F
+268,Physical Education - Athletics,Discus (Female),Nil ,No,No,No,No,0,4,F
+269,Physical Education - Sports,Table Tennis - Singles (Female),Nil,No,No,No,No,0,4,F
+270,Physical Education - Sports,Table Tennis - Doubles (Female),Nil,No,No,No,No,0,4,F
+271,Physical Education - Sports,Football Kick (Female),Nil,No,No,No,No,0,4,F
+272,Physical Education - Sports,Soccer Kick (Female),Nil,No,No,No,No,0,4,F
+273,Physical Education - Sports,Netball Shoot (Female),Nil,No,No,No,No,0,4,F
+274,Physical Education - Sports,Basketball (Female),Nil,No,No,No,No,0,4,F
+275,Physical Education - Sports,Tennis - singles (Female),Nil,No,No,No,No,0,4,F
+276,Physical Education - Sports,Futsal (Female),Nil,No,No,No,No,0,4,F
+277,Physical Education - Sports,Volleyball (Female),Nil,No,No,No,No,0,4,F
+300,Exhibits - Manual Arts,Wood Turning,Nil,No,No,No,No,0,2,
+301,Exhibits - Manual Arts,Wood Construction,Nil,No,No,No,No,0,2,
+302,Exhibits - Manual Arts,Wood Carving,Nil,No,No,No,No,0,2,
+303,Exhibits - Manual Arts,Marquetry,Nil,No,No,No,No,0,2,
+304,Exhibits - Manual Arts,Metal Sculpture,Nil,No,No,No,No,0,2,
+306,Exhibits - Manual Arts,Metal Fabrication,Nil,No,No,No,No,0,2,
+307,Exhibits - Manual Arts,Sheet Metal Work,Nil ,No,No,No,No,0,2,
+308,Exhibits - Manual Arts,Clay Work - Handbuilt,Nil,No,No,No,No,0,2,
+309,Exhibits - Manual Arts,Clay Work - Wheel thrown,Nil,No,No,No,No,0,2,
+310,Exhibits - Manual Arts,Scrapbooking,Document ,Yes,No,No,No,1,2,
+311,Exhibits - Manual Arts,Flax Construction,Nil,No,No,No,No,0,2,
+312,Exhibits - Manual Arts,Bilum Making,Nil,No,No,No,No,0,2,
+313,Exhibits - Manual Arts,Sportswear,Nil,No,No,No,No,0,2,
+314,Exhibits - Manual Arts,Coats,Nil,No,No,No,No,0,2,
+315,Exhibits - Manual Arts,Female Formals,Nil,No,No,No,No,0,2,F
+316,Exhibits - Manual Arts,Female Dresses,Nil,No,No,No,No,0,2,F
+318,Exhibits - Manual Arts,Male Three piece outfit,Nil,No,No,No,No,0,2,M
+320,Exhibits - Manual Arts,Counted Cross Stitch,Nil,No,No,No,No,0,2,
+321,Exhibits - Manual Arts,Embroidery,Nil,No,No,No,No,0,2,
+322,Exhibits - Manual Arts,Needle Point,Nil ,No,No,No,No,0,2,
+323,Exhibits - Manual Arts,Crochet,Nil,No,No,No,No,0,2,
+324,Exhibits - Manual Arts,Knitting,Nil,No,No,No,No,0,2,
+325,Exhibits - Manual Arts,Quilts,Nil,No,No,No,No,0,2,
+326,Exhibits - Manual Arts,Patchwork,Nil,No,No,No,No,0,2,
+350,Exhibits - Manual Arts,Wood Turning,Nil,No,No,No,No,0,4,
+351,Exhibits - Manual Arts,Wood Construction,Nil,No,No,No,No,0,4,
+352,Exhibits - Manual Arts,Wood Carving,Nil,No,No,No,No,0,4,
+353,Exhibits - Manual Arts,Marquetry,Nil,No,No,No,No,0,4,
+354,Exhibits - Manual Arts,Metal Sculpture,Nil,No,No,No,No,0,4,
+356,Exhibits - Manual Arts,Metal Fabrication,Nil,No,No,No,No,0,4,
+357,Exhibits - Manual Arts,Sheet Metal Work,Nil,No,No,No,No,0,4,
+358,Exhibits - Manual Arts,Clay Work - Handbuilt,Nil,No,No,No,No,0,4,
+359,Exhibits - Manual Arts,Clay Work - Wheel thrown,Nil ,No,No,No,No,0,4,
+360,Exhibits - Manual Arts,Scrapbooking,Document ,Yes,No,No,No,1,4,
+361,Exhibits - Manual Arts,Flax Construction,Nil,No,No,No,No,0,4,
+362,Exhibits - Manual Arts,Bilum Making,Nil,No,No,No,No,0,4,
+363,Exhibits - Manual Arts,Sportswear,Nil,No,No,No,No,0,4,
+364,Exhibits - Manual Arts,Coats,Nil,No,No,No,No,0,4,
+365,Exhibits - Manual Arts,Female Formals,Nil,No,No,No,No,0,4,F
+366,Exhibits - Manual Arts,Female Dresses,Nil,No,No,No,No,0,4,F
+368,Exhibits - Manual Arts,Male Three piece outfit,Nil,No,No,No,No,0,4,M
+370,Exhibits - Manual Arts,Counted Cross Stitch,Nil,No,No,No,No,0,4,
+371,Exhibits - Manual Arts,Embroidery,Nil,No,No,No,No,0,4,
+372,Exhibits - Manual Arts,Needle Point,Nil,No,No,No,No,0,4,
+373,Exhibits - Manual Arts,Crochet,Nil,No,No,No,No,0,4,
+374,Exhibits - Manual Arts,Knitting,Nil,No,No,No,No,0,4,
+375,Exhibits - Manual Arts,Quilts,Nil,No,No,No,No,0,4,
+376,Exhibits - Manual Arts,Patchwork,Nil ,No,No,No,No,0,4,
+400,Exhibits - Media Arts,Portrait Photo,Image,Yes,No,No,No,1,2,
+401,Exhibits - Media Arts,Nature Photo,Image ,Yes,No,No,No,1,2,
+402,Exhibits - Media Arts,Structure/Vehicle Photo,Image,Yes,No,No,No,1,2,
+403,Exhibits - Media Arts,Scapes Photo,Image,Yes,No,No,No,1,2,
+404,Exhibits - Media Arts,Event/Action Photo,Image,Yes,No,No,No,1,2,
+405,Exhibits - Media Arts,Macro Photo,Image,Yes,No,No,No,1,2,
+406,Exhibits - Media Arts,General Photo,Image,Yes,No,No,No,1,2,
+407,Exhibits - Media Arts,Composite Photo,Image,Yes,No,No,No,1,2,
+411,Exhibits - Media Arts,Digital Art,Image,Yes,Yes,No,No,1,2,
+412,Exhibits - Media Arts,Posters,Image,Yes,Yes,No,No,1,2,
+413,Exhibits - Media Arts,Graphic Design,Image,Yes,Yes,No,No,1,2,
+414,Exhibits - Media Arts,Linear Powerpoint Presentation,Document ,no,Yes,No,No,2,2,
+415,Exhibits - Media Arts,Non-Linear Powerpoint Presentation,Document ,no,Yes,No,No,2,2,
+450,Exhibits - Media Arts,Portrait Photo,Image,Yes,No,No,No,1,4,
+451,Exhibits - Media Arts,Nature Photo,Image,Yes,No,No,No,1,4,
+452,Exhibits - Media Arts,Structure/Vehicle Photo,Image,Yes,No,No,No,1,4,
+453,Exhibits - Media Arts,Scapes Photo,Image,Yes,No,No,No,1,4,
+454,Exhibits - Media Arts,Event/Action Photo,Image,Yes,No,No,No,1,4,
+455,Exhibits - Media Arts,Macro Photo,Image,Yes,No,No,No,1,4,
+456,Exhibits - Media Arts,General Photo,Image,Yes,No,No,No,1,4,
+457,Exhibits - Media Arts,Composite Photo,Image,Yes,No,No,No,1,4,
+461,Exhibits - Media Arts,Digital Art,Image,Yes,Yes,No,No,1,4,
+462,Exhibits - Media Arts,Posters,Document ,Yes,Yes,No,No,1,4,
+463,Exhibits - Media Arts,Graphic Design,Document ,Yes,Yes,No,No,1,4,
+464,Exhibits - Media Arts,Linear Powerpoint Presentation,Document ,No,Yes,No,No,2,4,
+465,Exhibits - Media Arts,Non-Linear Powerpoint Presentation,Document ,No,Yes,No,NO,2,4,
+466,Exhibits - Media Arts,Web Site Development,Document ,No,Yes,No,No,2,4,
+467,Exhibits - Media Arts,Radio Play,Video/Audio ,Yes,Yes,No,Yes,2,4,
+468,Exhibits - Media Arts,Video Production,Video ,Yes,Yes,No,Yes,2,4,
+500,Exhibits - Visual Arts,Oil,Image,Yes,No,No,No,0,2,
+501,Exhibits - Visual Arts,Watercolour,Image ,Yes,No,No,No,1,2,
+502,Exhibits - Visual Arts,Acrylics,Image ,Yes,No,No,No,0,2,
+503,Exhibits - Visual Arts,Sketching,Image ,Yes,No,No,No,1,2,
+504,Exhibits - Visual Arts,Pastels,Image ,Yes,No,No,No,0,2,
+505,Exhibits - Visual Arts,Coloured Pencils,Image ,Yes,No,No,No,1,2,
+506,Exhibits - Visual Arts,Pen and Ink,Image ,Yes,No,No,No,1,2,
+507,Exhibits - Visual Arts,Prints,Image ,Yes,No,No,No,0,2,
+508,Exhibits - Visual Arts,Mixed Media,Image ,Yes,No,No,No,0,2,
+509,Exhibits - Visual Arts,Comic Strip,Image ,Yes,No,No,No,1,2,
+510,Exhibits - Visual Arts,Geometric Abstract,Image ,Yes,No,No,No,1,2,
+550,Exhibits - Visual Arts,Oil,Image ,Yes,No,No,No,0,4,
+551,Exhibits - Visual Arts,Watercolour,Image ,Yes,No,No,No,1,4,
+552,Exhibits - Visual Arts,Acrylics,Image ,Yes,No,No,No,0,4,
+553,Exhibits - Visual Arts,Sketching,Image ,Yes,No,No,No,1,4,
+554,Exhibits - Visual Arts,Pastels,Image ,Yes,No,No,No,0,4,
+555,Exhibits - Visual Arts,Coloured Pencils,Image ,Yes,No,No,No,1,4,
+556,Exhibits - Visual Arts,Pen and Ink,Image ,Yes,No,No,No,1,4,
+557,Exhibits - Visual Arts,Prints,Image ,Yes,No,No,No,0,4,
+558,Exhibits - Visual Arts,Mixed Media,Image ,Yes,No,No,No,0,4,
+559,Exhibits - Visual Arts,Comic Strip,Image ,Yes,No,No,No,1,4,
+560,Exhibits - Visual Arts,Geometric Abstract,Image ,Yes,No,No,No,1,4,
+600,Music - Combined,Self Accompanied Solo,Video,No,Yes,Yes,No,1,2,
+601,Music - Combined,Self Accompanied Duet,Video,No,Yes,Yes,No,0,2,
+602,Music - Combined,Self Accompanied Trio,Video,No,Yes,Yes,No,0,2,
+603,Music - Combined,Self Accompanied Small Group,Video ,No,Yes,Yes,No,1,2,
+650,Music - Combined,Self Accompanied Solo,Video,No,Yes,Yes,No,1,4,
+651,Music - Combined,Self Accompanied Duet,Video,No,Yes,Yes,No,0,4,
+652,Music - Combined,Self Accompanied Trio,Video,No,Yes,Yes,No,0,4,
+653,Music - Combined,Self Accompanied Small Group,Video,No,Yes,Yes,No,1,4,
+654,Music - Combined,Combined Ensemble,Video ,No,Yes,Yes,No,1,4,
+700,Music - Instrumental,Piano Solo,Video ,No,Yes,Yes,No,1,2,
+702,Music - Instrumental,Instrumental Solo,Video,No,Yes,Yes,No,1,2,
+703,Music - Instrumental,String Solo - Plucked,Video,No,Yes,Yes,No,0,2,
+704,Music - Instrumental,String Solo - Bow,Video,No,Yes,Yes,No,0,2,
+705,Music - Instrumental,Brass Solo,Video,No,Yes,Yes,No,0,2,
+706,Music - Instrumental,Tambourine Solo,Video ,No,Yes,Yes,No,1,2,
+707,Music - Instrumental,Miscellaneous Solo,Video ,No,Yes,Yes,No,0,2,
+708,Music - Instrumental,Piano Duet,Video,No,Yes,Yes,No,1,2,
+709,Music - Instrumental,Instrumental Duet,Video,No,Yes,Yes,No,0,2,
+710,Music - Instrumental,Tambourine Duet,Video,No,Yes,Yes,No,0,2,
+711,Music - Instrumental,Instrumental Trio,Video,No,Yes,Yes,No,0,2,
+712,Music - Instrumental,Tambourine Trio,Video ,No,Yes,Yes,No,0,2,
+713,Music - Instrumental,Instrumental Small Group,Video ,No,Yes,Yes,No,1,2,
+714,Music - Instrumental,Tambourine Small Group,Video,No,Yes,Yes,No,1,2,
+715,Music - Instrumental,Music Instrumental Composition,Video,No,Yes,Yes,No,2,2,
+716,Music - Instrumental,Music Instrumental Arranging,Video,No,Yes,Yes,No,2,2,
+750,Music - Instrumental,Piano Solo,Video,No,Yes,Yes,No,1,4,
+752,Music - Instrumental,Instrumental Solo,Video ,No,Yes,Yes,No,1,4,
+753,Music - Instrumental,String Solo - Plucked,Video ,No,Yes,Yes,No,0,4,
+754,Music - Instrumental,String Solo - Bow,Video,No,Yes,Yes,No,0,4,
+755,Music - Instrumental,Brass Solo,Video,No,Yes,Yes,No,0,4,
+756,Music - Instrumental,Tambourine Solo,Video,No,Yes,Yes,No,1,4,
+757,Music - Instrumental,Miscellaneous Solo,Video,No,Yes,Yes,No,0,4,
+758,Music - Instrumental,Piano Duet,Video ,No,Yes,Yes,No,1,4,
+764,Music - Instrumental,Instrumental Duet,Video ,No,Yes,Yes,No,0,4,
+770,Music - Instrumental,Tambourine Duet,Video,No,Yes,Yes,No,0,4,
+771,Music - Instrumental,Instrumental Trio,Video,No,Yes,Yes,No,0,4,
+772,Music - Instrumental,Tambourine Trio,Video,No,Yes,Yes,No,0,4,
+773,Music - Instrumental,Instrumental Small Group,Video,No,Yes,Yes,No,1,4,
+774,Music - Instrumental,Tambourine Small Group,Video ,No,Yes,Yes,No,1,4,
+775,Music - Instrumental,Music Instrumental Composition,Video ,No,Yes,Yes,No,2,4,
+776,Music - Instrumental,Music Instrumental Arranging,Video,No,Yes,Yes,No,2,4,
+777,Music - Instrumental,Instrumental Ensemble,Video,No,Yes,Yes,No,1,4,
+778,Music - Instrumental,Tambourine Ensemble,Video,No,Yes,Yes,No,1,4,
+779,Music - Instrumental,Handbell Ensemble,Video,No,Yes,Yes,No,1,4,
+800,Music - Vocal,Male Solo,Video ,No,Yes,Yes,No,1,2,M
+801,Music - Vocal,Male Duet,Video ,No,Yes,Yes,No,0,2,M
+802,Music - Vocal,Male Trio,Video,No,Yes,Yes,No,0,2,M
+803,Music - Vocal,Male Quartet,Video,No,Yes,Yes,No,1,2,M
+804,Music - Vocal,Female Solo,Video,No,Yes,Yes,No,1,2,F
+805,Music - Vocal,Female Duet,Video,No,Yes,Yes,No,0,2,F
+806,Music - Vocal,Female Trio,Video ,No,Yes,Yes,No,0,2,F
+807,Music - Vocal,Female Quartet,Video ,No,Yes,Yes,No,1,2,F
+808,Music - Vocal,Mixed Duet,Video,No,Yes,Yes,No,0,2,
+809,Music - Vocal,Mixed Trio,Video,No,Yes,Yes,No,0,2,
+810,Music - Vocal,Vocal Small Group,Video,No,Yes,Yes,No,1,2,
+813,Music - Vocal,Music Vocal Composition,Video,No,Yes,Yes,No,2,2,
+814,Music - Vocal,Music Vocal Arranging,Video ,No,Yes,Yes,No,2,2,
+850,Music - Vocal,Male Solo,Video ,No,Yes,Yes,No,1,4,M
+851,Music - Vocal,Male Duet,Video,No,Yes,Yes,No,0,4,M
+852,Music - Vocal,Male Trio,Video,No,Yes,Yes,No,0,4,M
+853,Music - Vocal,Male Quartet,Video,No,Yes,Yes,No,1,4,M
+854,Music - Vocal,Female Solo,Video,No,Yes,Yes,No,1,4,F
+855,Music - Vocal,Female Duet,Video ,No,Yes,Yes,No,0,4,F
+856,Music - Vocal,Female Trio,Video ,No,Yes,Yes,No,0,4,F
+857,Music - Vocal,Female Quartet,Video,No,Yes,Yes,No,1,4,F
+858,Music - Vocal,Mixed Duet,Video,No,Yes,Yes,No,0,4,
+859,Music - Vocal,Mixed Trio,Video,No,Yes,Yes,No,0,4,
+860,Music - Vocal,Mixed Quartet,Video,No,Yes,Yes,No,1,4,
+861,Music - Vocal,Vocal Ensemble,Video ,No,Yes,Yes,No,1,4,
+862,Music - Vocal,Choir,Video ,No,Yes,Yes,No,1,4,
+863,Music - Vocal,Music Vocal Composition,Document ,No,Yes,Yes,No,2,4,
+864,Music - Vocal,Music Vocal Arranging,Document ,No,Yes,Yes,No,2,4,
+900,Platform,Puppets,Video ,No,Yes,No,Yes,1,2,
+901,Platform,Dramatic Dialogue,Video ,No,Yes,No,Yes,1,2,
+902,Platform,Mime Solo,Video,No,Yes,No,Yes,1,2,
+903,Platform,Mime Group,Video,No,Yes,No,Yes,1,2,
+906,Platform,Oratory (Male),Video,No,No,No,Yes,1,2,M
+907,Platform,Dramatic Monologue (Male),Video,No,No ,No,Yes,1,2,M
+908,Platform,Expressive Reading (Male),Video ,No,No,No,Yes,1,2,M
+909,Platform,Dramatic Narrative (Male),Video ,No,No,No,Yes,0,2,M
+910,Platform,Poetry Recitation (Male),Video,No,No,No,Yes,1,2,M
+911,Platform,Illustrated Storytelling (Male),Video,No,Yes,No,Yes,1,2,M
+912,Platform,Ventriloquism (Male),Video,No,Yes,No,Yes,0,2,M
+913,Platform,Clown Act (Male),Video,No,Yes,No,Yes,1,2,M
+914,Platform,Famous Speech (Male),Video ,Yes,No,No,Yes,1,2,M
+915,Platform,Preaching (Male),Video ,No,No,No,Yes,1,2,M
+920,Platform,Oratory (Female),Video ,No,No ,No,Yes,1,2,F
+921,Platform,Dramatic Monologue (Female),Video ,No,No,No,Yes,1,2,F
+922,Platform,Expressive Reading (Female),Video,No,No,No,Yes,1,2,F
+923,Platform,Dramatic Narrative (Female),Video,No,No,No,Yes,0,2,F
+924,Platform,Poetry Recitation (Female),Video,No,No,No,Yes,1,2,F
+925,Platform,Illustrated Storytelling (Female),Video,No,Yes,No,Yes,1,2,F
+926,Platform,Ventriloquism (Female),Video ,No,Yes,No,Yes,0,2,F
+927,Platform,Clown Act (Female),Video ,No,Yes,No,Yes,1,2,F
+928,Platform,Famous Speech (Female),Video,Yes,No,No,Yes,1,2,F
+929,Platform,Preaching (Female),Video,No,No,No,Yes,1,2,F
+950,Platform,Puppets,Video,No,Yes,No,Yes,1,4,
+951,Platform,Dramatic Dialogue,Video,No,No,No,Yes,1,4,
+952,Platform,Mime Solo,Video ,No,Yes,No,Yes,1,4,
+953,Platform,Mime Group ,Video ,No,Yes,No,Yes,1,4,
+954,Platform,One-Act Play,Video ,No,Yes,No,Yes,1,4,
+956,Platform,Oratory (Male),Video ,No,No,No,Yes,1,4,M
+957,Platform,Dramatic Monologue (Male),Video,No,No,No,Yes,1,4,M
+958,Platform,Expressive Reading (Male),Video,No,No,No,Yes,1,4,M
+959,Platform,Dramatic Narrative (Male),Video,No,No,No,Yes,0,4,M
+960,Platform,Poetry Recitation (Male),Video,No,No ,No,Yes,1,4,M
+961,Platform,Illustrated Storytelling (Male),Video ,No,Yes,No,Yes,1,4,M
+962,Platform,Ventriloquism (Male),Video ,No,Yes,No,Yes,0,4,M
+963,Platform,Clown Act (Male),Video,No,Yes,No,Yes,1,4,M
+964,Platform,Famous Speech (Male),Video,Yes,No,No,Yes,1,4,M
+965,Platform,Preaching (Male),Video,No,No,No,Yes,1,4,M
+970,Platform,Oratory (Female),Video,No,No,No,Yes,1,4,F
+971,Platform,Dramatic Monologue (Female),Video ,No,No,No,Yes,1,4,F
+972,Platform,Expressive Reading (Female),Video ,No,No,No,Yes,1,4,F
+973,Platform,Dramatic Narrative (Female),Video ,No,No,No,Yes,0,4,F
+974,Platform,Poetry Recitation (Female),Video ,No,No,No,Yes,1,4,F
+975,Platform,Illustrated Storytelling (Female),Video,No,Yes,No,Yes,1,4,F
+976,Platform,Ventriloquism (Female),Video,No,Yes,No,Yes,0,4,F
+977,Platform,Clown Act (Female),Video,No,Yes,No,Yes,1,4,F
+978,Platform,Famous Speech (Female),Video,Yes,No,No,Yes,1,4,F
+979,Platform,Preaching (Female),Video ,No,No,No,Yes,1,4,F
+1000,Scripture,Golden Apple Award,Document ,No,No,No,No,2,2,
+1001,Scripture,Golden Lamb Award,Document ,No,No,No,No,2,2,
+1002,Scripture,Golden Harp Award,Document ,No,No,No,No,2,2,
+1003,Scripture,Christian Soldier Award,Document ,No,No,No,No,2,2,
+1004,Scripture,Christian Worker Award,Document ,No,No,No,No,2,2,
+1005,Scripture,Silver Apple Award,Document ,No,No,No,No,2,2,
+1050,Scripture,Golden Apple Award,Document ,No,No,No,No,2,4,
+1051,Scripture,Golden Lamb Award,Document ,No,No,No,No,2,4,
+1052,Scripture,Golden Harp Award,Document ,No,No,No,No,2,4,
+1053,Scripture,Christian Soldier Award,Document ,No,No,No,No,2,4,
+1054,Scripture,Christian Worker Award,Document ,No,No,No,No,2,4,
+1055,Scripture,Silver Apple Award,Document ,No,No,No,No,2,4,
+1056,Scripture,Bible Memory,Nil,No,No,No,No,2,4,
+1057,Scripture,Bible Bowl,Nil,No,No,No,No,2,4,
+1058,Scripture,Group Bible Speaking,Video ,No,No,No,Yes,1,4,
