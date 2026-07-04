@@ -1,5 +1,5 @@
 <?php echo $this->Html->script('ajax-pagging.js'); ?>
-<div class="content-wrapper">
+<div class="content-wrapper admin-list-page admin-seasons-page">
     <section class="content-header">
       <h1>
          Manage Seasons -  <?php echo $conventionD->name; ?>

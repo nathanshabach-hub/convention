@@ -17,17 +17,17 @@ $this->Judgeevaluations = TableRegistry::get('Judgeevaluations');
 
 <div class="admin_loader" id="loaderID"><?php echo $this->Html->image('loader_large_blue.gif');?></div>
 <?php if (!$eventsubmissions->isEmpty()) { ?> 
-    <div class="panel-body">
+    <div class="panel-body admin-data-panel admin-esub-panel">
         <div class="ersu_message"> <?php echo $this->Flash->render() ?></div>
         <?php $convRegSlug = isset($slug) ? $slug : null; ?>
         <?php echo $this->Form->create(null, ['id'=>'actionFrom', "method" => "Post"]);  ?>
-        <section id="no-more-tables" class="lstng-section">
-            <div class="topn">
+        <section id="no-more-tables" class="lstng-section admin-data-section">
+            <div class="topn admin-data-topn">
                 <div class="topn_left">Event submissions</div>
             </div>   
 
-            <div class="tbl-resp-listing">
-                <table id="event_submissions" class="table table-bordered table-striped table-condensed cf">
+            <div class="tbl-resp-listing admin-data-table-wrap">
+                <table id="event_submissions" class="table table-bordered table-striped table-condensed cf admin-data-table">
                     <thead class="cf ajshort">
                         <tr>
                             <th class="sorting_paging">#ID</th>

@@ -18,7 +18,7 @@
             </div>   
 
             <div class="tbl-resp-listing">
-                <table class="table table-bordered table-striped table-condensed cf">
+                <table class="table table-bordered table-striped table-condensed cf convention-list-table">
                     <thead class="cf ajshort">
                         <tr>
                             <th style="width:5%">#</th>

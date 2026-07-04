@@ -1,5 +1,5 @@
 <?php echo $this->Html->script('ajax-pagging.js'); ?>
-<div class="content-wrapper">
+<div class="content-wrapper admin-convreg-page">
     <section class="content-header">
       <h1>
          Manage Convention Registrations 
@@ -11,7 +11,7 @@
     </section>
 
     <section class="content">
-        <div class="box box-info">
+        <div class="box box-info admin-convreg-box">
             <div class="ersu_message"> <?php echo $this->Flash->render() ?></div>
             <div class="admin_search" style="display:none;">
                 <?php echo $this->Form->create(Null, ['id'=>'adminSearch']); ?>
@@ -43,7 +43,7 @@
                 <?php echo $this->Form->end(); ?>
                 <div class="add_new_record"><?php //echo $this->Html->link('<i class="fa fa-plus"></i> Add Division', ['controller'=>'conventionregistrations', 'action'=>'add'], ['escape'=>false, 'class'=>'btn btn-default']);?></div>
             </div>
-            <div class="m_content" id="listID">
+            <div class="m_content admin-convreg-content" id="listID">
                 <?php echo $this->element("Admin/Conventionregistrations/index"); ?>
             </div>
             

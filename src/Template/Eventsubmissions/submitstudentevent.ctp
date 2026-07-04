@@ -3,32 +3,32 @@
 		$("#submitnewevent").validate();
 	});
 </script>
-<div class="container-fluid p-0">
+<div class="container-fluid p-0 cr-es-submit-page">
 	<div class="row">
 		<?php echo $this->element('user_left_menu'); ?>
-		<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+		<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 cr-es-submit-main">
 
 			<div class="ersu_message">
 				<?php echo $this->Flash->render() ?>
 			</div>
 
-			<h2 class="mt-3">Submit Student Event</h2>
+			<h2 class="mt-3 cr-es-submit-title">Submit Student Event</h2>
 
 			<!-- dashboard-section-3 start-->
-			<div class="dashboard-form">
+			<div class="dashboard-form cr-es-submit-card">
 				<h2 class="form-title">Submit New Event</h2>
 				<?php echo $this->Form->create($eventsubmissions, ['id' => 'submitnewevent', 'type' => 'file', 'class' => ' ']); ?>
 
-				<div class="form-group">
+				<div class="form-group cr-es-submit-row">
 					<label for="name">Event</label>
-					<div class="input-multiple">
+					<div class="input-multiple cr-es-readonly">
 						<?php echo $eventD->event_name; ?> (<?php echo $eventD->event_id_number; ?>)
 					</div>
 				</div>
 
-				<div class="form-group">
+				<div class="form-group cr-es-submit-row">
 					<label for="name">Student</label>
-					<div class="input-multiple">
+					<div class="input-multiple cr-es-readonly">
 						<?php echo $convRegStudentD->Students['first_name']; ?> <?php echo $convRegStudentD->Students['middle_name']; ?> <?php echo $convRegStudentD->Students['last_name']; ?>
 					</div>
 				</div>
@@ -37,11 +37,11 @@
 				if(strtolower($eventD->upload_type) != 'nil')
 				{
 				?>
-				<div class="form-group">
+				<div class="form-group cr-es-submit-row">
 					<label for="event_document">Upload File</label>
 					<div class="input-multiple">
 						<?php echo $this->Form->input('Eventsubmissions.event_document', ['id' => 'event_document', 'label' => false, 'type' => 'file', 'div' => false, 'class' => 'form-control required', 'onchange' => 'imageValidation()']); ?>
-						<span class="help_text">mp3, mp4, mpeg, mov, avi, amr, ape, nmf, 3gp, pdf, doc, docx, png, jpg, jpeg, ppt and pptx files allowed.</span>
+						<span class="help_text cr-es-help">mp3, mp4, mpeg, mov, avi, amr, ape, nmf, 3gp, pdf, doc, docx, png, jpg, jpeg, ppt and pptx files allowed.</span>
 					</div>
 				</div>
 				<?php
@@ -53,11 +53,11 @@
 				if($eventD->report == 1)
 				{
 				?>
-				<div class="form-group">
+				<div class="form-group cr-es-submit-row">
 					<label for="event_document">Report</label>
 					<div class="input-multiple">
 						<?php echo $this->Form->input('Eventsubmissions.report', ['id' => 'report', 'label' => false, 'type' => 'file', 'div' => false, 'class' => 'form-control required', 'onchange' => 'imageValidationReport()']); ?>
-						<span class="help_text">mp3, pdf, doc, docx, png, jpg, jpeg, ppt and pptx files allowed.</span>
+						<span class="help_text cr-es-help">mp3, pdf, doc, docx, png, jpg, jpeg, ppt and pptx files allowed.</span>
 					</div>
 				</div>
 				<?php
@@ -69,7 +69,7 @@
 				if($eventD->context_box == 1)
 				{
 				?>
-				<div class="form-group">
+				<div class="form-group cr-es-submit-row">
 					<label for="event_document">Context Box</label>
 					<div class="input-multiple">
 						<?php echo $this->Form->input('Eventsubmissions.context_box', ['id' => 'context_box', 'label' => false, 'type' => 'text', 'div' => false, 'class' => 'form-control required']); ?>
@@ -84,11 +84,11 @@
 				if($eventD->score_sheet == 1)
 				{
 				?>
-				<div class="form-group">
+				<div class="form-group cr-es-submit-row">
 					<label for="event_document">Score Sheet</label>
 					<div class="input-multiple">
 						<?php echo $this->Form->input('Eventsubmissions.score_sheet', ['id' => 'score_sheet', 'label' => false, 'type' => 'file', 'div' => false, 'class' => 'form-control required', 'onchange' => 'imageValidationSS()']); ?>
-						<span class="help_text">mp3, pdf, doc, docx, png, jpg, jpeg, ppt and pptx files allowed.</span>
+						<span class="help_text cr-es-help">mp3, pdf, doc, docx, png, jpg, jpeg, ppt and pptx files allowed.</span>
 					</div>
 				</div>
 				<?php
@@ -100,11 +100,11 @@
 				if($eventD->additional_documents == 1)
 				{
 				?>
-				<div class="form-group">
+				<div class="form-group cr-es-submit-row">
 					<label for="event_document">Additional Document</label>
 					<div class="input-multiple">
 						<?php echo $this->Form->input('Eventsubmissions.additional_documents', ['id' => 'additional_documents', 'label' => false, 'type' => 'file', 'div' => false, 'class' => 'form-control required', 'onchange' => 'imageValidationAD()']); ?>
-						<span class="help_text">mp3, pdf, doc, docx, png, jpg, jpeg, ppt and pptx files allowed.</span>
+						<span class="help_text cr-es-help">mp3, pdf, doc, docx, png, jpg, jpeg, ppt and pptx files allowed.</span>
 					</div>
 				</div>
 				<?php
@@ -115,7 +115,7 @@
 				if(!empty($eventD->book_ids))
 				{
 				?>
-				<div class="form-group">
+				<div class="form-group cr-es-submit-row">
 					<label for="name">Choose Book(s)</label>
 					<div class="input-multiple">
 						<?php echo $this->Form->select('Eventsubmissions.book_ids', $booksDD, ['id' => 'book_ids', 'label' => false, 'div' => false, 'class' => 'form-control required', 'autocomplete' => 'off', 'empty' => 'Choose', 'multiple' => 'multiple']); ?>
@@ -130,11 +130,11 @@
 				}
 				?>
 
-				<div class="form-group form-btns class_show_hide">
+				<div class="form-group form-btns class_show_hide cr-es-submit-actions">
 					<label></label>
-					<button type="submit" class="btn btn-secondary">Submit Event</button>
+					<button type="submit" class="btn btn-secondary cr-es-submit-btn">Submit Event</button>
 					<!--<button type="button" class="btn btn-secondary">Cancel</button>-->
-					<?php echo $this->Html->link('<< Back', ['controller' => 'conventionregistrations', 'action' => 'packageregistration'], ['class' => 'btn btn-secondary']); ?>
+					<?php echo $this->Html->link('<< Back', ['controller' => 'conventionregistrations', 'action' => 'packageregistration'], ['class' => 'btn btn-secondary cr-es-back-btn']); ?>
 				</div>
 				<?php echo $this->Form->end(); ?>
 			</div>

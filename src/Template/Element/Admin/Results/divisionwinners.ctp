@@ -30,17 +30,24 @@ $this->Users = TableRegistry::get('Users');
                         <?php
 						foreach($divisions as $divisionrecord)
 						{
-							$divArr = $arrAllResults[$divisionrecord->id];
+                            $divArr = isset($arrAllResults[$divisionrecord->id]) && is_array($arrAllResults[$divisionrecord->id])
+                                ? $arrAllResults[$divisionrecord->id]
+                                : [];
+                            if (empty($divArr)) {
+                                continue;
+                            }
 							
 							// Get max value
 							$maxValue = max($divArr);
 
 							// Get key(s) with max value
-							$maxKeys = array_keys($divArr, $maxValue);
-							$maxKeys = implode(', ', $maxKeys);
-							//echo $maxValue.'--'.$maxKeys;
-							
-							$studentD = $this->Users->find()->where(["Users.id" => (int)$maxKeys])->contain(['Schools'])->first();
+                            $maxKeysArr = array_keys($divArr, $maxValue);
+                            $maxKeys = implode(', ', $maxKeysArr);
+                            $winnerStudentId = (int)reset($maxKeysArr);
+                            $studentD = $this->Users->find()->where(["Users.id" => $winnerStudentId])->contain(['Schools'])->first();
+                            if (!$studentD) {
+                                continue;
+                            }
 								
 							
 						?> 

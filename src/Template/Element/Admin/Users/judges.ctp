@@ -12,12 +12,12 @@
 
 <div class="admin_loader" id="loaderID"><?php echo $this->Html->image('loader_large_blue.gif'); ?></div>
 <?php if (!$users->isEmpty()) { ?> 
-    <div class="panel-body">
+    <div class="panel-body admin-data-panel">
         <div class="ersu_message"> <?php echo $this->Flash->render() ?></div>
     <?php echo $this->Form->create(null, ['id' => 'actionFrom', "method" => "Post"]); ?>
-        <section id="no-more-tables" class="lstng-section">
-            <div class="topn">
-                <div class="topn_left">Active Judges List</div>
+        <section id="no-more-tables" class="lstng-section admin-data-section">
+            <div class="topn admin-data-topn">
+                <div class="topn_left">Judges List</div>
                 <div class="topn_right ajshort" id="pagingLinks" align="right">
                     <?php
                     echo $this->Paginator->counter(['model' => 'Users']);
@@ -28,8 +28,8 @@
                 </div>
             </div>   
 
-            <div class="tbl-resp-listing">
-                <table class="table table-bordered table-striped table-condensed cf">
+            <div class="tbl-resp-listing admin-data-table-wrap">
+                <table class="table table-bordered table-striped table-condensed cf admin-data-table">
                     <thead class="cf ajshort">
                         <tr>
                             <th class="sorting_paging"><?php echo $this->Paginator->sort('first_name', 'First Name'); ?></th>
@@ -56,34 +56,46 @@
                                     <?php
                                     if($user->status != 2)
                                     {
-                                        if($user->activation_status)  echo 'Verified'; else  echo 'Not yet verified';
+                                        if($user->activation_status)
+                                            echo '<span class="judge-status-pill judge-status-verified">Verified</span>';
+                                        else
+                                            echo '<span class="judge-status-pill judge-status-unverified">Not verified</span>';
                                     }
                                     ?>
                                 </td>
                                 
                                 <td data-title="Status">
                                     <?php
-                                    if($user->status == 0) 
-                                        echo 'Inactive'; 
+                                    if($user->status == 0)
+                                        echo '<span class="judge-status-pill judge-status-inactive">Inactive</span>';
                                     else if($user->status == 1)
-                                        echo 'Active';
+                                        echo '<span class="judge-status-pill judge-status-active">Active</span>';
                                     else if($user->status == 2)
-                                        echo 'Archive';
+                                        echo '<span class="judge-status-pill judge-status-archived">Archive</span>';
                                     ?>
                                 </td>
                                 
                                 <td data-title="Action">
+                                    <div class="admin-data-actions">
                                     <?php
+                                    echo $this->Html->link('<i class="fa fa-pencil"></i>', ['controller' => 'users', 'action' => 'editjudge', $user->slug], [ 'escape' => false, 'title' => 'Edit Judge', 'class' => 'btn btn-info btn-xs action-list admin-data-action-btn']);
+
+                                    if($user->activation_status == 0 || $user->status == 0)
+                                    {
+                                        echo $this->Html->link('<i class="fa fa-check-circle"></i>', ['controller' => 'users', 'action' => 'activatejudgeaccount', $user->slug], [ 'escape' => false, 'title' => 'Activate Judge', 'class' => 'btn btn-success btn-xs action-list admin-data-action-btn', 'confirm' => 'Activate this judge account and bypass email verification?']);
+                                    }
+
                                     if($user->status == 1)
                                     {
-                                        echo $this->Html->link('<i class="fa fa-trash-o"></i>', ['controller' => 'users', 'action' => 'archivejudge', $user->slug], [ 'escape' => false, 'title' => 'Archive', 'class' => 'btn btn-danger btn-xs action-list delete-list', 'confirm' => 'Are you sure you want to archive this judge?']);
+                                        echo $this->Html->link('<i class="fa fa-trash-o"></i>', ['controller' => 'users', 'action' => 'archivejudge', $user->slug], [ 'escape' => false, 'title' => 'Archive', 'class' => 'btn btn-danger btn-xs action-list delete-list admin-data-action-btn', 'confirm' => 'Are you sure you want to archive this judge?']);
                                     }
                                     
                                     if($user->status == 2)
                                     {
-                                        echo $this->Html->link('<i class="fa fa-retweet"></i>', ['controller' => 'users', 'action' => 'restorejudge', $user->slug], [ 'escape' => false, 'title' => 'Restore', 'class' => 'btn btn-danger btn-xs action-list delete-list', 'confirm' => 'Are you sure you want to restore this judge?']);
+                                        echo $this->Html->link('<i class="fa fa-retweet"></i>', ['controller' => 'users', 'action' => 'restorejudge', $user->slug], [ 'escape' => false, 'title' => 'Restore', 'class' => 'btn btn-danger btn-xs action-list delete-list admin-data-action-btn', 'confirm' => 'Are you sure you want to restore this judge?']);
                                     }
                                     ?>
+                                    </div>
                                 </td>
                             </tr>
                         <?php } ?>

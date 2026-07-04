@@ -142,10 +142,47 @@ class EventsubmissionsController extends AppController {
 		
         $eventsubmissions = $this->Eventsubmissions->newEntity([]);
         if ($this->request->is('post')) {
-            $data = $this->Eventsubmissions->patchEntity($eventsubmissions, $this->request->getData());
+			$requestData = $this->request->getData();
+			$eventSubmissionInput = (array)($requestData['Eventsubmissions'] ?? []);
+
+			$normalizeUpload = function ($fileInput) {
+				if ($fileInput instanceof \Psr\Http\Message\UploadedFileInterface) {
+					if ($fileInput->getError() !== UPLOAD_ERR_OK || !$fileInput->getClientFilename()) {
+						return null;
+					}
+
+					return [
+						'name' => $fileInput->getClientFilename(),
+						'type' => (string)$fileInput->getClientMediaType(),
+						'tmp_name' => (string)($fileInput->getStream()->getMetadata('uri') ?: ''),
+						'error' => $fileInput->getError(),
+						'size' => (int)$fileInput->getSize(),
+					];
+				}
+
+				if (is_array($fileInput) && !empty($fileInput['name'])) {
+					return $fileInput;
+				}
+
+				return null;
+			};
+
+			$eventDocumentUpload = $normalizeUpload($eventSubmissionInput['event_document'] ?? null);
+			$reportUpload = $normalizeUpload($eventSubmissionInput['report'] ?? null);
+			$scoreSheetUpload = $normalizeUpload($eventSubmissionInput['score_sheet'] ?? null);
+			$additionalDocumentsUpload = $normalizeUpload($eventSubmissionInput['additional_documents'] ?? null);
+
+			// Prevent UploadedFile objects from being marshaled into string DB columns.
+			$eventSubmissionInput['event_document'] = '';
+			$eventSubmissionInput['report'] = '';
+			$eventSubmissionInput['score_sheet'] = '';
+			$eventSubmissionInput['additional_documents'] = '';
+			$requestData['Eventsubmissions'] = $eventSubmissionInput;
+
+			$data = $this->Eventsubmissions->patchEntity($eventsubmissions, $requestData);
             if (count($data->getErrors()) == 0) {
 				
-				$book_ids = $this->request->getData()['Eventsubmissions']['book_ids'];
+				$book_ids = $eventSubmissionInput['book_ids'] ?? [];
 				//$this->prx($book_ids);
 				
 				if(isset($book_ids) && count((array)$book_ids))
@@ -365,10 +402,47 @@ class EventsubmissionsController extends AppController {
 		
         $eventsubmissions = $this->Eventsubmissions->newEntity([]);
         if ($this->request->is('post')) {
-            $data = $this->Eventsubmissions->patchEntity($eventsubmissions, $this->request->getData());
+			$requestData = $this->request->getData();
+			$eventSubmissionInput = (array)($requestData['Eventsubmissions'] ?? []);
+
+			$normalizeUpload = function ($fileInput) {
+				if ($fileInput instanceof \Psr\Http\Message\UploadedFileInterface) {
+					if ($fileInput->getError() !== UPLOAD_ERR_OK || !$fileInput->getClientFilename()) {
+						return null;
+					}
+
+					return [
+						'name' => $fileInput->getClientFilename(),
+						'type' => (string)$fileInput->getClientMediaType(),
+						'tmp_name' => (string)($fileInput->getStream()->getMetadata('uri') ?: ''),
+						'error' => $fileInput->getError(),
+						'size' => (int)$fileInput->getSize(),
+					];
+				}
+
+				if (is_array($fileInput) && !empty($fileInput['name'])) {
+					return $fileInput;
+				}
+
+				return null;
+			};
+
+			$eventDocumentUpload = $normalizeUpload($eventSubmissionInput['event_document'] ?? null);
+			$reportUpload = $normalizeUpload($eventSubmissionInput['report'] ?? null);
+			$scoreSheetUpload = $normalizeUpload($eventSubmissionInput['score_sheet'] ?? null);
+			$additionalDocumentsUpload = $normalizeUpload($eventSubmissionInput['additional_documents'] ?? null);
+
+			// Prevent UploadedFile objects from being marshaled into string DB columns.
+			$eventSubmissionInput['event_document'] = '';
+			$eventSubmissionInput['report'] = '';
+			$eventSubmissionInput['score_sheet'] = '';
+			$eventSubmissionInput['additional_documents'] = '';
+			$requestData['Eventsubmissions'] = $eventSubmissionInput;
+
+			$data = $this->Eventsubmissions->patchEntity($eventsubmissions, $requestData);
             if (count($data->getErrors()) == 0) {
 				
-				$book_ids = $this->request->getData()['Eventsubmissions']['book_ids'];
+				$book_ids = $eventSubmissionInput['book_ids'] ?? [];
 				//$this->prx($book_ids);
 				
 				if(isset($book_ids) && count((array)$book_ids))
@@ -380,49 +454,49 @@ class EventsubmissionsController extends AppController {
 					$data->book_ids = '';
 				}
 				
-				if(!empty($this->request->getData()['Eventsubmissions']['event_document']['name']))
+				if(!empty($eventDocumentUpload['name']))
 				{
-					$data->mediafile_original_file_name =  $this->request->getData()['Eventsubmissions']['event_document']['name'];
+					$data->mediafile_original_file_name =  $eventDocumentUpload['name'];
 					
 					$specialCharacters = array('#', '$', '%', '@', '+', '=', '\\', '/', '"', ' ', "'", ':', '~', '`', '!', '^', '*', '(', ')', '|', "'", "&");
 					$toReplace = "-";
-					$this->request->getData()['Eventsubmissions']['event_document']['name'] = str_replace($specialCharacters, $toReplace, $this->request->getData()['Eventsubmissions']['event_document']['name']);
-					$imageArray = $this->request->getData()['Eventsubmissions']['event_document'];
+					$eventDocumentUpload['name'] = str_replace($specialCharacters, $toReplace, $eventDocumentUpload['name']);
+					$imageArray = $eventDocumentUpload;
 					$returnedUploadImageArray = $this->PImage->upload($imageArray, UPLOAD_EVENTS_SUBMISSION_DOCUMENT_PATH); 
 					 
 					$data->mediafile_file_system_name =  $returnedUploadImageArray[0];
 				}
 				
-				if(!empty($this->request->getData()['Eventsubmissions']['report']['name']))
+				if(!empty($reportUpload['name']))
 				{
-					$data->report =  $this->request->getData()['Eventsubmissions']['report']['name'];
+					$data->report =  $reportUpload['name'];
 					
 					$specialCharacters = array('#', '$', '%', '@', '+', '=', '\\', '/', '"', ' ', "'", ':', '~', '`', '!', '^', '*', '(', ')', '|', "'", "&");
 					$toReplace = "-";
-					$this->request->getData()['Eventsubmissions']['report']['name'] = str_replace($specialCharacters, $toReplace, $this->request->getData()['Eventsubmissions']['report']['name']);
-					$imageArray = $this->request->getData()['Eventsubmissions']['report'];
+					$reportUpload['name'] = str_replace($specialCharacters, $toReplace, $reportUpload['name']);
+					$imageArray = $reportUpload;
 					$returnedUploadImageArray = $this->PImage->upload($imageArray, UPLOAD_EVENTS_SUBMISSION_DOCUMENT_PATH); 
 					 
 					$data->report =  $returnedUploadImageArray[0];
 				}
 				
-				if(!empty($this->request->getData()['Eventsubmissions']['score_sheet']['name']))
+				if(!empty($scoreSheetUpload['name']))
 				{
 					$specialCharacters = array('#', '$', '%', '@', '+', '=', '\\', '/', '"', ' ', "'", ':', '~', '`', '!', '^', '*', '(', ')', '|', "'", "&");
 					$toReplace = "-";
-					$this->request->getData()['Eventsubmissions']['score_sheet']['name'] = str_replace($specialCharacters, $toReplace, $this->request->getData()['Eventsubmissions']['score_sheet']['name']);
-					$imageArray = $this->request->getData()['Eventsubmissions']['score_sheet'];
+					$scoreSheetUpload['name'] = str_replace($specialCharacters, $toReplace, $scoreSheetUpload['name']);
+					$imageArray = $scoreSheetUpload;
 					$returnedUploadImageArray = $this->PImage->upload($imageArray, UPLOAD_EVENTS_SUBMISSION_DOCUMENT_PATH); 
 					 
 					$data->score_sheet =  $returnedUploadImageArray[0];
 				}
 				
-				if(!empty($this->request->getData()['Eventsubmissions']['additional_documents']['name']))
+				if(!empty($additionalDocumentsUpload['name']))
 				{
 					$specialCharacters = array('#', '$', '%', '@', '+', '=', '\\', '/', '"', ' ', "'", ':', '~', '`', '!', '^', '*', '(', ')', '|', "'", "&");
 					$toReplace = "-";
-					$this->request->getData()['Eventsubmissions']['additional_documents']['name'] = str_replace($specialCharacters, $toReplace, $this->request->getData()['Eventsubmissions']['additional_documents']['name']);
-					$imageArray = $this->request->getData()['Eventsubmissions']['additional_documents'];
+					$additionalDocumentsUpload['name'] = str_replace($specialCharacters, $toReplace, $additionalDocumentsUpload['name']);
+					$imageArray = $additionalDocumentsUpload;
 					$returnedUploadImageArray = $this->PImage->upload($imageArray, UPLOAD_EVENTS_SUBMISSION_DOCUMENT_PATH); 
 					 
 					$data->additional_documents =  $returnedUploadImageArray[0];

@@ -30,6 +30,7 @@ $this->Conventionregistrationteachers = TableRegistry::get('Conventionregistrati
                             <th class="sorting_paging">Sponsor/Teacher</th>
                             <th class="sorting_paging">Students</th>
                             <th class="sorting_paging">Registration Date</th>
+                            <th class="action_dvv"><i class=" fa fa-gavel"></i> Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -53,6 +54,20 @@ $this->Conventionregistrationteachers = TableRegistry::get('Conventionregistrati
                                     ?>
                                 </td>
                                 <td data-title="Registration Date"><?php echo $datarecord->created->format('M d, Y'); ?></td>
+                                <td data-title="Action">
+                                    <?php
+                                    echo $this->Html->link(
+                                        '<i class="fa fa-trash-o"></i>',
+                                        ['controller' => 'conventionregistrations', 'action' => 'deleteschoolregistration', $datarecord->slug],
+                                        [
+                                            'escape' => false,
+                                            'title' => 'Delete Registration',
+                                            'class' => 'btn btn-danger btn-xs action-list delete-list',
+                                            'confirm' => 'Are you sure you want to delete this school registration? This will also remove linked student, supervisor, event and submission records.'
+                                        ]
+                                    );
+                                    ?>
+                                </td>
                             </tr>
                         <?php } } ?>
                     </tbody>

@@ -7,7 +7,7 @@ if (empty($seasonsDD) || !is_array($seasonsDD)) {
     $seasonsDD = [];
 }
 ?>
-<div class="content-wrapper">
+<div class="content-wrapper admin-list-page">
     <section class="content-header">
       <h1>
          Manage Transactions 

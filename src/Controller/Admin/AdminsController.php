@@ -38,6 +38,7 @@ class AdminsController extends AppController {
         $this->Conventionregistrationstudents = $this->loadModel('Conventionregistrationstudents');
         $this->Conventionregistrationteachers = $this->loadModel('Conventionregistrationteachers');
         $this->Conventionseasonevents = $this->loadModel('Conventionseasonevents');
+        $this->Crstudentevents = $this->loadModel('Crstudentevents');
         $this->Eventsubmissions = $this->loadModel('Eventsubmissions');
 		$this->Judgeevaluations = $this->loadModel('Judgeevaluations');
     }
@@ -224,8 +225,19 @@ class AdminsController extends AppController {
                 }
             }
             $this->set('total_judges', $cntrJudges);
+
+            $cntrPastors = 0;
+            foreach($listCR as $pastorcntr)
+            {
+                if(isset($pastorcntr->Users) && $pastorcntr->Users['user_type'] == 'Teacher_Parent' && strtolower(trim((string)$pastorcntr->Users['title'])) == 'pastor')
+                {
+                    $cntrPastors++;
+                }
+            }
+            $this->set('total_pastors', $cntrPastors);
 			
-            $total_conv_seas_events = $this->Conventionseasonevents->find()->where(["conventionseasons_id"=> $convSD->id])->count();
+            // Count registered event entries, not configured season event definitions.
+            $total_conv_seas_events = $this->Crstudentevents->find()->where(["conventionseason_id"=> $convSD->id])->count();
             $this->set('total_conv_seas_events', $total_conv_seas_events);
 
 			$total_events_judged = $this->Judgeevaluations->find()->where(["conventionseason_id" => $convSD->id])->count();
@@ -267,6 +279,9 @@ class AdminsController extends AppController {
 			
             $total_students = $this->Users->find()->where(["user_type"=> "Student"])->count();
             $this->set('total_students', $total_students);
+
+            $total_pastors = $this->Users->find()->where(["user_type"=> "Teacher_Parent", "LOWER(TRIM(title))" => 'pastor'])->count();
+            $this->set('total_pastors', $total_pastors);
 			
             $total_registrations = $this->Conventionregistrations->find()->where(['1 = 1'])->count();
             $this->set('total_registrations', $total_registrations);

@@ -1,17 +1,57 @@
 <script type="text/javascript">
 	$(document).ready(function () {
-		$("#judgesreg_frm").validate();
+		var judgesRegValidator = $("#judgesreg_frm").validate({
+			rules: {
+				'Users[confirm_password]': {
+					equalTo: '#password'
+				}
+			}
+		});
+
+		$('#confirm_password')
+			.removeAttr('equalto')
+			.removeAttr('data-rule-equalto')
+			.rules('add', {
+				equalTo: '#password'
+			});
 	});
 </script>
 
-<section class="position-relative">
-	<div class=" left-element w-25">
+<section class="hp-hero position-relative" style="background: linear-gradient(135deg, #1c2452 0%, #0f1633 60%, #1a3a5c 100%); background-size: 300% 300%; animation: hp-grad-shift 12s ease infinite;">
+	<canvas id="hp-particles" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;pointer-events:none;"></canvas>
+	<script>
+	(function(){
+		var canvas = document.getElementById('hp-particles');
+		var ctx = canvas.getContext('2d');
+		var particles = [];
+		var count = 70;
+		function resize(){ canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
+		window.addEventListener('resize', resize);
+		resize();
+		for(var i=0; i<count; i++){
+			particles.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*2+0.5, dx: (Math.random()-0.5)*0.4, dy: (Math.random()-0.5)*0.4, alpha: Math.random()*0.5+0.1 });
+		}
+		function draw(){
+			ctx.clearRect(0,0,canvas.width,canvas.height);
+			particles.forEach(function(p){
+				ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+				ctx.fillStyle = 'rgba(120,160,255,'+p.alpha+')'; ctx.fill();
+				p.x += p.dx; p.y += p.dy;
+				if(p.x<0) p.x=canvas.width; if(p.x>canvas.width) p.x=0;
+				if(p.y<0) p.y=canvas.height; if(p.y>canvas.height) p.y=0;
+			});
+			requestAnimationFrame(draw);
+		}
+		draw();
+	})();
+	</script>
+	<div class="hp-wave hp-wave-left left-element w-25">
 		<?php echo $this->Html->image('front/left-element.png'); ?>
 	</div>
-	<div class=" ryt-element w-25">
+	<div class="hp-wave hp-wave-right ryt-element w-25">
 		<?php echo $this->Html->image('front/ryt-element.png'); ?>
 	</div>
-	<div class="container">
+	<div class="container hp-hero-inner">
 		<div class="row center-section align-items-center">
 			<?php echo $this->element('Homes/home_left_content'); ?>
 
@@ -43,12 +83,12 @@
 
 							<div class="lables">
 								<span class="col-4">Password</span>
-								<?php echo $this->Form->input('Users.password', ['label' => '', 'type' => 'password', 'label' => false, 'div' => false, 'class' => "form-control required", 'placeholder' => 'Password', 'minlength'=>6]); ?>
+								<?php echo $this->Form->input('Users.password', ['id' => 'password', 'label' => '', 'type' => 'password', 'label' => false, 'div' => false, 'class' => "form-control required", 'placeholder' => 'Password', 'minlength'=>6]); ?>
 							</div>
 							
 							<div class="lables">
 								<span class="col-4">Confirm Password</span>
-								<?php echo $this->Form->input('Users.confirm_password', ['id' => 'confirm_password','label' => '', 'type' => 'password', 'label' => false, 'div' => false, 'class' => "form-control required", 'placeholder' => 'Confirm Password', 'equalTo'=>'#users-password']); ?>
+								<?php echo $this->Form->input('Users.confirm_password', ['id' => 'confirm_password','label' => '', 'type' => 'password', 'label' => false, 'div' => false, 'class' => "form-control required", 'placeholder' => 'Confirm Password', 'equalTo'=>'#password']); ?>
 							</div>
 							
 							<div class="lables">

@@ -89,13 +89,13 @@ function submitBreach() {
 
 <div class="admin_loader" id="loaderID"><?php echo $this->Html->image('loader_large_blue.gif');?></div>
 <?php if (!$eventsubmissions->isEmpty()) { ?> 
-    <div class="panel-body">
+    <div style="padding:0;">
         
         <?php echo $this->Form->create(null, ['id'=>'actionFrom', "method" => "Post"]);  ?>
         <section id="no-more-tables" class="lstng-section">
              
 
-            <div class="tbl-resp-listing">
+            <div class="tbl-resp-listing" style="border:0;border-radius:0;">
                 <table id="group_events_table" class="table table-striped table-bordered" style="width:100%">
 					<thead>
 						<tr>
@@ -115,11 +115,11 @@ function submitBreach() {
 							<th class="sorting_paging">Context</th>
 							<th class="sorting_paging">Submitted File</th>
 							<th class="sorting_paging">Submission Date</th>
-							<th class="sorting_paging">Guideline Breach</th>
-							<th class="sorting_paging">Command Performance</th>
-							<th class="sorting_paging">Completed</th>
-							<th class="sorting_paging">Score</th>
-							<th class="sorting_paging">Judges Evaluation</th>
+					<th class="sorting_paging">Breach</th>
+					<th class="sorting_paging">Command</th>
+					<th class="sorting_paging">Done</th>
+					<th class="sorting_paging">Score</th>
+					<th class="sorting_paging">Action</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -280,71 +280,68 @@ function submitBreach() {
 							?>
 						</td>
 						
-						<td data-title="Guideline Breach">
-							<?php
-							if($datarecord->guideline_breach == 0)
-							{
-								$breachUrl = $this->Url->build(['controller' => 'judgeevaluations', 'action' => 'markbreach', $datarecord->slug]);
-								echo '<button type="button" onclick="openBreachModal(\'' . $breachUrl . '\')" class="btn btn-info">Mark Breach</button>';
-							}
-							else
-							if($datarecord->guideline_breach == 1)
-							{
-								echo 'Awaiting action from admin';
-							}
-							else
-							if($datarecord->guideline_breach == 2)
-							{
-								echo 'Approved By Admin';
-							}
-							?>
-						</td>
-						
-						<td data-title="Command Performance">
-							<?php
-							if($datarecord->guideline_breach == 0)
-							{
-								if($datarecord->command_performance == 1)
-								{
-									echo 'Yes';
-								}
-								else
-								{
-									$commandUrl = $this->Url->build(['controller' => 'judgeevaluations', 'action' => 'markcommand', $datarecord->slug]);
-									echo '<button type="button" onclick="openCommandModal(\'' . $commandUrl . '\')" class="btn btn-success">Mark Command</button>';
-								}
-							}
-							?>
-						</td>
-						
-						<td data-title="Completed">
-							<?php
-							// to check if this entry judged by this judge or not
-							$condCheckJudging = array();
-							$condCheckJudging[] = "(Judgeevaluations.eventsubmission_id = '".$datarecord->id."')";
-							$condCheckJudging[] = "(Judgeevaluations.uploaded_by_user_id = '".$this->request->session()->read("user_id")."')";
-							$getScores = $this->Judgeevaluations->find()->where($condCheckJudging)->first();
-							if($getScores)
-							{
-								echo '<i title="Entry judged by you" class="fa fa-check-circle"></i>';
-							}
-							?>
-						</td>
-						
-						<td data-title="Score">
-						<?php
-						// to get score by judge
-						if(!$getScores)
+<td data-title="Breach">
+					<?php
+					if($datarecord->guideline_breach == 0)
+					{
+						$breachUrl = $this->Url->build(['controller' => 'judgeevaluations', 'action' => 'markbreach', $datarecord->slug]);
+						echo '<button type="button" onclick="openBreachModal(\'' . $breachUrl . '\')" class="btn btn-sm btn-outline-danger" style="font-size:11px;padding:4px 8px;">Mark Breach</button>';
+					}
+					else if($datarecord->guideline_breach == 1)
+					{
+						echo '<span style="font-size:11px;color:#9c6a16;">Awaiting admin</span>';
+					}
+					else if($datarecord->guideline_breach == 2)
+					{
+						echo '<span style="font-size:11px;color:#1f7a45;">Approved</span>';
+					}
+					?>
+				</td>
+				
+				<td data-title="Command">
+					<?php
+					if($datarecord->guideline_breach == 0)
+					{
+						if($datarecord->command_performance == 1)
 						{
-							echo '-';
-						}
-						else if($getScores->did_not_attend == 0)
-						{
-							echo "$getScores->total_marks_obtained/$getScores->total_marks_possible";
+							echo '<span style="font-size:11px;color:#1f7a45;font-weight:600;">Yes</span>';
 						}
 						else
 						{
-							echo 'Did not attend';
+							$commandUrl = $this->Url->build(['controller' => 'judgeevaluations', 'action' => 'markcommand', $datarecord->slug]);
+							echo '<button type="button" onclick="openCommandModal(\'' . $commandUrl . '\')" class="btn btn-sm btn-outline-success" style="font-size:11px;padding:4px 8px;">Mark Command</button>';
+						}
+					}
+					?>
+				</td>
+				
+				<td data-title="Done" style="text-align:center;">
+					<?php
+					$condCheckJudging = array();
+					$condCheckJudging[] = "(Judgeevaluations.eventsubmission_id = '".$datarecord->id."')";
+					$condCheckJudging[] = "(Judgeevaluations.uploaded_by_user_id = '".$this->request->session()->read("user_id")."')";
+					$getScores = $this->Judgeevaluations->find()->where($condCheckJudging)->first();
+					if($getScores)
+					{
+						echo '<span class="jee-judged-chip" title="Judged by you"><i class="fa fa-check"></i> Done</span>';
+					}
+					else { echo '<span style="color:#aaa;font-size:12px;">—</span>'; }
+					?>
+				</td>
+				
+				<td data-title="Score" style="text-align:center;">
+				<?php
+				if(!$getScores)
+				{
+					echo '<span style="color:#aaa;">—</span>';
+				}
+				else if($getScores->did_not_attend == 0)
+				{
+					echo '<span class="jee-score-badge">'.$getScores->total_marks_obtained.'/'.$getScores->total_marks_possible.'</span>';
+				}
+				else
+				{
+					echo '<span style="font-size:11px;color:#999;">Did not attend</span>';
 						}
 						?>
 						</td>
@@ -352,23 +349,19 @@ function submitBreach() {
 						
 						
 						<td data-title="Action">
+						<div class="jee-action-group">
 						<?php
 						if(empty($hasEvaluationForm))
 						{
-							echo 'N/A';
+							echo '<span style="font-size:11px;color:#aaa;">N/A</span>';
 						}
 						else if($datarecord->guideline_breach != 2)
 						{
-							echo $this->Html->link('<i class="fa fa-street-view"></i>', ['controller' => 'judgeevaluations', 'action' => 'addnew',$conv_reg_slug,$datarecord->slug], [ 'escape' => false, 'title' => 'Submit Evaluation', 'class'=>'', 'confirm' => 'Are you sure you want to submit evaluation for this entry?']);
+							echo $this->Html->link('<i class="fa fa-pencil-square-o"></i> Evaluate', ['controller' => 'judgeevaluations', 'action' => 'addnew',$conv_reg_slug,$datarecord->slug], [ 'escape' => false, 'title' => 'Submit Evaluation', 'class'=>'btn btn-sm btn-primary', 'style' => 'font-size:11px;padding:4px 9px;', 'confirm' => 'Are you sure you want to submit evaluation for this entry?']);
 						}
-						
-						// Mark entry as did not attend, for individual event only
-						//if($eventD->group_event_yes_no == 0)
-						//{
-							echo $this->Html->link('<i class="fa fa-times-circle-o"></i>', ['controller' => 'judgeevaluations', 'action' => 'markdidnotattend',$conv_reg_slug,$datarecord->slug], [ 'escape' => false, 'title' => 'Mark As Did Not Attend', 'class'=>'', 'confirm' => 'Are you sure you want to mark this submission as did not attend?']);
-						//}
-						
+						echo $this->Html->link('<i class="fa fa-times-circle-o"></i>', ['controller' => 'judgeevaluations', 'action' => 'markdidnotattend',$conv_reg_slug,$datarecord->slug], [ 'escape' => false, 'title' => 'Mark As Did Not Attend', 'class'=>'btn btn-sm btn-outline-secondary', 'style' => 'font-size:11px;padding:4px 8px;display:inline-flex;align-items:center;justify-content:center;width:auto;background:transparent;color:#6c757d;border:1px solid #6c757d;', 'confirm' => 'Are you sure you want to mark this submission as did not attend?']);
 						?>
+						</div>
 						</td>
 					</tr>
 						<?php } ?>

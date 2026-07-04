@@ -3,20 +3,20 @@ $(document).ready(function () {
 	$("#addteacher").validate();
 });
 </script>
-<div class="container-fluid p-0">
+<div class="container-fluid p-0 cr-price-structure-page">
 	<div class="row">
 		<?php echo $this->element('user_left_menu'); ?>
-		<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+		<main class="col-md-9 ms-sm-auto col-lg-10 px-0 cr-price-structure-main">
 		
 		<div class="ersu_message"> <?php echo $this->Flash->render() ?></div>
 		
-			<h2 class="mt-3">Price Structure</h2>
+			<h2 class="mt-3 cr-page-title">Price Structure</h2>
 			  
 			<?php
 			if($paymentDone == "No")
 			{
 			?>
-			<div class="dashboard-form">
+			<div class="dashboard-form cr-price-card">
 				<h2 class="form-title">Choose Price Structure</h2>
 				<?php echo $this->Form->create(NULL, ['id'=>'addteacher', 'type' => 'file', 'class' =>' ']); ?>
 					
@@ -40,7 +40,7 @@ $(document).ready(function () {
 			else
 			{
 			?>
-			<div class="dashboard-form">
+			<div class="dashboard-form cr-price-card cr-price-card--locked">
 				<h2 class="form-title">Sorry, you cannot change the selected price structure for this convention as student payments have already been made.</h2>
 					
 					<div class="form-group">
@@ -53,7 +53,6 @@ $(document).ready(function () {
 						<label></label>
 						<?php echo $this->Html->link('Back to dashboard', ['controller'=>'users', 'action' => 'dashboard'], ['class'=>'btn btn-secondary']); ?>
 					</div>
-				<?php echo $this->Form->end(); ?>
 			</div>
 			<?php
 			}

@@ -822,7 +822,7 @@ class UsersController extends AppController{
         $separator = array();
         $condition = array();
         
-        $condition[] = "(Users.activation_status = '1' AND (Users.status = '1' OR Users.status = '2'))";
+        $condition[] = "(Users.status = '0' OR Users.status = '1' OR Users.status = '2')";
         $condition[] = "(Users.user_type = 'Judge' OR (Users.user_type = 'Teacher_Parent' AND Users.is_judge = '1'))";
         
         if($this->request->is('post')){
@@ -869,10 +869,96 @@ class UsersController extends AppController{
         $this->paginate = ['contain'=>['Schools'],'conditions' => $condition, 'limit' => 50, 'order' => ['Users.id' => 'DESC']];
         $this->set('users', $this->paginate($this->Users));
         if($this->request->is("ajax")){
-            $this->viewBuilder()->setLayout("");
+            $this->viewBuilder()->disableAutoLayout();
             $this->viewBuilder()->setTemplatePath('Element' . DS . 'Admin/Users');
             $this->render('judges');
         }
+    }
+
+    public function activatejudgeaccount($slug=null) {
+        $judgeD = $this->Users->find()->where([
+            'Users.slug' => $slug,
+            '(Users.user_type = "Judge" OR (Users.user_type = "Teacher_Parent" AND Users.is_judge = "1"))',
+            'Users.status IN' => [0, 1, 2]
+        ])->first();
+
+        if($judgeD)
+        {
+            $this->Users->updateAll([
+                'activation_status' => '1',
+                'status' => '1',
+                'modified' => date('Y-m-d H:i:s', time())
+            ], ['slug' => $slug]);
+
+            $this->Flash->success('Judge account activated successfully. The judge can now log in without email verification.');
+        }
+        else
+        {
+            $this->Flash->error('Invalid action.');
+        }
+
+        return $this->redirect(['controller'=>'users', 'action' => 'judges']);
+    }
+
+    public function editjudge($slug=null){
+        $this->set('title', ADMIN_TITLE. 'Edit Judge');
+        $this->viewBuilder()->setLayout('admin');
+
+        $this->set('manageJudges', '1');
+        $this->set('activeJudges', '1');
+
+        $schoolsDD = $this->Users->find()->where(['Users.user_type' => 'School'])->order(['Users.first_name' => 'ASC'])->combine('id', 'first_name')->toArray();
+        $this->set('schoolsDD', $schoolsDD);
+
+        global $genderDD;
+        $this->set('genderDD', $genderDD);
+
+        global $yesNoDD;
+        $this->set('yesNoDD', $yesNoDD);
+
+        if($slug){
+            $users1 = $this->Users->find()->where([
+                'Users.slug' => $slug,
+                "(Users.user_type = 'Judge' OR (Users.user_type = 'Teacher_Parent' AND Users.is_judge = '1'))"
+            ])->first();
+            if(!$users1){
+                $this->Flash->error('Invalid judge record.');
+                return $this->redirect(['controller'=>'users', 'action' => 'judges']);
+            }
+            $uid = $users1->id;
+        }
+
+        $users = $this->Users->get($uid);
+        if ($this->request->is(['post', 'put'])) {
+            if(empty($this->request->getData()['Users']['password'])){
+                unset($this->request->getData()['Users']['password']);
+            }
+            $data = $this->Users->patchEntity($users, $this->request->getData());
+
+            if(count($data->getErrors()) == 0){
+
+                if(isset($this->request->getData()['Users']['password']) && $this->request->getData()['Users']['password'] !=''){
+                    $new_password = $this->request->getData()['Users']['password'];
+                    unset($this->request->getData()['Users']['password']);
+                    $salt = uniqid(mt_rand(), true);
+                    $password = crypt($new_password, '$2a$07$' . $salt . '$');
+                    $data->password = $password;
+                }
+
+                if ($this->Users->save($data)) {
+                    $this->Flash->success('Judge details updated successfully.');
+                    return $this->redirect(['controller'=>'users', 'action' => 'judges']);
+                }
+
+            }else{
+                if(empty($this->request->getData()['Users']['password'])){
+                    $this->request->getData()['Users']['password'] = '';
+                }
+            }
+        }else{
+             $this->request->getData()['Users']['password'] = '';
+        }
+        $this->set('users', $users);
     }
     
     public function pendingjudges() {
@@ -934,7 +1020,7 @@ class UsersController extends AppController{
         $this->paginate = ['contain'=>['Schools'],'conditions' => $condition, 'limit' => 50, 'order' => ['Users.id' => 'DESC']];
         $this->set('users', $this->paginate($this->Users));
         if($this->request->is("ajax")){
-            $this->viewBuilder()->setLayout("");
+            $this->viewBuilder()->disableAutoLayout();
             $this->viewBuilder()->setTemplatePath('Element' . DS . 'Admin/Users');
             $this->render('pendingjudges');
         }

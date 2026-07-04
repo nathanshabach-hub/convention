@@ -5,7 +5,7 @@ $this->Transactionstudents = TableRegistry::get('Transactionstudents');
 <div class="admin_loader" id="loaderID"><?php echo $this->Html->image('loader_large_blue.gif');?></div>
 <?php if (!$conventionregistrationstudents->isEmpty()) { ?>
 
-    <div class="panel-body">
+    <div class="panel-body cr-students-panel">
         
         <?php echo $this->Form->create(null, ['id'=>'actionFrom', "method" => "Post"]);  ?>
         <section id="no-more-tables" class="lstng-section">
@@ -25,8 +25,8 @@ $this->Transactionstudents = TableRegistry::get('Transactionstudents');
                 </div>
             </div>   
 
-            <div class="tbl-resp-listing">
-                <table class="table table-bordered table-striped table-condensed cf">
+            <div class="tbl-resp-listing cr-students-table-wrap">
+                <table class="table table-bordered table-striped table-condensed cf cr-students-table">
                     <thead class="cf ajshort">
                         <tr>
                             <th class="sorting_paging">Season Year</th>
@@ -34,7 +34,7 @@ $this->Transactionstudents = TableRegistry::get('Transactionstudents');
                             <th class="sorting_paging">Payment Status</th>
                             <th class="sorting_paging">Registration Date</th>
                             <th class="sorting_paging" style="width:24%">Supervisor</th>
-                            <th class="action_dvv"><i class=" fa fa-gavel"></i> Action</th>
+                            <th class="action_dvv">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -54,24 +54,35 @@ $this->Transactionstudents = TableRegistry::get('Transactionstudents');
                                 <td data-title="Student"><?php echo $datarecord->Students['first_name'].' '.$datarecord->Students['middle_name'].' '.$datarecord->Students['last_name'];?></td>
                                 <td data-title="Payment Status">
                                     <?php
+                                    $paymentLabel = 'Not yet paid';
+                                    $paymentClass = 'is-unpaid';
                                     if($checkStudentPaymentStatus)
                                     {
                                         if($checkStudentPaymentStatus->status == 0)
-                                            echo 'Failed';
+                                        {
+                                            $paymentLabel = 'Failed';
+                                            $paymentClass = 'is-failed';
+                                        }
                                         else
                                         if($checkStudentPaymentStatus->status == 1)
-                                            echo 'Confirmed';
+                                        {
+                                            $paymentLabel = 'Confirmed';
+                                            $paymentClass = 'is-confirmed';
+                                        }
                                         else
                                         if($checkStudentPaymentStatus->status == 2)
-                                            echo 'Pending';
+                                        {
+                                            $paymentLabel = 'Pending';
+                                            $paymentClass = 'is-pending';
+                                        }
                                         else
                                         if($checkStudentPaymentStatus->status == 3)
-                                            echo 'Invoiced';
+                                        {
+                                            $paymentLabel = 'Invoiced';
+                                            $paymentClass = 'is-invoiced';
+                                        }
                                     }
-                                    else
-                                    {
-                                        echo 'Not yet paid';
-                                    }
+                                    echo '<span class="cr-pay-badge '.$paymentClass.'">'.$paymentLabel.'</span>';
                                     ?>
                                 </td>
 
@@ -132,15 +143,15 @@ $this->Transactionstudents = TableRegistry::get('Transactionstudents');
                                     </script>
                                 </td>
                                 
-                                <td data-title="Action">
+                                <td data-title="Action" class="cr-action-cell">
                                     <?php
                                     if(!$checkStudentPaymentStatus)
                                     {
-                                        echo $this->Html->link('<i class="fa fa-trash-o"></i>', ['controller' => 'conventionregistrations', 'action' => 'removestudent',$datarecord->slug], [ 'escape' => false, 'title' => 'Remove', 'class'=>'', 'confirm' => 'Are you sure you want to remove this student from this convention registration ?']);
+                                        echo $this->Html->link('Remove Student', ['controller' => 'conventionregistrations', 'action' => 'removestudent',$datarecord->slug], [ 'escape' => false, 'title' => 'Remove', 'class'=>'cr-action-btn cr-action-remove', 'confirm' => 'Are you sure you want to remove this student from this convention registration ?']);
                                     }
                                     else
                                     {
-                                        echo $this->Html->link('<i class="fa fa-file-pdf-o"></i>', ['controller' => 'judgeevaluations', 'action' => 'indrespackprint',$datarecord->slug], [ 'escape' => false, 'title' => 'Download Individual Result Package', 'target'=>'_blank']);  
+                                        echo $this->Html->link('Result PDF', ['controller' => 'judgeevaluations', 'action' => 'indrespackprint',$datarecord->slug], [ 'escape' => false, 'title' => 'Download Individual Result Package', 'target'=>'_blank', 'class' => 'cr-action-btn cr-action-result']);  
                                     }
                                     ?>
                                 </td>
@@ -158,11 +169,11 @@ $this->Transactionstudents = TableRegistry::get('Transactionstudents');
     <?php 
     if($checkPriceStructure->price_per_student>0)
     {
-        echo $this->Html->link('Proceed to Payment/Invoice', ['controller' => 'transactions', 'action' => 'paymentsummary'], ['escape' => false, 'class' => 'btn btn-success']);
+        echo $this->Html->link('Proceed to Payment/Invoice', ['controller' => 'transactions', 'action' => 'paymentsummary'], ['escape' => false, 'class' => 'btn btn-success cr-students-footer-btn']);
     }
     else
     {
-        echo $this->Html->link('Price Structure', ['controller' => 'conventionregistrations', 'action' => 'pricestructure'], ['escape' => false, 'class' => 'btn btn-info']);
+        echo $this->Html->link('Price Structure', ['controller' => 'conventionregistrations', 'action' => 'pricestructure'], ['escape' => false, 'class' => 'btn btn-info cr-students-footer-btn']);
     }
     ?>
     

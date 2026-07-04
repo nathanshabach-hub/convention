@@ -300,11 +300,15 @@ $(document).ready(function () {
 
 <script type="text/javascript">
 $(document).ready(function () {
+	function roundToTwo(num) {
+		return Math.round((num + Number.EPSILON) * 100) / 100;
+	}
+
+	function formatScore(num) {
+		return Number.isInteger(num) ? String(num) : num.toFixed(2).replace(/0+$/, '').replace(/\.$/, '');
+	}
+
 	$(".calculateTotal").on("keyup change", function(e) {
-		//alert('dddddd');return false;
-		
-		//alert(Math.abs($('#negative_question_marks_obtained').val()));
-		
 		var max_questions = $('#max_questions').val();
 		var totalPointsAllotted = 0;
 		
@@ -313,18 +317,20 @@ $(document).ready(function () {
 			// to get point provided
 			if($('#question_marks_obtained_'+cntrMaxQ).val())
 			{
-				totalPointsAllotted = parseInt(totalPointsAllotted)+parseInt($('#question_marks_obtained_'+cntrMaxQ).val());
+				totalPointsAllotted += parseFloat($('#question_marks_obtained_'+cntrMaxQ).val()) || 0;
 			}
 		}
 		
 		// to check if any negative question is there
 		if($('#negative_question_marks_obtained').val())
 		{
-			var negativeVal = Math.abs($('#negative_question_marks_obtained').val());
-			totalPointsAllotted = parseInt(totalPointsAllotted)-negativeVal;
+			var negativeVal = Math.abs(parseFloat($('#negative_question_marks_obtained').val()) || 0);
+			totalPointsAllotted -= negativeVal;
 		}
+
+		totalPointsAllotted = roundToTwo(totalPointsAllotted);
 		
-		$("#box_points_allotted").html(totalPointsAllotted);
+		$("#box_points_allotted").html(formatScore(totalPointsAllotted));
 		$("#calc_points_allotted").val(totalPointsAllotted);
 	})
 });

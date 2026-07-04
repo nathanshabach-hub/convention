@@ -338,6 +338,11 @@ footer {
 	
 }
 .dashboard-form .form-group .input-multiple {
+	.cr-price-structure-page {
+		background:
+			radial-gradient(circle at 10% 0%, rgba(28, 36, 82, 0.08), transparent 30%),
+			linear-gradient(180deg, #f5f8fc 0%, #eef3f8 100%);
+	}
 	width: 69%;
 	/* margin-bottom: -24px; */
 	
@@ -505,7 +510,6 @@ footer {
 	}
 
 }
-
 @media (max-width: 768px) {
 
 	.left-element img,
@@ -520,7 +524,6 @@ footer {
 	.tbl-resp-listing th a {
 		width: max-content;
 	}
-
 	.tbl-resp-listing td i {
 		margin-right: 8px;
 	}
@@ -571,6 +574,1384 @@ footer {
 	}
 
 }
+
+/* Convention registration add supervisor page */
+.cr-addteacher-page {
+	background:
+		radial-gradient(circle at 10% 0%, rgba(28, 36, 82, 0.08), transparent 30%),
+		linear-gradient(180deg, #f5f8fc 0%, #eef3f8 100%);
+}
+
+.cr-addteacher-main {
+	padding-top: 14px;
+	padding-bottom: 18px;
+}
+
+.cr-addteacher-title {
+	color: #16355a;
+	font-size: 30px;
+	font-weight: 700;
+	letter-spacing: 0.2px;
+	margin-bottom: 14px;
+}
+
+.cr-addteacher-card {
+	background: #fff;
+	border: 1px solid #d8e3ef;
+	border-radius: 14px;
+	box-shadow: 0 10px 26px rgba(19, 53, 90, 0.09);
+	padding: 20px 22px 18px;
+	margin-top: 0;
+}
+
+.cr-addteacher-card .form-title {
+	color: #1c3f66;
+	font-size: 22px;
+	font-weight: 700;
+	margin-bottom: 14px;
+}
+
+.cr-addteacher-card .form-group {
+	align-items: flex-start;
+	border-bottom: 1px solid #edf2f7;
+	padding-bottom: 12px;
+	margin-bottom: 12px;
+}
+
+.cr-addteacher-card .form-group.form-btns {
+	border-bottom: 0;
+	padding-bottom: 0;
+	margin-bottom: 0;
+	padding-top: 2px;
+}
+
+.cr-addteacher-card .form-group > label {
+	color: #2d4e6f;
+	font-weight: 700;
+	padding-top: 8px;
+	width: 210px;
+}
+
+.cr-addteacher-card .input-multiple {
+	width: calc(100% - 210px);
+	min-width: 320px;
+}
+
+.cr-addteacher-card .form-control {
+	border: 1px solid #c7d7e8;
+	border-radius: 10px;
+	box-shadow: none;
+	min-height: 42px;
+	padding: 8px 12px;
+}
+
+.cr-addteacher-card .select2-container--default .select2-selection--multiple {
+	border: 1px solid #c7d7e8;
+	border-radius: 10px;
+	min-height: 42px;
+	padding: 4px 8px;
+}
+
+.cr-addteacher-card .select2-container--default.select2-container--focus .select2-selection--multiple {
+	border-color: #1f5f8f;
+	box-shadow: 0 0 0 3px rgba(31, 95, 143, 0.12);
+}
+
+.cr-addteacher-quick-actions {
+	display: flex;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+
+.cr-addteacher-quick-actions .btn {
+	border: 1px solid #c7d7e8;
+	border-radius: 8px;
+	color: #315678;
+	font-weight: 600;
+	padding: 5px 10px;
+}
+
+.cr-addteacher-card em {
+	color: #5d7087;
+	display: block;
+	font-size: 13px;
+	line-height: 1.45;
+	margin-top: 8px;
+}
+
+.cr-addteacher-card .form-btns .btn {
+	border-radius: 10px;
+	font-weight: 600;
+	min-width: 110px;
+	padding: 8px 16px;
+}
+
+@media (max-width: 991px) {
+	.cr-addteacher-main {
+		padding-left: 12px;
+		padding-right: 12px;
+	}
+
+	.cr-addteacher-title {
+		font-size: 26px;
+	}
+
+	.cr-addteacher-card {
+		padding: 14px 12px;
+	}
+
+	.cr-addteacher-card .form-title {
+		font-size: 19px;
+	}
+
+	.cr-addteacher-card .form-group > label,
+	.cr-addteacher-card .input-multiple {
+		width: 100%;
+		min-width: 100%;
+	}
+
+	.cr-addteacher-card .form-group > label {
+		padding-top: 0;
+		margin-bottom: 8px;
+	}
+
+	.cr-addteacher-card .form-group.form-btns > label {
+		display: none;
+	}
+}
+
+/* Convention registration student events list page */
+.cr-studentevents-page {
+	background:
+		radial-gradient(circle at 10% 0%, rgba(28, 36, 82, 0.08), transparent 30%),
+		linear-gradient(180deg, #f5f8fc 0%, #eef3f8 100%);
+}
+
+.cr-studentevents-main {
+	padding-top: 14px;
+	padding-bottom: 16px;
+}
+
+.cr-studentevents-header {
+	margin: 8px 0 14px;
+}
+
+.cr-studentevents-title {
+	color: #16355a;
+	font-size: 30px;
+	font-weight: 700;
+	letter-spacing: 0.2px;
+	line-height: 1.2;
+}
+
+.cr-studentevents-card {
+	background: #fff;
+	border: 1px solid #d8e3ef;
+	border-radius: 14px;
+	box-shadow: 0 10px 26px rgba(19, 53, 90, 0.09);
+	padding: 14px 14px 10px;
+}
+
+.cr-studentevents-panel {
+	padding: 0;
+	margin: 0;
+}
+
+.cr-studentevents-card .dataTables_filter label {
+	font-weight: 600;
+	color: #2f4f71;
+	margin-bottom: 10px;
+}
+
+.cr-studentevents-card .dataTables_filter input {
+	border: 1px solid #c7d7e8;
+	border-radius: 10px;
+	box-shadow: none;
+	height: 36px;
+	padding: 6px 10px;
+}
+
+.cr-studentevents-table thead th {
+	background: #eef4fb;
+	color: #1f3e61;
+	font-weight: 700;
+	vertical-align: middle;
+}
+
+.cr-studentevents-table tbody tr:hover td {
+	background: #f7fbff;
+}
+
+.cr-studentevents-table td,
+.cr-studentevents-table th {
+	border-color: #d8e3ef;
+	vertical-align: middle;
+}
+
+.cr-action-cell {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	min-width: 220px;
+	white-space: nowrap;
+}
+
+.cr-action-btn {
+	border-radius: 999px;
+	display: inline-flex;
+	align-items: center;
+	font-size: 12px;
+	font-weight: 700;
+	line-height: 1;
+	padding: 7px 11px;
+	text-decoration: none;
+	transition: all 0.16s ease;
+}
+
+.cr-action-btn:hover,
+.cr-action-btn:focus {
+	text-decoration: none;
+}
+
+.cr-action-manage {
+	background: #e9f4ff;
+	border: 1px solid #bbd6f1;
+	color: #1a4f7e !important;
+}
+
+.cr-action-manage:hover {
+	background: #dceeff;
+	color: #123f67 !important;
+}
+
+.cr-action-remove {
+	background: #fff4f2;
+	border: 1px solid #f2c9c1;
+	color: #8e3426 !important;
+}
+
+.cr-action-remove:hover {
+	background: #ffe9e5;
+	color: #742719 !important;
+}
+
+@media (max-width: 991px) {
+	.cr-studentevents-main {
+		padding-left: 12px;
+		padding-right: 12px;
+	}
+
+	.cr-studentevents-title {
+		font-size: 26px;
+	}
+
+	.cr-studentevents-card {
+		padding: 12px 10px 8px;
+	}
+
+	.cr-action-cell {
+		min-width: 180px;
+	}
+
+	.cr-action-btn {
+		font-size: 11px;
+		padding: 6px 9px;
+	}
+}
+
+/* Convention registration students list page */
+.cr-students-page {
+	background:
+		radial-gradient(circle at 10% 0%, rgba(28, 36, 82, 0.08), transparent 30%),
+		linear-gradient(180deg, #f5f8fc 0%, #eef3f8 100%);
+}
+
+.cr-students-main {
+	padding-top: 14px;
+	padding-bottom: 16px;
+}
+
+.cr-students-header {
+	margin: 8px 0 14px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+
+.cr-students-title {
+	color: #16355a;
+	font-size: 30px;
+	font-weight: 700;
+	letter-spacing: 0.2px;
+	line-height: 1.2;
+}
+
+.cr-students-card {
+	background: #fff;
+	border: 1px solid #d8e3ef;
+	border-radius: 14px;
+	box-shadow: 0 10px 26px rgba(19, 53, 90, 0.09);
+	padding: 14px 14px 10px;
+}
+
+.cr-students-panel {
+	padding: 0;
+	margin: 0;
+}
+
+.cr-students-table th {
+	background: #eef4fb;
+	color: #1f3e61;
+	font-weight: 700;
+	vertical-align: middle;
+}
+
+.cr-students-table td,
+.cr-students-table th {
+	border-color: #d8e3ef;
+	vertical-align: middle;
+}
+
+.cr-students-table tbody tr:hover td {
+	background: #f7fbff;
+}
+
+.cr-pay-badge {
+	border-radius: 999px;
+	display: inline-flex;
+	align-items: center;
+	font-size: 12px;
+	font-weight: 700;
+	line-height: 1;
+	padding: 6px 10px;
+	white-space: nowrap;
+}
+
+.cr-pay-badge.is-confirmed {
+	background: #e7f6ed;
+	border: 1px solid #b8dfc6;
+	color: #1f6a38;
+}
+
+.cr-pay-badge.is-pending,
+.cr-pay-badge.is-invoiced {
+	background: #fff8e6;
+	border: 1px solid #f1db9f;
+	color: #7b5a10;
+}
+
+.cr-pay-badge.is-failed,
+.cr-pay-badge.is-unpaid {
+	background: #fff1ef;
+	border: 1px solid #f0c4bd;
+	color: #8d3224;
+}
+
+.cr-action-result {
+	background: #f1ecff;
+	border: 1px solid #d3c7f3;
+	color: #4d3286 !important;
+}
+
+.cr-action-result:hover {
+	background: #e8e1ff;
+	color: #3e266f !important;
+}
+
+.cr-students-footer-btn {
+	border-radius: 10px;
+	font-weight: 700;
+	margin-top: 10px;
+	padding: 9px 14px;
+}
+
+@media (max-width: 991px) {
+	.cr-students-main {
+		padding-left: 12px;
+		padding-right: 12px;
+	}
+
+	.cr-students-title {
+		font-size: 26px;
+	}
+
+	.cr-students-card {
+		padding: 12px 10px 8px;
+	}
+}
+
+/* Convention registration payment summary page */
+.cr-paymentsummary-page {
+	background:
+		radial-gradient(circle at 10% 0%, rgba(28, 36, 82, 0.08), transparent 30%),
+		linear-gradient(180deg, #f5f8fc 0%, #eef3f8 100%);
+}
+
+.cr-paymentsummary-main {
+	padding-top: 14px;
+	padding-bottom: 16px;
+}
+
+.cr-paymentsummary-title {
+	color: #16355a;
+	font-size: 30px !important;
+	font-weight: 700;
+	letter-spacing: 0.2px;
+	line-height: 1.2;
+	margin-bottom: 4px;
+}
+
+.cr-paymentsummary-subtitle {
+	color: #496886;
+	font-size: 14px;
+	margin: 0 0 14px;
+}
+
+.cr-paymentsummary-card {
+	background: #fff;
+	border: 1px solid #d8e3ef;
+	border-radius: 14px;
+	box-shadow: 0 10px 26px rgba(19, 53, 90, 0.09);
+	margin-bottom: 12px;
+	margin-top: 0;
+	max-width: none;
+	padding: 18px 18px 14px;
+	width: 100%;
+}
+
+.cr-pay-summary-grid {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.cr-pay-kpis {
+	display: grid;
+	gap: 10px;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	margin-bottom: 12px;
+}
+
+.cr-pay-kpi {
+	background: #f6f9fd;
+	border: 1px solid #dbe7f3;
+	border-radius: 10px;
+	padding: 10px 12px;
+}
+
+.cr-pay-kpi.is-emphasis {
+	background: #eaf3ff;
+	border-color: #c9ddf7;
+}
+
+.cr-pay-kpi-label {
+	color: #496886;
+	display: block;
+	font-size: 12px;
+	font-weight: 600;
+	margin-bottom: 2px;
+	text-transform: uppercase;
+	letter-spacing: 0.4px;
+}
+
+.cr-pay-kpi-value {
+	color: #123f67;
+	font-size: 24px;
+	font-weight: 700;
+	line-height: 1.2;
+}
+
+.cr-pay-currency-note {
+	color: #496886;
+	font-size: 13px;
+	margin-bottom: 8px;
+}
+
+.cr-pay-section-title {
+	color: #1f4a73;
+	font-size: 15px;
+	font-weight: 700;
+	margin: 6px 0 2px;
+}
+
+.cr-pay-two-col {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 12px;
+}
+
+.cr-pay-col {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.cr-pay-row {
+	align-items: center;
+	background: #f9fbfe;
+	border: 1px solid #e1eaf3;
+	border-radius: 10px;
+	display: flex;
+	gap: 14px;
+	justify-content: space-between;
+	margin: 0;
+	padding: 11px 12px;
+}
+
+.cr-pay-row > label {
+	color: #26486c;
+	font-weight: 600;
+	margin: 0;
+}
+
+.cr-pay-value {
+	color: #1b3553;
+	font-weight: 700;
+	line-height: 1.35;
+	text-align: right;
+}
+
+.cr-pay-section-divider {
+	border-top: 1px dashed #c7d7e8;
+	margin: 6px 2px;
+	height: 1px;
+}
+
+.cr-pay-total-row {
+	background: #eef5ff;
+	border-color: #cadef5;
+	box-shadow: inset 0 0 0 1px #e5effb;
+}
+
+.cr-pay-total-row > label,
+.cr-pay-total-row .cr-pay-value {
+	color: #0f3f73;
+	font-size: 16px;
+	font-weight: 700;
+}
+
+.cr-pay-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin-top: 14px;
+}
+
+.cr-pay-btn {
+	border-radius: 10px;
+	font-weight: 700;
+	min-height: 40px;
+	padding: 8px 14px;
+}
+
+.cr-pay-btn-online {
+	background: #1f7a45 !important;
+	border-color: #1a6d3d !important;
+	color: #fff !important;
+}
+
+.cr-pay-btn-online:hover {
+	background: #186a3b !important;
+	color: #fff !important;
+}
+
+.cr-pay-btn-invoice {
+	background: #0f6c96 !important;
+	border-color: #0c5e82 !important;
+	color: #fff !important;
+}
+
+.cr-pay-btn-invoice:hover {
+	background: #0a5878 !important;
+	color: #fff !important;
+}
+
+.cr-pay-btn-cancel {
+	color: #fff !important;
+}
+
+.cr-pay-note-wrap {
+	margin-top: 4px;
+}
+
+.cr-pay-note {
+	background: #f4f7fb;
+	border-left: 4px solid #7f9fc6;
+	border-radius: 8px;
+	color: #2c4f74 !important;
+	padding: 9px 11px;
+}
+
+.cr-pay-good {
+	background: #edf8ef;
+	border-left: 4px solid #3f9a56;
+	border-radius: 8px;
+	color: #17622e !important;
+	font-weight: 600;
+	padding: 9px 11px;
+}
+
+@media (max-width: 991px) {
+	.cr-paymentsummary-main {
+		padding-left: 12px;
+		padding-right: 12px;
+	}
+
+	.cr-paymentsummary-title {
+		font-size: 26px !important;
+	}
+
+	.cr-paymentsummary-subtitle {
+		font-size: 13px;
+	}
+
+	.cr-paymentsummary-card {
+		padding: 14px 12px 12px;
+	}
+
+	.cr-pay-kpis {
+		grid-template-columns: 1fr;
+	}
+
+	.cr-pay-kpi-value {
+		font-size: 22px;
+	}
+
+	.cr-pay-two-col {
+		grid-template-columns: 1fr;
+	}
+
+	.cr-pay-row {
+		align-items: flex-start;
+		flex-direction: column;
+		gap: 6px;
+	}
+
+	.cr-pay-value {
+		text-align: left;
+	}
+}
+
+/* Convention registration package checklist page */
+.cr-packreg-page {
+	background:
+		radial-gradient(circle at 10% 0%, rgba(28, 36, 82, 0.08), transparent 30%),
+		linear-gradient(180deg, #f5f8fc 0%, #eef3f8 100%);
+}
+
+.cr-packreg-main {
+	padding-top: 14px;
+	padding-bottom: 16px;
+}
+
+.cr-packreg-header {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	justify-content: space-between;
+	margin: 8px 0 14px;
+}
+
+.cr-packreg-title {
+	color: #16355a;
+	font-size: 30px;
+	font-weight: 700;
+	letter-spacing: 0.2px;
+	line-height: 1.2;
+}
+
+.cr-packreg-print-btn {
+	border-radius: 10px;
+	font-weight: 700;
+	padding: 8px 14px;
+}
+
+.cr-packreg-print-btn i {
+	margin-right: 5px;
+}
+
+.cr-packreg-card {
+	background: #fff;
+	border: 1px solid #d8e3ef;
+	border-radius: 14px;
+	box-shadow: 0 10px 26px rgba(19, 53, 90, 0.09);
+	padding: 12px;
+}
+
+.cr-pr-panel {
+	padding: 0;
+	margin: 0;
+}
+
+.cr-pr-list {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.cr-pr-card {
+	background: #fff;
+	border: 1px solid #dbe7f3;
+	border-radius: 12px;
+	overflow: hidden;
+}
+
+.cr-pr-card-header {
+	align-items: center;
+	background: linear-gradient(180deg, #f6f9fe 0%, #f3f8fd 100%);
+	border-bottom: 1px solid #dbe7f3;
+	display: flex;
+	gap: 10px;
+	justify-content: space-between;
+	padding: 12px 14px;
+}
+
+.cr-pr-student-name {
+	color: #1c446d;
+	font-size: 18px !important;
+	font-weight: 700;
+	margin: 0;
+}
+
+.cr-pr-student-details {
+	color: #4d6986;
+	display: flex;
+	flex-wrap: wrap;
+	font-size: 12px;
+	font-weight: 600;
+	gap: 14px;
+	margin: 3px 0 0;
+}
+
+.cr-pr-count {
+	background: #e8f3ff;
+	border: 1px solid #c6dcf1;
+	border-radius: 999px;
+	color: #1f4f7d;
+	font-size: 12px;
+	font-weight: 700;
+	padding: 7px 11px;
+	white-space: nowrap;
+}
+
+.cr-pr-events {
+	padding: 10px 12px 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.cr-pr-event-row {
+	align-items: center;
+	background: #f9fbfe;
+	border: 1px solid #e2ebf4;
+	border-radius: 10px;
+	display: grid;
+	gap: 10px;
+	grid-template-columns: 88px minmax(0, 1fr) auto;
+	padding: 10px 12px;
+}
+
+.cr-pr-event-row.is-complete {
+	background: #eef9f1;
+	border-color: #bfe2c9;
+	box-shadow: inset 0 0 0 1px rgba(153, 206, 167, 0.28);
+}
+
+.cr-pr-event-row.is-missing {
+	background: #fff8f7;
+	border-color: #f2d4cf;
+}
+
+.cr-pr-event-row.is-warning {
+	background: #fff3f1;
+	border-color: #f1c9c3;
+}
+
+.cr-pr-event-row.is-sport-complete {
+	background: linear-gradient(90deg, #e8f9ee 0%, #f4fcf7 100%);
+	border-color: #9ed3ae;
+	box-shadow: inset 4px 0 0 #2f9150;
+}
+
+.cr-pr-event-id {
+	color: #1f4f7d;
+	font-weight: 700;
+}
+
+.cr-pr-event-name {
+	color: #223f5d;
+	font-weight: 600;
+}
+
+.cr-pr-pill {
+	background: #edf4ff;
+	border: 1px solid #c8dcfa;
+	border-radius: 999px;
+	color: #2a4f78;
+	display: inline-block;
+	font-size: 11px;
+	font-weight: 700;
+	line-height: 1;
+	margin-left: 8px;
+	padding: 5px 8px;
+}
+
+.cr-pr-event-action {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	justify-content: flex-end;
+	min-width: 210px;
+}
+
+.cr-pr-status {
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 700;
+	line-height: 1;
+	padding: 6px 10px;
+	white-space: nowrap;
+}
+
+.cr-pr-status.is-complete {
+	background: #e7f6ed;
+	border: 1px solid #b8dfc6;
+	color: #1f6a38;
+}
+
+.cr-pr-status.is-missing {
+	background: #fff1ef;
+	border: 1px solid #f0c4bd;
+	color: #8d3224;
+}
+
+.cr-pr-status.is-warning {
+	background: #fff1ef;
+	border: 1px solid #f0c4bd;
+	color: #8d3224;
+}
+
+.cr-pr-status.is-na {
+	background: #eef2f7;
+	border: 1px solid #d5deea;
+	color: #4f6278;
+}
+
+.cr-pr-upload-btn {
+	border-radius: 9px;
+	font-size: 12px;
+	font-weight: 700;
+	padding: 6px 10px;
+}
+
+.cr-pr-empty {
+	background: #fff;
+	border: 1px solid #d8e3ef;
+	border-radius: 12px;
+	color: #3d5670;
+	font-weight: 600;
+	margin-top: 8px;
+	padding: 12px;
+}
+
+@media (max-width: 991px) {
+	.cr-packreg-main {
+		padding-left: 12px;
+		padding-right: 12px;
+	}
+
+	.cr-packreg-title {
+		font-size: 26px;
+	}
+
+	.cr-packreg-card {
+		padding: 10px;
+	}
+
+	.cr-pr-card-header {
+		align-items: flex-start;
+		flex-direction: column;
+	}
+
+	.cr-pr-event-row {
+		grid-template-columns: 1fr;
+	}
+
+	.cr-pr-event-action {
+		justify-content: flex-start;
+		min-width: 0;
+	}
+}
+
+/* Event submissions list page */
+.cr-es-page {
+	background:
+		radial-gradient(circle at 10% 0%, rgba(28, 36, 82, 0.08), transparent 30%),
+		linear-gradient(180deg, #f5f8fc 0%, #eef3f8 100%);
+}
+
+.cr-es-main {
+	padding-top: 14px;
+	padding-bottom: 16px;
+}
+
+.cr-es-page .ersu_message {
+	margin: 0;
+}
+
+.cr-es-page .ersu_message .message {
+	clear: both;
+	display: block;
+	float: none;
+	margin: 0 0 10px;
+	width: 100%;
+}
+
+.cr-packreg-page .ersu_message {
+	margin: 0;
+}
+
+.cr-packreg-page .ersu_message .message {
+	clear: both;
+	display: block;
+	float: none;
+	margin: 0 0 10px;
+	width: 100%;
+}
+
+.cr-es-header {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	justify-content: space-between;
+	margin: 8px 0 14px;
+}
+
+.cr-es-title {
+	color: #16355a;
+	font-size: 30px;
+	font-weight: 700;
+	letter-spacing: 0.2px;
+	line-height: 1.2;
+}
+
+.cr-es-add-btn {
+	border-radius: 10px;
+	font-weight: 700;
+	padding: 8px 14px;
+}
+
+.cr-es-card {
+	background: #fff;
+	border: 1px solid #d8e3ef;
+	border-radius: 14px;
+	box-shadow: 0 10px 26px rgba(19, 53, 90, 0.09);
+	padding: 12px;
+}
+
+.cr-es-panel {
+	padding: 0;
+	margin: 0;
+}
+
+.cr-es-table th {
+	background: #eef4fb;
+	color: #1f3e61;
+	font-weight: 700;
+	vertical-align: middle;
+}
+
+.cr-es-table td,
+.cr-es-table th {
+	border-color: #d8e3ef;
+	vertical-align: middle;
+}
+
+.cr-es-table tbody tr:hover td {
+	background: #f7fbff;
+}
+
+.cr-es-badge {
+	border-radius: 999px;
+	display: inline-flex;
+	align-items: center;
+	font-size: 11px;
+	font-weight: 700;
+	line-height: 1;
+	padding: 5px 9px;
+	white-space: nowrap;
+}
+
+.cr-es-badge.is-group {
+	background: #e9f4ff;
+	border: 1px solid #bbd6f1;
+	color: #1a4f7e;
+}
+
+.cr-es-badge.is-individual {
+	background: #eef2f7;
+	border: 1px solid #d5deea;
+	color: #4f6278;
+}
+
+.cr-es-files-cell {
+	display: table-cell !important;
+	min-width: 180px;
+	vertical-align: middle;
+}
+
+.cr-es-files-wrap {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.cr-es-file-chip {
+	background: #f3f7fd;
+	border: 1px solid #d2e0ef;
+	border-radius: 999px;
+	color: #1e4f7d !important;
+	font-size: 11px;
+	font-weight: 700;
+	line-height: 1;
+	padding: 6px 9px;
+	text-decoration: none;
+}
+
+.cr-es-file-empty {
+	color: #5f7389;
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.cr-es-action-cell {
+	display: table-cell !important;
+	min-width: 210px;
+	vertical-align: middle;
+}
+
+.cr-es-action-wrap {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.cr-es-action-btn {
+	border-radius: 999px;
+	display: inline-flex;
+	align-items: center;
+	font-size: 11px;
+	font-weight: 700;
+	line-height: 1;
+	padding: 6px 9px;
+	text-decoration: none;
+}
+
+.cr-es-action-btn.is-view {
+	background: #e7f6ed;
+	border: 1px solid #b8dfc6;
+	color: #1f6a38 !important;
+}
+
+.cr-es-action-btn.is-print {
+	background: #f1ecff;
+	border: 1px solid #d3c7f3;
+	color: #4d3286 !important;
+}
+
+.cr-es-action-btn.is-remove {
+	background: #fff1ef;
+	border: 1px solid #f0c4bd;
+	color: #8d3224 !important;
+}
+
+@media (max-width: 991px) {
+	.cr-es-main {
+		padding-left: 12px;
+		padding-right: 12px;
+	}
+
+	.cr-es-title {
+		font-size: 26px;
+	}
+
+	.cr-es-card {
+		padding: 10px;
+	}
+}
+
+/* Event submissions student event form */
+.cr-es-submit-page {
+	background:
+		radial-gradient(circle at 10% 0%, rgba(28, 36, 82, 0.08), transparent 30%),
+		linear-gradient(180deg, #f5f8fc 0%, #eef3f8 100%);
+}
+
+.cr-es-submit-main {
+	padding-top: 14px;
+	padding-bottom: 16px;
+}
+
+.cr-es-submit-title {
+	color: #16355a;
+	font-size: 30px !important;
+	font-weight: 700;
+	letter-spacing: 0.2px;
+	line-height: 1.2;
+	margin-bottom: 14px;
+}
+
+.cr-es-submit-card {
+	background: #fff;
+	border: 1px solid #d8e3ef;
+	border-radius: 14px;
+	box-shadow: 0 10px 26px rgba(19, 53, 90, 0.09);
+	margin-bottom: 12px;
+	margin-top: 0;
+	max-width: none;
+	padding: 18px 18px 14px;
+	width: 100%;
+}
+
+.cr-es-submit-card .form-title {
+	color: #1c3f66;
+	font-size: 22px;
+	font-weight: 700;
+	line-height: 1.3;
+	margin: 0 0 12px;
+}
+
+.cr-es-submit-row {
+	margin-bottom: 14px;
+}
+
+.cr-es-submit-row .form-control,
+.cr-es-submit-row .select2-container--default .select2-selection--single,
+.cr-es-submit-row .select2-container--default .select2-selection--multiple {
+	border: 1px solid #c7d7e8;
+	border-radius: 10px;
+	box-shadow: none;
+	min-height: 42px;
+	padding: 8px 10px;
+}
+
+.cr-es-readonly {
+	background: #f7fbff;
+	border: 1px solid #d9e6f3;
+	border-radius: 10px;
+	color: #244767;
+	font-weight: 600;
+	padding: 10px 12px;
+}
+
+.cr-es-help {
+	color: #5d7087;
+	display: block;
+	font-size: 12px;
+	line-height: 1.45;
+	margin-top: 7px;
+}
+
+.cr-es-submit-actions {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin-top: 8px;
+}
+
+.cr-es-submit-actions .btn {
+	margin-right: 0 !important;
+}
+
+.cr-es-submit-btn,
+.cr-es-back-btn {
+	border-radius: 10px;
+	font-weight: 700;
+	padding: 9px 14px !important;
+}
+
+.cr-es-submit-btn {
+	background: #1e5f8f !important;
+	border-color: #1e5f8f !important;
+	color: #fff !important;
+}
+
+.cr-es-back-btn {
+	background: #fff !important;
+	border: 1px solid #c8d6e6;
+	color: #294c6d !important;
+}
+
+.cr-es-back-btn:hover,
+.cr-es-back-btn:focus,
+.cr-es-back-btn:active {
+	background: #f4f8fc !important;
+	color: #1f3f5d !important;
+}
+
+@media (max-width: 991px) {
+	.cr-es-submit-main {
+		padding-left: 12px;
+		padding-right: 12px;
+	}
+
+	.cr-es-submit-title {
+		font-size: 26px !important;
+	}
+
+	.cr-es-submit-card {
+		padding: 14px 12px 12px;
+	}
+
+	.cr-es-submit-card .form-title {
+		font-size: 19px;
+	}
+
+	.cr-es-submit-card .form-group > label,
+	.cr-es-submit-card .input-multiple {
+		width: 100%;
+	}
+
+	.cr-es-submit-card .form-group > label {
+		padding-top: 0;
+		margin-bottom: 8px;
+	}
+}
+
+/* Convention registration price structure page */
+.cr-price-structure-page {
+	background:
+		radial-gradient(circle at 10% 0%, rgba(28, 36, 82, 0.08), transparent 30%),
+		linear-gradient(180deg, #f5f8fc 0%, #eef3f8 100%);
+	min-height: auto;
+}
+
+.cr-price-structure-page .row {
+	margin-left: 0;
+	margin-right: 0;
+}
+
+.cr-price-structure-page .row > main.cr-price-structure-main {
+	padding-left: 0;
+	padding-right: 0;
+}
+
+.cr-price-structure-main {
+	padding-top: 12px;
+	padding-bottom: 10px;
+}
+
+.cr-price-structure-page .ersu_message {
+	margin: 10px 0 0;
+}
+
+.cr-page-title {
+	color: #16355a;
+	font-size: 30px;
+	font-weight: 700;
+	letter-spacing: 0.2px;
+	margin-bottom: 16px;
+}
+
+.cr-price-card {
+	background: #fff;
+	border: 1px solid #d8e3ef;
+	border-radius: 14px;
+	box-shadow: 0 10px 26px rgba(19, 53, 90, 0.09);
+	padding: 22px 24px 18px;
+	max-width: 100%;
+	width: 100%;
+}
+
+.cr-price-card .form-title {
+	color: #1c3f66;
+	font-size: 22px;
+	font-weight: 700;
+	line-height: 1.35;
+	margin: 0 0 14px;
+}
+
+.cr-price-card .form-group {
+	margin-bottom: 14px;
+}
+
+.cr-price-card .form-control {
+	border: 1px solid #c7d7e8;
+	border-radius: 10px;
+	box-shadow: none;
+	height: 42px;
+	padding: 8px 12px;
+}
+
+.cr-price-card em {
+	color: #5d7087;
+	display: block;
+	font-size: 13px;
+	line-height: 1.45;
+	margin-top: 8px;
+}
+
+.cr-price-card .form-btns {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin-top: 4px;
+}
+
+.cr-price-card .form-btns .btn {
+	border-radius: 10px;
+	font-weight: 600;
+	padding: 8px 16px;
+	min-width: 110px;
+}
+
+.cr-price-card .form-btns .btn-secondary {
+	background: #1e5f8f;
+	border-color: #1e5f8f;
+	color: #fff;
+}
+
+.cr-price-card .form-btns .btn-secondary:last-child {
+	background: #fff;
+	border: 1px solid #c8d6e6;
+	color: #315678;
+}
+
+.cr-price-card--locked .form-group {
+	background: #f7fbff;
+	border: 1px solid #d9e6f3;
+	border-radius: 10px;
+	padding: 12px;
+}
+
+@media (max-width: 991px) {
+	.cr-price-structure-main {
+		padding-top: 12px;
+		padding-left: 12px;
+		padding-right: 12px;
+	}
+
+	.cr-page-title {
+		font-size: 26px;
+	}
+
+	.cr-price-card {
+		max-width: 100%;
+		padding: 16px 14px;
+	}
+
+	.cr-price-card .form-title {
+		font-size: 19px;
+	}
+}
+
 /* ============================================================
    HOMEPAGE REDESIGN
    ============================================================ */
@@ -578,7 +1959,8 @@ footer {
 /* Hero section */
 .hp-hero {
     background: linear-gradient(135deg, #1c2452 0%, #0f1633 60%, #1a3a5c 100%);
-    min-height: 100vh;
+	min-height: 68vh;
+	padding-bottom: 5px;
     display: flex;
     align-items: center;
     overflow: hidden;
@@ -589,7 +1971,7 @@ footer {
     align-items: center;
     justify-content: space-between;
     gap: 48px;
-    padding: 80px 24px;
+	padding: 64px 24px 28px;
     position: relative;
     z-index: 2;
 }
@@ -602,7 +1984,7 @@ footer {
     pointer-events: none;
 }
 .hp-wave-left  { left: 0; top: 0; }
-.hp-wave-right { right: 0; bottom: 0; }
+.hp-wave-right { right: 0; bottom: -8px; }
 .hp-wave img   { max-width: 100%; }
 
 /* Left branding */
@@ -777,7 +2159,7 @@ footer {
 @media (max-width: 992px) {
     .hp-hero-inner {
         flex-direction: column;
-        padding: 60px 24px 48px;
+		padding: 48px 24px 24px;
         text-align: center;
     }
     .hp-hero-left {

@@ -36,6 +36,7 @@ class JudgeevaluationsController extends AppController {
 		$this->loadModel('Conventionseasonevents');
 		$this->loadModel('Conventionregistrations');
 		$this->loadModel('Eventsubmissions');
+        $this->loadModel('Users');
 		$this->loadModel('Judgeevaluationmarks');
     }
 	
@@ -128,8 +129,29 @@ class JudgeevaluationsController extends AppController {
 		
         $separator = implode("/", $separator);
         $this->set('separator', $separator);
-        $this->paginate = ['contain' => ['Eventsubmissions','Conventionregistrations','Conventions','Events','Students','Schools','Judge','Judgeevaluationmarks'], 'conditions' => $condition, 'limit' => 200, 'order' => ['Judgeevaluations.id' => 'DESC']];
-        $this->set('judgeevaluations', $this->paginate($this->Judgeevaluations));
+        $judgeEvaluations = $this->Judgeevaluations->find()
+            ->contain(['Eventsubmissions','Conventionregistrations','Conventions','Events','Students','Schools','Judge','Judgeevaluationmarks'])
+            ->where($condition)
+            ->order(['Judgeevaluations.id' => 'DESC'])
+            ->all();
+        $judgeUserIds = [];
+        foreach ($judgeEvaluations as $judgeEvaluation) {
+            if (!empty($judgeEvaluation->uploaded_by_user_id)) {
+                $judgeUserIds[] = (int)$judgeEvaluation->uploaded_by_user_id;
+            }
+        }
+        $judgeUsersById = [];
+        if (!empty($judgeUserIds)) {
+            $judgeUsers = $this->Users->find()
+                ->select(['id', 'first_name', 'last_name'])
+                ->where(['Users.id IN' => array_values(array_unique($judgeUserIds))])
+                ->all();
+            foreach ($judgeUsers as $judgeUser) {
+                $judgeUsersById[$judgeUser->id] = trim(($judgeUser->first_name ?? '') . ' ' . ($judgeUser->last_name ?? ''));
+            }
+        }
+        $this->set('judgeevaluations', $judgeEvaluations);
+        $this->set('judgeUsersById', $judgeUsersById);
         if ($this->request->is("ajax")) {
             $this->viewBuilder()->setLayout(($this->request->is("ajax")) ? "" : "default");
             $this->viewBuilder()->setTemplatePath('Element' . DS . 'Admin/Judgeevaluations');

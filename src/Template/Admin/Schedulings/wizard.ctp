@@ -220,7 +220,7 @@ $forceTimeValuesJson = json_encode([
 
 <!-- wizard-build: <?php echo isset($wizardBuild) ? h($wizardBuild) : 'unknown'; ?> -->
 
-<div class="content-wrapper">
+<div class="content-wrapper admin-sched-wizard-page">
     <section class="content-header">
       <h1>
         Scheduling Wizard - [Convention - <?php echo $conventionSD->Conventions['name']; ?>]&nbsp;&nbsp;&nbsp;&nbsp;
@@ -234,19 +234,19 @@ $forceTimeValuesJson = json_encode([
       </ol>
     </section>
 
-    <section class="content">
-     <div class="box box-info">
+	<section class="content">
+	 <div class="box box-info admin-data-box">
             <div class="box-header with-border">
-                <h3 class="box-title">&nbsp;</h3>
+				<h3 class="box-title">Scheduling Configuration</h3>
             </div>
             <div class="ersu_message"> <?php echo $this->Flash->render() ?> </div>
             <?php echo $this->Form->create($schedulings, ['id'=>'schedulingWizardForm', 'type' => 'file', 'autocomplete' => 'off']); ?>
-                <div class="form-horizontal">
+				<div class="form-horizontal admin-sched-wizard-form">
                     <div class="box-body">
 					
 					
 					<!-- Convention Days Starts -->
-					<div class="form-group">
+					<div class="form-group wizard-section-row">
                       <label class="col-sm-2 control-label"><h3>Convention Days </h3><span class="require"></span></label>
                       <div class="col-sm-10">
                           &nbsp;
@@ -286,7 +286,7 @@ $forceTimeValuesJson = json_encode([
 					
 					
 					<!-- Times Starts -->
-					<div class="form-group">
+					<div class="form-group wizard-section-row">
                       <label class="col-sm-2 control-label"><h3>Times </h3><span class="require"></span></label>
                       <div class="col-sm-10">
                           &nbsp;
@@ -352,7 +352,7 @@ $forceTimeValuesJson = json_encode([
                       </div>
                     </div>
 					
-					<div id="box_starting_different_time_first_day_yes_no" style="display:<?php echo $box_starting_different_time_first_day_yes_no; ?>;">
+					<div id="box_starting_different_time_first_day_yes_no" class="wizard-conditional-box" style="display:<?php echo $box_starting_different_time_first_day_yes_no; ?>;">
 						<div class="form-group">
 						  <label class="col-sm-2 control-label">First Day Start Time <span class="require">*</span></label>
 						  <div class="col-sm-10">
@@ -372,7 +372,7 @@ $forceTimeValuesJson = json_encode([
 					
 					
 					<!-- Judging Breaks Starts -->
-					<div class="form-group">
+					<div class="form-group wizard-section-row">
                       <label class="col-sm-2 control-label"><h3>Judging Breaks </h3><span class="require"></span></label>
                       <div class="col-sm-10" style="padding-top:30px;">
                           Check the box if you want to schedule breaks for music and platform judges. (They need it but the schedule might be so tight they can't fit one in). We recommend trying to generate the schedule with breaks first and take them out if it can't be done.
@@ -386,7 +386,7 @@ $forceTimeValuesJson = json_encode([
                       </div>
                     </div>
 					
-					<div id="box_judging_breaks_yes_no" style="display:<?php echo $box_judging_breaks_yes_no; ?>;">
+					<div id="box_judging_breaks_yes_no" class="wizard-conditional-box" style="display:<?php echo $box_judging_breaks_yes_no; ?>;">
 					
 						<div class="form-group">
 						  <label class="col-sm-2 control-label">Morning Break Starting Time<span class="require">*</span></label>
@@ -421,7 +421,7 @@ $forceTimeValuesJson = json_encode([
 					
 					
 					<!-- Sports Day Starts -->
-					<div class="form-group">
+					<div class="form-group wizard-section-row">
                       <label class="col-sm-2 control-label"><h3>Sports Day </h3><span class="require"></span></label>
                       <div class="col-sm-10" style="padding-top:30px;">
                           Check the box if you are having sports day (for track and field). And then choose the day from the list. If you're only having half the day for sport and you want other events in the afternoon then check the box and fill the times for other event.
@@ -435,7 +435,7 @@ $forceTimeValuesJson = json_encode([
                       </div>
                     </div>
 					
-					<div id="box_sports_day_yes_no" style="display:<?php echo $box_sports_day_yes_no; ?>;">
+					<div id="box_sports_day_yes_no" class="wizard-conditional-box" style="display:<?php echo $box_sports_day_yes_no; ?>;">
 					
 						<div class="form-group">
 						  <label class="col-sm-2 control-label">Sports Day <span class="require"></span></label>
@@ -467,7 +467,7 @@ $forceTimeValuesJson = json_encode([
                       </div>
                     </div>
 					
-					<div id="box_sports_day_having_events_after_sport_yes_no" style="display:<?php echo $box_sports_day_having_events_after_sport_yes_no; ?>;">
+					<div id="box_sports_day_having_events_after_sport_yes_no" class="wizard-conditional-box" style="display:<?php echo $box_sports_day_having_events_after_sport_yes_no; ?>;">
 					
 						<div class="form-group">
 						  <label class="col-sm-2 control-label">Starting Time <span class="require"></span></label>
@@ -484,7 +484,7 @@ $forceTimeValuesJson = json_encode([
 					
 					</div>
 					
-					<div class="form-group">
+					<div class="form-group wizard-warning-row">
                       <label class="col-sm-2 control-label">&nbsp;</label>
                       <div class="col-sm-10" style="color:red;">
 							Don't forget to allow travel time between the sports venue and the convention site.
@@ -497,7 +497,7 @@ $forceTimeValuesJson = json_encode([
 					
 					
 					
-                    <div class="box-footer">
+					<div class="box-footer admin-wizard-actions">
                         <label class="col-sm-2 control-label" for="inputPassword3">&nbsp;</label>
                         <?php echo $this->Form->input('Schedulings.id', ['label'=>false, 'type'=>'hidden']); ?>
                         <?php echo $this->Form->button('Save', ['type'=>'submit', 'class' => 'btn btn-info', 'div'=>false]); ?>

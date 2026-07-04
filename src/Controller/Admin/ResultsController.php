@@ -271,7 +271,10 @@ class ResultsController extends AppController {
 		//STEP2 :: SAVE ONE ENTRY IN RESULTS TABLE
 		$results = $this->Results->newEntity([]);
 		$dataR = $this->Results->patchEntity($results, array());
+		$lastResultRow = $this->Results->find()->select(['id'])->order(['id' => 'DESC'])->first();
+		$nextResultId = $lastResultRow ? ((int)$lastResultRow->id + 1) : 1;
 
+		$dataR->id 						= $nextResultId;
 		$dataR->slug 						= "result-event-".$eventD->id."-".$conventionSD->id."-".time().'-'.rand(100,1000000);
 		$dataR->conventionseason_id 		= $conventionSD->id;
 		$dataR->convention_id 				= $conventionSD->convention_id;
@@ -289,6 +292,8 @@ class ResultsController extends AppController {
 		
 		
 		//STEP3 :: SAVE ENTRIES IN Resultpositions TABLE
+		$lastResultPositionRow = $this->Resultpositions->find()->select(['id'])->order(['id' => 'DESC'])->first();
+		$nextResultPositionId = $lastResultPositionRow ? ((int)$lastResultPositionRow->id + 1) : 1;
 		
 		$eventSubmissionsCS 		= $this->Eventsubmissions->find()->where(['Eventsubmissions.conventionseason_id' => $conventionSD->id,'Eventsubmissions.convention_id' => $conventionSD->convention_id,'Eventsubmissions.season_id' => $conventionSD->season_id,'Eventsubmissions.season_year' => $conventionSD->season_year,'Eventsubmissions.event_id' => $eventD->id])->contain(['Users','Students'])->all();
 		
@@ -323,6 +328,7 @@ class ResultsController extends AppController {
 			$resultpositions = $this->Resultpositions->newEntity([]);
 			$dataRP = $this->Resultpositions->patchEntity($resultpositions, array());
 
+			$dataRP->id 								= $nextResultPositionId;
 			$dataRP->slug 								= "result-positions-".$result_id."-".$conventionSD->id."-".time().'-'.rand(100,1000000);
 			$dataRP->result_id							= $result_id;
 			$dataRP->eventsubmission_id					= $datarecord->id;
@@ -347,6 +353,7 @@ class ResultsController extends AppController {
 			//$this->prx($dataRP);
 
 			$resultRP = $this->Resultpositions->save($dataRP);
+			$nextResultPositionId++;
 		}
 		
 		
@@ -436,6 +443,48 @@ class ResultsController extends AppController {
 		$this->Flash->success('Judging for the event has been closed successfully and results saved sucessfully.');
 		$this->redirect(['controller' => 'conventions', 'action' => 'events',$slug_convention_season,$slug_convention]);
     }
+
+	public function openjudging($slug_convention_season = null,$slug_convention = null,$slug_event = null)
+	{
+		$conventionSD = null;
+		$conventionD = null;
+		$eventD = null;
+
+		if ($slug_convention_season) {
+			$conventionSD = $this->Conventionseasons->find()->where(['Conventionseasons.slug' => $slug_convention_season])->first();
+		}
+		if (!$conventionSD)
+		{
+			$this->Flash->error('Convention season not found.');
+			return $this->redirect(['controller' => 'conventions', 'action' => 'index']);
+		}
+
+		if ($slug_convention) {
+			$conventionD = $this->Conventions->find()->where(['Conventions.slug' => $slug_convention])->first();
+		}
+		if (!$conventionD)
+		{
+			$this->Flash->error('Convention not found.');
+			return $this->redirect(['controller' => 'conventions', 'action' => 'index']);
+		}
+
+		if ($slug_event) {
+			$eventD = $this->Events->find()->where(['Events.slug' => $slug_event])->first();
+		}
+		if (!$eventD)
+		{
+			$this->Flash->error('Event not found.');
+			return $this->redirect(['controller' => 'conventions', 'action' => 'events',$slug_convention_season,$slug_convention]);
+		}
+
+		$this->Conventionseasonevents->updateAll(
+			['judging_ends' => '0'],
+			['conventionseasons_id' => $conventionSD->id, 'event_id' => $eventD->id]
+		);
+
+		$this->Flash->success('Judging for the event has been reopened successfully.');
+		return $this->redirect(['controller' => 'conventions', 'action' => 'events',$slug_convention_season,$slug_convention]);
+	}
 	
 	public function points($slug_convention_season = null,$slug_convention = null) {
         

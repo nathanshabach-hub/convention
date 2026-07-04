@@ -15,11 +15,11 @@ $this->Categories = TableRegistry::get('Categories');
 ?>
 <div class="admin_loader" id="loaderID"><?php echo $this->Html->image('loader_large_blue.gif'); ?></div>
 <?php if (!$users->isEmpty()) { ?> 
-    <div class="panel-body">
+    <div class="panel-body admin-data-panel">
         <div class="ersu_message"> <?php echo $this->Flash->render() ?></div>
     <?php echo $this->Form->create(null, ['id' => 'actionFrom', "method" => "Post"]); ?>
-        <section id="no-more-tables" class="lstng-section">
-            <div class="topn">
+        <section id="no-more-tables" class="lstng-section admin-data-section">
+            <div class="topn admin-data-topn">
                 <div class="topn_left">Supervisors List</div>
                 <div class="topn_right ajshort" id="pagingLinks" align="right">
                     <?php
@@ -31,8 +31,8 @@ $this->Categories = TableRegistry::get('Categories');
                 </div>
             </div>   
 
-             <div class="tbl-resp-listing">
-            <table class="table table-bordered table-striped table-condensed cf">
+             <div class="tbl-resp-listing admin-data-table-wrap">
+            <table class="table table-bordered table-striped table-condensed cf admin-data-table">
                 <thead class="cf ajshort">
                     <tr>
                         <th style="width:5%">#</th>
@@ -82,7 +82,7 @@ $this->Categories = TableRegistry::get('Categories');
                                 <?php
                                 if($user->status != 2)
                                 {
-                                    if($user->activation_status)  echo 'Verified'; else  echo 'Not yet verified';
+                                    if($user->activation_status)  echo '<span class="judge-status-pill judge-status-active">Verified</span>'; else  echo '<span class="judge-status-pill judge-status-inactive">Not verified</span>';
                                 }
                                 ?>
                             </td>
@@ -90,21 +90,22 @@ $this->Categories = TableRegistry::get('Categories');
                             <td data-title="Status">
                                 <?php
                                 if($user->status == 0) 
-                                    echo 'Inactive'; 
+                                    echo '<span class="judge-status-pill judge-status-inactive">Inactive</span>'; 
                                 else
                                 if($user->status == 1)
-                                    echo 'Active';
+                                    echo '<span class="judge-status-pill judge-status-active">Active</span>';
                                 else
                                 if($user->status == 2)
-                                    echo 'Archive';
+                                    echo '<span class="judge-status-pill judge-status-archived">Archive</span>';
                                 ?>
                             </td>
                             
                             <td data-title="Action">
+                                <div class="admin-data-actions">
                                 <?php
                                 if($user->status == 2)
                                 {
-                                    echo $this->Html->link('<i class="fa fa-retweet"></i>', ['controller' => 'users', 'action' => 'restoreteacher', $user->slug], [ 'escape' => false, 'title' => 'Restore', 'class' => 'btn btn-danger btn-xs action-list delete-list', 'confirm' => 'Are you sure you want to restore this supervisor?']);
+                                    echo $this->Html->link('<i class="fa fa-retweet"></i>', ['controller' => 'users', 'action' => 'restoreteacher', $user->slug], [ 'escape' => false, 'title' => 'Restore', 'class' => 'btn btn-danger btn-xs action-list delete-list admin-data-action-btn', 'confirm' => 'Are you sure you want to restore this supervisor?']);
                                 }
                                 else
                                 {
@@ -114,22 +115,23 @@ $this->Categories = TableRegistry::get('Categories');
                                 <span class="right_acdc" id="status<?php echo $user->id; ?>">
                                     <?php
                                     if ($user->status == '1') {
-                                        echo $this->Html->link('<button class="btn btn-success btn-xs"><i class="fa fa-check"></i></button>', ['controller' => 'users', 'action' => 'deactivateteacher', $user->slug], [ 'escape' => false, 'title' => 'Deactivate','class'=>'deactivate']);
+                                        echo $this->Html->link('<button class="btn btn-success btn-xs"><i class="fa fa-check"></i></button>', ['controller' => 'users', 'action' => 'deactivateteacher', $user->slug], [ 'escape' => false, 'title' => 'Deactivate','class'=>'deactivate admin-data-action-btn']);
                                     } else {
-                                        echo $this->Html->link('<button class="btn btn-danger btn-xs"><i class="fa Ban"></i></button>', ['controller' => 'users', 'action' => 'activateteacher', $user->slug], ['class' => "activate", 'escape' => false, 'title' => 'Activate']);
+                                        echo $this->Html->link('<button class="btn btn-danger btn-xs"><i class="fa fa-ban"></i></button>', ['controller' => 'users', 'action' => 'activateteacher', $user->slug], ['class' => "activate admin-data-action-btn", 'escape' => false, 'title' => 'Activate']);
                                     }
                                     ?>
                                 </span>
 
                                 <?php
-                                echo $this->Html->link('<i class="fa fa-pencil"></i>', ['controller' => 'users', 'action' => 'editteacher', $user->slug], [ 'escape' => false, 'title' => 'Edit', 'class' => 'btn btn-primary btn-xs']);
+                                echo $this->Html->link('<i class="fa fa-pencil"></i>', ['controller' => 'users', 'action' => 'editteacher', $user->slug], [ 'escape' => false, 'title' => 'Edit', 'class' => 'btn btn-primary btn-xs admin-data-action-btn']);
                                 
-                                echo $this->Html->link('<i class="fa fa-trash-o"></i>', ['controller' => 'users', 'action' => 'archiveteacher', $user->slug], [ 'escape' => false, 'title' => 'Archive', 'class' => 'btn btn-danger btn-xs action-list delete-list', 'confirm' => 'Are you sure you want to arcive this supervisor ?']);
+                                echo $this->Html->link('<i class="fa fa-trash-o"></i>', ['controller' => 'users', 'action' => 'archiveteacher', $user->slug], [ 'escape' => false, 'title' => 'Archive', 'class' => 'btn btn-danger btn-xs action-list delete-list admin-data-action-btn', 'confirm' => 'Are you sure you want to arcive this supervisor ?']);
                                 ?>
                                 
                                 <?php
                                 }
                                 ?>
+                                </div>
                             </td>
                         </tr>
                     <?php } ?>

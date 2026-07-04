@@ -1,6 +1,6 @@
 <script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="https://code.highcharts.com/modules/exporting.js"></script>
-<div class="content-wrapper">
+<div class="content-wrapper admin-dashboard">
     <section class="content-header">
         <h1>
             Dashboard
@@ -9,6 +9,24 @@
             <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
             <li class="active">Dashboard</li>
         </ol>
+    </section>
+
+    <section class="content dashboard-overview">
+        <div class="dashboard-hero-card">
+            <div class="dashboard-hero-copy">
+                <h2>Admin Overview</h2>
+                <p>
+                    <?php if($sess_admin_header_season_id>0) { ?>
+                        Live metrics for the selected convention season.
+                    <?php } else { ?>
+                        Platform-wide metrics across all conventions and seasons.
+                    <?php } ?>
+                </p>
+            </div>
+            <div class="dashboard-hero-icon" aria-hidden="true">
+                <i class="fa fa-line-chart"></i>
+            </div>
+        </div>
     </section>
 
     <?php
@@ -71,6 +89,19 @@
             </div>
 
             <div class="col-lg-3 col-xs-6">
+                <div class="small-box bg-aqua">
+                    <div class="inner">
+                        <h3><?php echo isset($total_pastors) ? $total_pastors : '0'; ?></h3>
+                        <p>Pastors</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa fa-user"></i>
+                    </div>
+                    <?php echo $this->Html->link('More info <i class="fa fa-arrow-circle-right"></i>', ['controller' => 'pastors', 'action' => 'index'], [ 'escape' => false, 'title' => 'More info', 'class' => 'small-box-footer']); ?>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-xs-6">
                 <div class="small-box bg-olive">
                     <div class="inner">
                         <h3>&mdash;</h3>
@@ -100,7 +131,7 @@
                 <div class="small-box bg-yellow">
                     <div class="inner">
                         <h3><?php echo $total_conv_seas_events ? $total_conv_seas_events : '0'; ?></h3>
-                        <p>Total Events</p>
+                        <p>Total Events Registered</p>
                     </div>
                     <div class="icon">
                         <i class="fa fa-puzzle-piece"></i>
@@ -245,6 +276,19 @@
                         <i class="fa fa-group"></i>
                     </div>
                     <?php echo $this->Html->link('More info <i class="fa fa-arrow-circle-right"></i>', ['controller' => 'users', 'action' => 'students'], [ 'escape' => false, 'title' => 'More info', 'class' => 'small-box-footer']); ?>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-xs-6">
+                <div class="small-box bg-maroon">
+                    <div class="inner">
+                        <h3><?php echo isset($total_pastors) ? $total_pastors : '0'; ?></h3>
+                        <p>Pastors</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa fa-user"></i>
+                    </div>
+                    <?php echo $this->Html->link('More info <i class="fa fa-arrow-circle-right"></i>', ['controller' => 'pastors', 'action' => 'index'], [ 'escape' => false, 'title' => 'More info', 'class' => 'small-box-footer']); ?>
                 </div>
             </div>
             

@@ -163,7 +163,111 @@ if ($isSmallConvention) {
 							"(Divisions.id IN ($arrConvSeasonEventsDivsImplode) )"
 						];
 						$eventDivList = $this->Divisions->find()->where($condEvDivs)->order(['Divisions.sort_order' => 'ASC'])->all();
-						foreach ($eventDivList as $eventdiv):
+
+						$divisionItems = [];
+						$mediaArtsChildren = [];
+						$isExhibitsCategory = strcasecmp(trim((string)$eventcat->name), 'Exhibits') === 0;
+
+						foreach ($eventDivList as $eventdiv) {
+							$divisionNameUpper = strtoupper(trim((string)$eventdiv->name));
+							$isMediaArtsChild = in_array($divisionNameUpper, ['PHOTOGRAPHY', 'DESIGN AND TECHNOLOGY', 'DESIGN & TECHNOLOGY'], true);
+
+							if ($isExhibitsCategory && $isMediaArtsChild) {
+								$mediaArtsChildren[] = $eventdiv;
+								continue;
+							}
+
+							$divisionItems[] = ['type' => 'division', 'division' => $eventdiv];
+						}
+
+						if (!empty($mediaArtsChildren)) {
+							$insertIndex = null;
+							foreach ($divisionItems as $idx => $item) {
+								if (strcasecmp(trim((string)$item['division']->name), 'Visual Arts') === 0) {
+									$insertIndex = $idx;
+									break;
+								}
+							}
+
+							$mediaArtsItem = ['type' => 'group', 'name' => 'Media Arts', 'children' => $mediaArtsChildren];
+							if ($insertIndex === null) {
+								$divisionItems[] = $mediaArtsItem;
+							} else {
+								array_splice($divisionItems, $insertIndex, 0, [$mediaArtsItem]);
+							}
+						}
+
+						foreach ($divisionItems as $divisionItem):
+						if ($divisionItem['type'] === 'group'):
+						$groupName = (string)$divisionItem['name'];
+						$groupBodyId = 'division_group_body_' . (int)$eventcat->id . '_' . strtolower(preg_replace('/[^a-z0-9]+/i', '_', $groupName));
+						?>
+						<div class="division-block">
+							<button type="button" class="division-name accordion-trigger division-trigger is-open" data-target="<?php echo h($groupBodyId); ?>" aria-expanded="true">
+								<span class="title-text"><?php echo strtoupper(h($groupName)); ?></span>
+								<span class="title-badges">
+									<span class="accordion-icon small">−</span>
+								</span>
+							</button>
+							<div id="<?php echo h($groupBodyId); ?>" class="division-content">
+								<?php foreach ($divisionItem['children'] as $eventdiv):
+								$divisionBodyId = 'division_body_' . (int)$eventcat->id . '_' . (int)$eventdiv->id;
+								$divisionMaxDisplay = (int)$eventdiv->max_events;
+								$divisionNameUpper = strtoupper(trim((string)$eventdiv->name));
+								if (in_array($divisionNameUpper, ['PHOTOGRAPHY', 'DESIGN AND TECHNOLOGY', 'DESIGN & TECHNOLOGY'], true)) {
+									$divisionMaxDisplay = 3;
+								}
+								?>
+								<div class="division-block division-sub-block">
+									<button type="button" class="division-name accordion-trigger division-trigger is-open" data-target="<?php echo h($divisionBodyId); ?>" aria-expanded="true">
+										<span class="title-text"><?php echo strtoupper(h($eventdiv->name)); ?></span>
+										<span class="title-badges">
+											<span class="title-meta"><?php echo $divisionMaxDisplay; ?> max</span>
+											<span class="accordion-icon small">−</span>
+										</span>
+									</button>
+									<div id="<?php echo h($divisionBodyId); ?>" class="division-content">
+										<table class="table table-bordered mini-event-table">
+											<thead>
+												<tr>
+													<th class="col-name">Event Name</th>
+													<th class="col-select">Select</th>
+												</tr>
+											</thead>
+											<tbody>
+												<?php
+												$arrConvSeasonEventsListImplode = implode(",", $arrConvSeasonEventsList);
+												$condEvents = [
+													"(Events.division_id = '" . $eventdiv->id . "')",
+													"(Events.id IN ($arrConvSeasonEventsListImplode) )"
+												];
+												$eventList = $this->Events->find()->where($condEvents)->order(['Events.event_name' => 'ASC'])->all();
+												foreach ($eventList as $event):
+												$searchText = strtolower(trim((string)$event->event_id_number . ' ' . (string)$event->event_name));
+												?>
+												<tr class="event-entry" data-search="<?php echo h($searchText); ?>">
+
+													<td class="col-name"><span class="event-code"><?php echo '(' . h($event->event_id_number) . ')'; ?></span> <span class="event-label"><?php echo h($event->event_name); ?></span></td>
+													<td class="col-select">
+														<label class="tick-wrap" for="event_id_<?php echo $event->id; ?>">
+															<input class="event-checkbox" type="checkbox" name="eventIDS[]" value="<?php echo $event->id; ?>" id="event_id_<?php echo $event->id; ?>" <?php echo in_array($event->id, (array)$selectedEvents) ? 'checked' : ''; ?> <?php if ($regAccepted == 0) echo 'disabled'; ?> />
+															<span class="tick-circle"></span>
+														</label>
+													</td>
+												</tr>
+												<?php endforeach; ?>
+											</tbody>
+										</table>
+									</div>
+								</div>
+								<?php endforeach; ?>
+							</div>
+						</div>
+						<?php
+						continue;
+						endif;
+
+						$eventdiv = $divisionItem['division'];
 						$showDivisionHeading = strcasecmp(trim((string)$eventdiv->name), trim((string)$eventcat->name)) !== 0;
 						$divisionBodyId = 'division_body_' . (int)$eventcat->id . '_' . (int)$eventdiv->id;
 						?>
@@ -425,6 +529,19 @@ if ($isSmallConvention) {
 
 .division-content {
 	display: block;
+}
+
+.division-sub-block {
+	margin-left: 12px;
+	border-left: 2px dashed #d7e3f3;
+	padding-left: 10px;
+}
+
+.division-sub-block > .division-name {
+	font-size: 12px;
+	margin-top: 6px;
+	background: #f9fcff;
+	border-left-color: #c4d5eb;
 }
 
 .title-meta {

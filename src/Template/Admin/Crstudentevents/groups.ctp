@@ -10,7 +10,7 @@ $this->Users = TableRegistry::get('Users');
 $this->Events = TableRegistry::get('Events');
 $this->Crstudentevents = TableRegistry::get('Crstudentevents');
 ?>
-<div class="content-wrapper">
+<div class="content-wrapper admin-cr-groups-page">
     <section class="content-header">
       <h1>
          Manage Convention Registrations Groups :: <?php echo $CRDetails->Conventions['name']; ?>
@@ -23,13 +23,13 @@ $this->Crstudentevents = TableRegistry::get('Crstudentevents');
     </section>
 
     <section class="content">
-     <div class="box box-info">
+	 <div class="box box-info admin-data-box admin-cr-groups-box">
             <div class="box-header with-border">
                 <h3 class="box-title">&nbsp;</h3>
             </div>
             <div class="ersu_message"> <?php echo $this->Flash->render() ?> </div>
             
-			<table cellpadding="4" cellspacing="4">
+			<table cellpadding="4" cellspacing="4" class="admin-cr-groups-grid">
 				<?php
 				foreach($arrConvGroups as $eventid => $groupstudents)
 				{

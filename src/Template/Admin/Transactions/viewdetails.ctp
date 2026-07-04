@@ -3,7 +3,7 @@
         $("#adminForm").validate();
     });
 </script>
-<div class="content-wrapper">
+<div class="content-wrapper admin-list-page admin-transaction-details-page">
     <section class="content-header">
       <h1>
          Transaction Details
@@ -22,7 +22,7 @@
 	<section class="content">
      <div class="box box-info">
             <div class="box-header with-border">
-                <h3 class="box-title">&nbsp;</h3>
+                <h3 class="box-title">Payment Review</h3>
             </div>
             <div class="ersu_message"> <?php echo $this->Flash->render() ?> </div>
             <?php echo $this->Form->create($transactions, ['id'=>'adminForm', 'type' => 'file']); ?>

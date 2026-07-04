@@ -21,6 +21,129 @@ fieldset{
     background: #fff;
 }
 
+/* Facebox popup refinement for admin detail views */
+#facebox .popup {
+    border-radius: 12px;
+    box-shadow: 0 18px 42px rgba(10, 32, 58, 0.35);
+    overflow: hidden;
+}
+
+#facebox .content {
+    display: block;
+    max-width: calc(100vw - 34px);
+    width: min(980px, calc(100vw - 34px));
+}
+
+#facebox .nzwh-wrapper,
+#facebox fieldset.nzwh {
+    background: #fff;
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+
+#facebox .head_pop {
+    background: linear-gradient(90deg, #f6f9fe 0%, #edf3fb 100%);
+    border-bottom: 1px solid #dde7f3;
+    color: #1a3b60;
+    font-size: clamp(20px, 2vw, 32px);
+    font-weight: 700;
+    line-height: 1.25;
+    margin: 0;
+    min-height: 0;
+    padding: 14px 50px 14px 18px;
+}
+
+#facebox .drt {
+    height: auto;
+    max-height: min(68vh, 740px);
+    overflow: auto;
+    padding: 12px 14px 14px;
+}
+
+#facebox .drt .table {
+    border: 1px solid #dce6f3;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 0;
+}
+
+#facebox .drt .table thead th {
+    background: #edf4fb;
+    color: #1d3f63;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    padding: 9px 10px;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+#facebox .drt .table tbody td {
+    color: #1f3650;
+    font-size: 13px;
+    padding: 8px 10px;
+    vertical-align: middle;
+}
+
+#facebox .drt .table tbody tr td:first-child {
+    text-align: center;
+    width: 54px;
+}
+
+#facebox .drt .table tbody tr td:nth-child(3),
+#facebox .drt .table tbody tr td:nth-child(4) {
+    text-align: center;
+    width: 92px;
+}
+
+#facebox .drt .table-striped tbody tr:nth-of-type(odd) {
+    background-color: #fbfdff;
+}
+
+#facebox .drt .table tbody tr:first-child td {
+    background: #f8fbff;
+    color: #294665;
+    font-weight: 600;
+}
+
+#facebox .drt .table tbody tr:last-child td {
+    background: #f2f8ff;
+    font-weight: 700;
+}
+
+#facebox .close {
+    color: #365a7f;
+    font-size: 34px;
+    line-height: 1;
+    opacity: 0.55;
+    right: 10px;
+    top: 10px;
+}
+
+#facebox .close:hover {
+    opacity: 0.95;
+}
+
+@media (max-width: 767px) {
+    #facebox .head_pop {
+        font-size: 18px;
+        padding: 12px 42px 12px 14px;
+    }
+
+    #facebox .drt {
+        max-height: 70vh;
+        padding: 10px;
+    }
+
+    #facebox .drt .table tbody td,
+    #facebox .drt .table thead th {
+        font-size: 12px;
+        padding: 7px 8px;
+    }
+}
+
 .company_tab span{display: inline-block;padding: 4px 10px;background: #23272d;color: #d2d2d2;margin-bottom: 3px;cursor: pointer; transition: all 0.1s ease-in-out 0s;}
 .company_tab span:hover, .company_tab span.active{background: #EF7742; color: #fff;}
 
@@ -33,4 +156,2663 @@ fieldset{
     display: flex;
     justify-content: end;
     align-items: center;
+}
+
+/* Admin convention registrations visual refresh */
+.admin-convreg-page {
+    background:
+        radial-gradient(circle at 8% 0%, rgba(30, 84, 145, 0.10), transparent 34%),
+        linear-gradient(180deg, #f3f7fb 0%, #edf3f9 100%);
+    min-height: calc(100vh - 50px);
+}
+
+.admin-convreg-page .content-header {
+    padding: 22px 20px 8px;
+}
+
+.admin-convreg-page .content-header h1 {
+    color: #132a45;
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+}
+
+.admin-convreg-page .content-header .breadcrumb {
+    background: rgba(255, 255, 255, 0.78);
+    border: 1px solid #d6e1ed;
+    border-radius: 14px;
+    padding: 7px 12px;
+}
+
+.admin-convreg-page .content {
+    padding: 8px 20px 24px;
+}
+
+.admin-convreg-page .admin-convreg-box {
+    background: #fff;
+    border: 1px solid #dce6f1;
+    border-radius: 14px;
+    border-top: 3px solid #578ec1;
+    box-shadow: 0 12px 28px rgba(17, 44, 75, 0.10);
+    overflow: hidden;
+}
+
+.admin-convreg-page .admin-convreg-content {
+    padding: 0;
+}
+
+.admin-convreg-page .admin-convreg-panel {
+    padding: 12px;
+}
+
+.admin-convreg-page .ersu_message {
+    margin: 0;
+}
+
+.admin-convreg-page .ersu_message .message {
+    clear: both;
+    display: block;
+    float: none;
+    margin: 0 0 10px;
+    width: 100%;
+}
+
+.admin-convreg-page .admin-convreg-table-wrap {
+    border: 1px solid #dce6f1;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.admin-convreg-page .admin-convreg-table {
+    margin-bottom: 0;
+}
+
+.admin-convreg-page .admin-convreg-table thead th {
+    background: #1f4978;
+    border-bottom: 0;
+    border-right: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    padding: 10px 9px;
+}
+
+.admin-convreg-page .admin-convreg-table thead th:last-child {
+    border-right: 0;
+}
+
+.admin-convreg-page .admin-convreg-table tbody td {
+    border-color: #e3ebf4;
+    color: #1f3650;
+    font-size: 13px;
+    padding: 9px 8px;
+    vertical-align: middle;
+}
+
+.admin-convreg-page .admin-convreg-table tbody tr:nth-of-type(odd) {
+    background: #fbfdff;
+}
+
+.admin-convreg-page .admin-convreg-table tbody tr:hover {
+    background: #eef6ff;
+}
+
+.admin-convreg-page .admin-convreg-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.admin-convreg-page .admin-convreg-action-btn {
+    border-radius: 8px;
+    min-width: 28px;
+}
+
+.admin-convreg-page .dataTables_wrapper .dataTables_filter {
+    margin: 10px 0 12px;
+}
+
+.admin-convreg-page .dataTables_wrapper .dataTables_filter label {
+    color: #2f5578;
+    font-weight: 600;
+}
+
+.admin-convreg-page .dataTables_wrapper .dataTables_filter input {
+    border: 1px solid #c5d6e8;
+    border-radius: 9px;
+    box-shadow: none;
+    height: 36px;
+    margin-left: 8px;
+    padding: 6px 10px;
+}
+
+.admin-convreg-page .dataTables_wrapper .dataTables_info,
+.admin-convreg-page .dataTables_wrapper .dataTables_paginate {
+    margin-top: 10px;
+}
+
+@media (max-width: 991px) {
+    .admin-convreg-page .content-header,
+    .admin-convreg-page .content {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .admin-convreg-page .content-header h1 {
+        font-size: 30px;
+    }
+}
+
+/* Shared refresh for admin data listing pages */
+.admin-esub-page,
+.admin-cr-students-page,
+.admin-cr-teachers-page,
+.admin-crevents-page,
+.admin-cr-groups-page {
+    background:
+        radial-gradient(circle at 8% 0%, rgba(30, 84, 145, 0.10), transparent 34%),
+        linear-gradient(180deg, #f3f7fb 0%, #edf3f9 100%);
+    min-height: calc(100vh - 50px);
+}
+
+.admin-esub-page .content-header,
+.admin-cr-students-page .content-header,
+.admin-cr-teachers-page .content-header,
+.admin-crevents-page .content-header,
+.admin-cr-groups-page .content-header {
+    padding: 22px 20px 8px;
+}
+
+.admin-esub-page .content-header h1,
+.admin-cr-students-page .content-header h1,
+.admin-cr-teachers-page .content-header h1,
+.admin-crevents-page .content-header h1,
+.admin-cr-groups-page .content-header h1 {
+    color: #132a45;
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+}
+
+.admin-esub-page .content-header .breadcrumb,
+.admin-cr-students-page .content-header .breadcrumb,
+.admin-cr-teachers-page .content-header .breadcrumb,
+.admin-crevents-page .content-header .breadcrumb,
+.admin-cr-groups-page .content-header .breadcrumb {
+    background: rgba(255, 255, 255, 0.78);
+    border: 1px solid #d6e1ed;
+    border-radius: 14px;
+    padding: 7px 12px;
+}
+
+.admin-esub-page .content,
+.admin-cr-students-page .content,
+.admin-cr-teachers-page .content,
+.admin-crevents-page .content,
+.admin-cr-groups-page .content {
+    padding: 8px 20px 24px;
+}
+
+.admin-data-box {
+    background: #fff;
+    border: 1px solid #dce6f1;
+    border-radius: 14px;
+    border-top: 3px solid #578ec1;
+    box-shadow: 0 12px 28px rgba(17, 44, 75, 0.10);
+    overflow: hidden;
+}
+
+.admin-data-content {
+    padding: 0;
+}
+
+.admin-data-panel {
+    padding: 12px;
+}
+
+.admin-esub-page .ersu_message,
+.admin-cr-students-page .ersu_message,
+.admin-cr-teachers-page .ersu_message,
+.admin-crevents-page .ersu_message,
+.admin-cr-groups-page .ersu_message {
+    margin: 0;
+}
+
+.admin-esub-page .ersu_message .message,
+.admin-cr-students-page .ersu_message .message,
+.admin-cr-teachers-page .ersu_message .message,
+.admin-crevents-page .ersu_message .message,
+.admin-cr-groups-page .ersu_message .message {
+    clear: both;
+    display: block;
+    float: none;
+    margin: 0 0 10px;
+    width: 100%;
+}
+
+.admin-data-section {
+    background: transparent !important;
+    color: #1f3650;
+}
+
+.admin-data-topn {
+    background: linear-gradient(90deg, #f6f9fe 0%, #edf3fb 100%);
+    border: 1px solid #dde7f3;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    padding: 11px 14px;
+}
+
+.admin-data-topn .topn_left {
+    color: #1e3f62;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.admin-data-table-wrap {
+    border: 1px solid #dce6f1;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.admin-data-table {
+    margin-bottom: 0;
+}
+
+.admin-data-table thead th {
+    background: #1f4978;
+    border-bottom: 0;
+    border-right: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    padding: 10px 9px;
+}
+
+.admin-data-table thead th:last-child {
+    border-right: 0;
+}
+
+.admin-data-table tbody td {
+    border-color: #e3ebf4;
+    color: #1f3650;
+    font-size: 13px;
+    padding: 9px 8px;
+    vertical-align: middle;
+}
+
+.admin-data-table tbody tr:nth-of-type(odd) {
+    background: #fbfdff;
+}
+
+.admin-data-table tbody tr:hover {
+    background: #eef6ff;
+}
+
+.admin-esub-page .dataTables_wrapper .dataTables_filter,
+.admin-crevents-page .dataTables_wrapper .dataTables_filter {
+    margin: 10px 0 12px;
+}
+
+.admin-esub-page .dataTables_wrapper .dataTables_filter label,
+.admin-crevents-page .dataTables_wrapper .dataTables_filter label {
+    color: #2f5578;
+    font-weight: 600;
+}
+
+.admin-esub-page .dataTables_wrapper .dataTables_filter input,
+.admin-crevents-page .dataTables_wrapper .dataTables_filter input {
+    border: 1px solid #c5d6e8;
+    border-radius: 9px;
+    box-shadow: none;
+    height: 36px;
+    margin-left: 8px;
+    padding: 6px 10px;
+}
+
+.admin-cr-groups-box .box-header {
+    display: none;
+}
+
+.admin-cr-groups-grid {
+    width: 100%;
+}
+
+.admin-cr-groups-grid > tbody > tr > td {
+    border: 0;
+    padding: 4px 0;
+}
+
+.admin-cr-groups-grid h4 {
+    background: linear-gradient(90deg, #f6f9fe 0%, #edf3fb 100%);
+    border: 1px solid #dde7f3;
+    border-radius: 10px;
+    color: #1e3f62;
+    font-size: 16px;
+    margin: 0 0 8px;
+    padding: 10px 12px;
+}
+
+.admin-cr-groups-page .card {
+    border: 1px solid #dce6f1;
+    border-radius: 12px;
+    box-shadow: 0 6px 16px rgba(17, 44, 75, 0.08);
+    margin-bottom: 12px;
+    overflow: hidden;
+}
+
+.admin-cr-groups-page .card-body {
+    padding: 12px;
+}
+
+.admin-cr-groups-page .card-title {
+    color: #1f3f63;
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0 0 8px;
+}
+
+@media (max-width: 991px) {
+    .admin-esub-page .content-header,
+    .admin-cr-students-page .content-header,
+    .admin-cr-teachers-page .content-header,
+    .admin-crevents-page .content-header,
+    .admin-cr-groups-page .content-header,
+    .admin-esub-page .content,
+    .admin-cr-students-page .content,
+    .admin-cr-teachers-page .content,
+    .admin-crevents-page .content,
+    .admin-cr-groups-page .content {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .admin-esub-page .content-header h1,
+    .admin-cr-students-page .content-header h1,
+    .admin-cr-teachers-page .content-header h1,
+    .admin-crevents-page .content-header h1,
+    .admin-cr-groups-page .content-header h1 {
+        font-size: 28px;
+    }
+}
+
+/* Judge Evaluations visual refresh (no behavior changes) */
+.judgeeval-modern {
+    background:
+        radial-gradient(circle at 8% 0%, rgba(22, 73, 134, 0.08), transparent 34%),
+        linear-gradient(180deg, #f2f6fb 0%, #edf2f8 100%);
+    min-height: calc(100vh - 50px);
+}
+
+.judgeeval-modern .content-header {
+    padding: 22px 20px 8px;
+}
+
+.judgeeval-modern .content-header h1 {
+    color: #142d48;
+    font-size: 40px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+
+.judgeeval-modern .content-header .breadcrumb {
+    background: rgba(255, 255, 255, 0.76);
+    border: 1px solid #d7e2ee;
+    border-radius: 14px;
+    padding: 7px 12px;
+}
+
+.judgeeval-modern .content {
+    padding: 8px 20px 24px;
+}
+
+.judgeeval-modern .box.box-info {
+    background: #fff;
+    border: 1px solid #dbe5f0;
+    border-radius: 14px;
+    border-top: 3px solid #9ec356;
+    box-shadow: 0 12px 28px rgba(18, 45, 76, 0.10);
+    overflow: hidden;
+}
+
+.judgeeval-modern .topn {
+    background: linear-gradient(90deg, #f6f9fe 0%, #eef4fb 100%);
+    border: 1px solid #dde7f3;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    padding: 11px 14px;
+}
+
+.judgeeval-modern .topn_left {
+    color: #1e3f62;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.judgeeval-modern .tbl-resp-listing {
+    border: 1px solid #dbe5f0;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.judgeeval-modern .table {
+    margin-bottom: 0;
+}
+
+.judgeeval-modern .table thead th {
+    background: #1f4673;
+    border-bottom: 0;
+    border-right: 1px solid rgba(255, 255, 255, 0.16);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    padding: 10px 9px;
+    text-transform: none;
+}
+
+.judgeeval-modern .table thead th:last-child {
+    border-right: 0;
+}
+
+.judgeeval-modern .table tbody td {
+    border-color: #e4ebf3;
+    color: #22384f;
+    font-size: 13px;
+    padding: 8px 8px;
+    vertical-align: top;
+}
+
+.judgeeval-modern .table-striped tbody tr:nth-of-type(odd) {
+    background-color: #fbfdff;
+}
+
+.judgeeval-modern .table tbody tr:hover {
+    background-color: #eef6ff;
+}
+
+.judgeeval-modern .dataTables_wrapper .dataTables_filter {
+    margin: 10px 0 12px;
+}
+
+.judgeeval-modern .dataTables_wrapper .dataTables_filter label {
+    color: #345678;
+    font-weight: 600;
+}
+
+.judgeeval-modern .dataTables_wrapper .dataTables_filter input {
+    border: 1px solid #c8d8e8;
+    border-radius: 9px;
+    box-shadow: none;
+    height: 36px;
+    margin-left: 8px;
+    padding: 6px 10px;
+}
+
+.judgeeval-modern .dataTables_wrapper .dataTables_info,
+.judgeeval-modern .dataTables_wrapper .dataTables_paginate {
+    margin-top: 10px;
+}
+
+@media (max-width: 991px) {
+    .judgeeval-modern .content-header,
+    .judgeeval-modern .content {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .judgeeval-modern .content-header h1 {
+        font-size: 34px;
+    }
+}
+
+/* Dashboard-only visual refresh */
+.admin-dashboard {
+    background:
+        radial-gradient(circle at 8% 10%, rgba(30, 80, 150, 0.12), transparent 34%),
+        radial-gradient(circle at 90% 0%, rgba(9, 125, 167, 0.10), transparent 28%),
+        linear-gradient(180deg, #f3f7fb 0%, #eef3f8 100%);
+    min-height: calc(100vh - 50px);
+}
+
+.admin-dashboard .content-header {
+    padding: 22px 20px 10px;
+}
+
+.admin-dashboard .content-header h1 {
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    color: #11253c;
+}
+
+.admin-dashboard .content-header .breadcrumb {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid #d6e1ec;
+    border-radius: 16px;
+    padding: 7px 12px;
+}
+
+.admin-dashboard .dashboard-overview {
+    min-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.admin-dashboard .dashboard-hero-card {
+    align-items: center;
+    background: linear-gradient(120deg, #173a63 0%, #235c8f 58%, #2f749f 100%);
+    border-radius: 18px;
+    box-shadow: 0 14px 35px rgba(14, 43, 76, 0.23);
+    color: #ffffff;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    overflow: hidden;
+    padding: 18px 24px;
+    position: relative;
+}
+
+.admin-dashboard .dashboard-hero-card:before {
+    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.25), transparent 60%);
+    content: "";
+    height: 180px;
+    pointer-events: none;
+    position: absolute;
+    right: -50px;
+    top: -70px;
+    width: 180px;
+}
+
+.admin-dashboard .dashboard-hero-copy h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 4px;
+}
+
+.admin-dashboard .dashboard-hero-copy p {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+    margin: 0;
+}
+
+.admin-dashboard .dashboard-hero-icon {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 34px;
+}
+
+.admin-dashboard .content {
+    padding: 0 20px 20px;
+}
+
+.admin-dashboard .small-box {
+    --metric-accent: #2c5f89;
+    background: #ffffff !important;
+    border: 1px solid #dbe6f0;
+    border-radius: 14px;
+    box-shadow: 0 8px 22px rgba(20, 46, 76, 0.08);
+    color: #22374c !important;
+    margin-bottom: 18px;
+    overflow: hidden;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.admin-dashboard .small-box:after {
+    background: var(--metric-accent);
+    content: "";
+    height: 4px;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.admin-dashboard .small-box .inner {
+    padding: 18px 18px 10px;
+}
+
+.admin-dashboard .small-box h3 {
+    color: #11253c;
+    font-size: 31px;
+    font-weight: 700;
+    margin: 0 0 8px;
+}
+
+.admin-dashboard .small-box p {
+    color: #4f6275;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.25px;
+    margin-bottom: 2px;
+}
+
+.admin-dashboard .small-box .icon {
+    color: rgba(41, 75, 112, 0.2);
+    font-size: 64px;
+    right: 14px;
+    top: 10px;
+    transition: transform 0.25s ease;
+}
+
+.admin-dashboard .small-box-footer {
+    background: rgba(28, 78, 129, 0.06);
+    border-top: 1px solid #dbe6f0;
+    color: #21527f !important;
+    font-weight: 600;
+    padding: 10px 14px;
+    text-align: left;
+}
+
+.admin-dashboard .small-box:hover {
+    box-shadow: 0 14px 28px rgba(13, 42, 73, 0.16);
+    transform: translateY(-3px);
+}
+
+.admin-dashboard .small-box:hover .icon {
+    transform: scale(1.06);
+}
+
+.admin-dashboard .small-box.bg-red { --metric-accent: #9b2e32; }
+.admin-dashboard .small-box.bg-yellow { --metric-accent: #a7700c; }
+.admin-dashboard .small-box.bg-aqua { --metric-accent: #167b98; }
+.admin-dashboard .small-box.bg-teal { --metric-accent: #0f6f72; }
+.admin-dashboard .small-box.bg-blue { --metric-accent: #2b4e91; }
+.admin-dashboard .small-box.bg-light-blue { --metric-accent: #1d6594; }
+.admin-dashboard .small-box.bg-green { --metric-accent: #237441; }
+.admin-dashboard .small-box.bg-navy { --metric-accent: #34495e; }
+.admin-dashboard .small-box.bg-olive { --metric-accent: #576b22; }
+.admin-dashboard .small-box.bg-maroon { --metric-accent: #7f3148; }
+.admin-dashboard .small-box.bg-lime { --metric-accent: #4d8a18; }
+.admin-dashboard .small-box.bg-purple { --metric-accent: #5f4a8d; }
+
+@media (max-width: 991px) {
+    .admin-dashboard .dashboard-hero-card {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .admin-dashboard .dashboard-hero-icon {
+        align-self: flex-end;
+    }
+}
+
+/* Judge evaluations refinements */
+.admin-judgeeval-page .admin_search .hint {
+    min-width: 180px;
+}
+
+.admin-judgeeval-page .admin_search .hint--keyword {
+    flex: 1;
+    min-width: 280px;
+}
+
+.admin-judgeeval-page .admin_search .hint--keyword .form-control {
+    width: 100%;
+}
+
+.admin-judgeeval-page .admin_search .judgeeval-actions {
+    align-items: center;
+    display: inline-flex;
+    gap: 8px;
+}
+
+.admin-judgeeval-page .topn {
+    margin-bottom: 10px;
+}
+
+.admin-judgeeval-page .dataTables_wrapper .dataTables_filter {
+    display: none !important;
+}
+
+.admin-judgeeval-page .tbl-resp-listing,
+.admin-judgeeval-page .dataTables_wrapper .dataTables_scrollBody {
+    overflow-x: visible !important;
+}
+
+.admin-judgeeval-page .dataTables_scrollHead table,
+.admin-judgeeval-page .dataTables_scrollBody table,
+.admin-judgeeval-page .judge-evaluations-table {
+    table-layout: fixed !important;
+    width: 100% !important;
+}
+
+.admin-judgeeval-page .judge-evaluations-table {
+    border-collapse: collapse;
+    min-width: 100% !important;
+}
+
+.admin-judgeeval-page .judge-evaluations-table th,
+.admin-judgeeval-page .judge-evaluations-table td,
+.admin-judgeeval-page .dataTables_scrollHead th,
+.admin-judgeeval-page .dataTables_scrollBody td {
+    font-size: 12px !important;
+    line-height: 1.3;
+    padding: 8px 8px !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: anywhere;
+}
+
+.admin-judgeeval-page .judge-evaluations-table th {
+    font-weight: 700;
+}
+
+.admin-judgeeval-page .judge-evaluations-table th:nth-child(1),
+.admin-judgeeval-page .judge-evaluations-table td:nth-child(1) { width: 14% !important; }
+.admin-judgeeval-page .judge-evaluations-table th:nth-child(2),
+.admin-judgeeval-page .judge-evaluations-table td:nth-child(2) { width: 20% !important; }
+.admin-judgeeval-page .judge-evaluations-table th:nth-child(3),
+.admin-judgeeval-page .judge-evaluations-table td:nth-child(3) { width: 14% !important; }
+.admin-judgeeval-page .judge-evaluations-table th:nth-child(4),
+.admin-judgeeval-page .judge-evaluations-table td:nth-child(4) { width: 14% !important; }
+.admin-judgeeval-page .judge-evaluations-table th:nth-child(5),
+.admin-judgeeval-page .judge-evaluations-table td:nth-child(5) { width: 10% !important; }
+.admin-judgeeval-page .judge-evaluations-table th:nth-child(6),
+.admin-judgeeval-page .judge-evaluations-table td:nth-child(6) { width: 8% !important; }
+.admin-judgeeval-page .judge-evaluations-table th:nth-child(7),
+.admin-judgeeval-page .judge-evaluations-table td:nth-child(7) { width: 8% !important; }
+.admin-judgeeval-page .judge-evaluations-table th:nth-child(8),
+.admin-judgeeval-page .judge-evaluations-table td:nth-child(8) { width: 6% !important; }
+.admin-judgeeval-page .judge-evaluations-table th:nth-child(9),
+.admin-judgeeval-page .judge-evaluations-table td:nth-child(9) { width: 6% !important; }
+
+.admin-judgeeval-page .table tbody td[data-title="Action"] .btn {
+    margin-right: 3px;
+}
+
+.admin-judgeeval-page .action_dvv,
+.admin-judgeeval-page .judge-evaluations-table td[data-title="Action"] {
+    text-align: center;
+}
+
+.admin-judgeeval-page .judge-evaluations-table th.action_dvv,
+.admin-judgeeval-page .judge-evaluations-table td[data-title="Action"] {
+    min-width: 92px;
+    white-space: nowrap !important;
+    width: 6%;
+}
+
+.admin-judgeeval-page .judge-evaluations-table th.action_dvv i {
+    display: inline-block !important;
+}
+
+/* Restore production-like 14-column profile */
+.admin-judgeeval-page .judge-evaluations-table th:nth-child(n),
+.admin-judgeeval-page .judge-evaluations-table td:nth-child(n) {
+    width: auto !important;
+}
+
+.admin-judgeeval-page .judge-evaluations-table th,
+.admin-judgeeval-page .judge-evaluations-table td {
+    font-size: 13px !important;
+    white-space: normal !important;
+}
+
+.admin-judgeeval-page .judge-evaluations-table td[data-title="School"],
+.admin-judgeeval-page .judge-evaluations-table td[data-title="Student"],
+.admin-judgeeval-page .judge-evaluations-table td[data-title="Event Name"] {
+    word-break: break-word;
+}
+
+@media (max-width: 991px) {
+    .admin-judgeeval-page .admin_search .hint,
+    .admin-judgeeval-page .admin_search .hint--keyword {
+        min-width: 100%;
+    }
+
+    .admin-judgeeval-page .admin_search .judgeeval-actions {
+        width: 100%;
+    }
+}
+
+/* Shared improvements for admin listing pages */
+.admin-list-page {
+    background:
+        radial-gradient(circle at 10% 0%, rgba(40, 90, 152, 0.08), transparent 34%),
+        linear-gradient(180deg, #f1f5fa 0%, #ecf1f7 100%);
+    min-height: calc(100vh - 50px);
+}
+
+.admin-list-page .content-header {
+    padding: 22px 20px 8px;
+}
+
+.admin-list-page .content-header h1 {
+    color: #132a43;
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+}
+
+.admin-list-page .content-header .breadcrumb {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid #d8e3ee;
+    border-radius: 16px;
+    padding: 7px 12px;
+}
+
+.admin-list-page .content {
+    padding: 6px 20px 24px;
+}
+
+.admin-list-page .box.box-info {
+    background: #fff;
+    border: 1px solid #dbe5f0;
+    border-radius: 14px;
+    border-top: 1px solid #dbe5f0;
+    box-shadow: 0 10px 26px rgba(20, 48, 79, 0.10);
+    overflow: hidden;
+}
+
+.admin-list-page .panel-body {
+    padding: 18px 18px 8px;
+}
+
+.admin-list-page .admin_search {
+    background: #f5f9fd;
+    border: 1px solid #dce6f1;
+    border-radius: 12px;
+    display: block;
+    margin: 14px 18px 8px;
+    padding: 12px;
+    width: auto;
+}
+
+.admin-list-page .admin_search .form-group {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 0;
+}
+
+.admin-list-page .admin_search .hints {
+    color: #2f4e6f;
+    display: inline-flex;
+    font-weight: 700;
+    padding: 0;
+    width: auto;
+    margin-right: 2px;
+}
+
+.admin-list-page .admin_search .hint {
+    display: inline-block;
+    padding-top: 0;
+    width: auto;
+    min-width: 220px;
+}
+
+.admin-list-page .admin_search .admin_asearch {
+    display: inline-flex;
+    gap: 10px;
+    padding: 0;
+    vertical-align: middle;
+}
+
+.admin-list-page .admin_search .admin_asearch .ad_s,
+.admin-list-page .admin_search .admin_asearch .ad_cancel {
+    display: inline-block;
+}
+
+.admin-list-page .admin_search .form-control {
+    border: 1px solid #c9d8e8;
+    border-radius: 10px;
+    box-shadow: none;
+    height: 38px;
+}
+
+.admin-list-page .admin_search .btn {
+    border-radius: 10px;
+    font-weight: 600;
+    padding: 8px 14px;
+}
+
+.admin-list-page .admin_search .btn-info {
+    background: #1f5f8f;
+    border-color: #1f5f8f;
+}
+
+.admin-list-page .admin_search .btn-default {
+    background: #fff;
+    border: 1px solid #c8d6e6;
+    color: #35577a;
+}
+
+.admin-list-page .topn {
+    align-items: center;
+    background: linear-gradient(90deg, #f6f9fd 0%, #eef4fb 100%);
+    border: 1px solid #dbe5f0;
+    border-radius: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding: 11px 14px;
+}
+
+.admin-list-page .topn_left {
+    color: #1d3a58;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.admin-list-page .tbl-resp-listing {
+    border: 1px solid #dbe5f0;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.admin-list-page .table {
+    margin-bottom: 0;
+}
+
+.admin-list-page .table thead th {
+    background: #173a63;
+    border-bottom: 0;
+    border-right: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    padding: 12px 10px;
+    text-transform: uppercase;
+    vertical-align: middle;
+}
+
+.admin-list-page .table thead th:last-child {
+    border-right: 0;
+}
+
+.admin-list-page .table tbody td {
+    border-color: #e6edf5;
+    color: #223a54;
+    font-size: 14px;
+    padding: 10px;
+    vertical-align: middle;
+}
+
+.admin-list-page .table-striped tbody tr:nth-of-type(odd) {
+    background-color: #fbfdff;
+}
+
+.admin-list-page .table tbody tr:hover {
+    background-color: #f0f7ff;
+}
+
+.admin-list-page .dataTables_wrapper {
+    background: #fff;
+    padding: 0;
+}
+
+.admin-list-page .dataTables_wrapper .dataTables_length,
+.admin-list-page .dataTables_wrapper .dataTables_filter {
+    margin: 10px;
+}
+
+.admin-list-page .dataTables_wrapper .dataTables_filter input,
+.admin-list-page .dataTables_wrapper .dataTables_length select {
+    border: 1px solid #c9d8e8;
+    border-radius: 8px;
+    height: 34px;
+    padding: 5px 10px;
+}
+
+.admin-list-page .dataTables_wrapper .dataTables_paginate,
+.admin-list-page .dataTables_wrapper .dataTables_info {
+    margin: 10px;
+}
+
+.admin-list-page .dataTables_wrapper .dataTables_paginate .paginate_button,
+.admin-list-page #pagingLinks a,
+.admin-list-page #pagingLinks span {
+    border-radius: 7px;
+    margin-left: 3px;
+    padding: 5px 10px;
+}
+
+.admin-list-page .admin_no_record {
+    background: #f7fbff;
+    border: 1px dashed #bfd1e4;
+    border-radius: 12px;
+    color: #345779;
+    font-size: 15px;
+    margin: 14px;
+    padding: 18px;
+    text-align: center;
+}
+
+.admin-judges-page .admin-data-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.admin-judges-page .admin-judges-note {
+    background: linear-gradient(135deg, #f6fbff 0%, #eef5ff 100%);
+    border: 1px solid #d6e3f1;
+    border-radius: 12px;
+    color: #2a4968;
+    font-size: 13px;
+    margin: 14px 14px 4px;
+    padding: 12px 14px;
+}
+
+.admin-judges-page .admin-data-action-btn {
+    border-radius: 8px;
+    min-width: 28px;
+}
+
+.admin-pastors-page .box {
+    border: 1px solid #d7e3ef;
+    border-radius: 14px;
+    box-shadow: 0 10px 22px rgba(16, 45, 77, 0.08);
+    overflow: hidden;
+}
+
+.admin-pastors-page .admin-pastors-header {
+    align-items: center;
+    background: linear-gradient(135deg, #f8fbff 0%, #eef5ff 100%);
+    border-bottom: 1px solid #d8e4f2;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: flex-start;
+    padding: 14px 16px;
+}
+
+.admin-pastors-page .admin-pastors-header-copy {
+    min-width: 220px;
+    text-align: left;
+}
+
+.admin-pastors-page .admin-pastors-header .box-title {
+    color: #1d456c;
+    font-size: 19px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.admin-pastors-page .admin-pastors-header-subtitle {
+    color: #59728a;
+    font-size: 13px;
+    margin: 4px 0 0;
+}
+
+.admin-pastors-page .admin-pastors-add-btn {
+    border-radius: 10px;
+    box-shadow: 0 6px 16px rgba(20, 117, 72, 0.22);
+    font-weight: 700;
+    margin-left: auto;
+    padding: 8px 14px;
+}
+
+.admin-pastors-page .admin-pastors-table thead th {
+    background: #1f4c7a;
+    color: #fff;
+}
+
+.admin-pastors-page .admin-pastors-delete-btn {
+    border-radius: 8px;
+    font-weight: 700;
+}
+
+.admin-pastors-page .admin-pastors-empty-state {
+    background: #163b63 !important;
+    border-color: #0f2b4a !important;
+    color: #ffffff !important;
+}
+
+.admin-judge-events-page .content-header {
+    padding-bottom: 6px;
+}
+
+.admin-judge-events-page .content-header h1 {
+    color: #173a63;
+    font-weight: 700;
+}
+
+.admin-judge-events-subtitle {
+    color: #4a617a;
+    font-size: 14px;
+    margin: 6px 0 0;
+}
+
+.admin-judge-events-card {
+    border: 1px solid #d8e3f0;
+    border-radius: 12px;
+    box-shadow: 0 10px 26px rgba(20, 52, 86, 0.09);
+    overflow: hidden;
+}
+
+.admin-judge-events-card .box-header {
+    background: linear-gradient(135deg, #f6faff 0%, #eef5ff 100%);
+    border-bottom: 1px solid #d8e4f2;
+}
+
+.admin-judge-events-card .box-title {
+    color: #1f456a;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.admin-judge-events-row {
+    border-bottom: 1px solid #edf2f8;
+    margin-bottom: 0;
+    padding: 12px 0;
+}
+
+.admin-judge-events-row:last-of-type {
+    border-bottom: 0;
+}
+
+.admin-judge-events-page .form-horizontal .control-label {
+    color: #2a4764;
+    font-size: 13px;
+    font-weight: 700;
+    padding-top: 6px;
+    text-transform: uppercase;
+}
+
+.admin-judge-events-value {
+    background: #f7fbff;
+    border: 1px solid #dbe8f5;
+    border-radius: 8px;
+    color: #1e3b59;
+    display: inline-block;
+    font-weight: 600;
+    min-width: 260px;
+    padding: 8px 10px;
+}
+
+.admin-judge-events-select-wrap .select2-container--default .select2-selection--multiple {
+    border: 1px solid #c7d8ea;
+    border-radius: 10px;
+    min-height: 40px;
+    padding: 4px 6px;
+}
+
+.admin-judge-events-select-wrap .select2-container--default.select2-container--focus .select2-selection--multiple {
+    border-color: #4f85b8;
+}
+
+.admin-judge-events-select-wrap .select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background: #eaf3ff;
+    border: 1px solid #c1d8f2;
+    border-radius: 999px;
+    color: #214b73;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 8px;
+}
+
+.admin-judge-events-hint {
+    color: #60788f;
+    font-size: 12px;
+    margin: 6px 0 0;
+}
+
+.admin-judge-events-checkbox {
+    align-items: center;
+    color: #29445f;
+    display: inline-flex;
+    font-weight: 600;
+    gap: 8px;
+}
+
+.admin-judge-events-footer {
+    align-items: center;
+    background: #f8fbff;
+    border-top: 1px solid #d9e5f2;
+    display: flex;
+    gap: 10px;
+    padding: 14px 16px;
+}
+
+.admin-judge-events-footer .btn {
+    border-radius: 8px;
+    font-weight: 700;
+    min-width: 96px;
+}
+
+.judge-status-pill {
+    border: 1px solid transparent;
+    border-radius: 999px;
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    min-width: 72px;
+    padding: 6px 9px;
+    text-align: center;
+}
+
+.judge-status-active {
+    background: #e8f7ee;
+    border-color: #b8e0c8;
+    color: #1f7a45;
+}
+
+.judge-status-verified {
+    background: #e8f7ee;
+    border-color: #b8e0c8;
+    color: #1f7a45;
+}
+
+.judge-status-inactive {
+    background: #fff4dd;
+    border-color: #f0d9a7;
+    color: #9c6a16;
+}
+
+.judge-status-unverified {
+    background: #fff4dd;
+    border-color: #f0d9a7;
+    color: #9c6a16;
+}
+
+.judge-status-archived {
+    background: #f5f6f8;
+    border-color: #d8dce2;
+    color: #5f6b79;
+}
+
+@media (max-width: 991px) {
+    .admin-list-page .content-header,
+    .admin-list-page .content {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    .admin-list-page .panel-body {
+        padding: 14px 12px 8px;
+    }
+
+    .admin-list-page .admin_search {
+        margin: 12px 12px 8px;
+    }
+
+    .admin-list-page .admin_search .hint {
+        min-width: 100%;
+    }
+
+    .admin-pastors-page .admin-pastors-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .admin-pastors-page .admin-pastors-add-btn {
+        width: 100%;
+    }
+
+    .admin-list-page .table thead th {
+        font-size: 12px;
+        padding: 10px 8px;
+    }
+}
+
+/* Conventions page specific polish */
+.admin-conventions-page .admin_search {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: space-between;
+}
+
+.admin-conventions-page .admin_search form {
+    flex: 1 1 560px;
+}
+
+.admin-conventions-page .add_new_record {
+    float: none;
+    margin-left: auto;
+    padding-right: 0;
+    position: static;
+    right: auto;
+    top: auto;
+}
+
+.admin-conventions-page .add_new_record .btn {
+    background: #184e7a;
+    border: 1px solid #184e7a;
+    border-radius: 10px;
+    color: #fff;
+    font-weight: 700;
+    padding: 9px 14px;
+}
+
+.admin-conventions-page .add_new_record .btn:hover,
+.admin-conventions-page .add_new_record .btn:focus {
+    background: #123e61;
+    border-color: #123e61;
+    color: #fff;
+}
+
+.admin-conventions-page .convention-list-table td[data-title="Action"] {
+    white-space: nowrap;
+}
+
+.admin-conventions-page .convention-list-table td[data-title="Action"] .btn {
+    border-radius: 8px;
+    margin: 1px 3px 1px 0;
+    padding: 4px 8px;
+}
+
+.admin-conventions-page .search_frm {
+    align-items: center;
+    background: #f5f9fd;
+    border: 1px solid #dce6f1;
+    border-radius: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 14px 18px 16px;
+    padding: 10px 12px;
+}
+
+.admin-conventions-page .search_frm .list_sel {
+    min-width: 220px;
+}
+
+@media (max-width: 991px) {
+    .admin-conventions-page .admin_search {
+        align-items: stretch;
+    }
+
+    .admin-conventions-page .admin_search form,
+    .admin-conventions-page .add_new_record {
+        flex: 1 1 100%;
+        margin-left: 0;
+    }
+
+    .admin-conventions-page .add_new_record .btn {
+        width: 100%;
+    }
+
+    .admin-conventions-page .search_frm {
+        margin: 12px;
+        padding: 10px;
+    }
+
+    .admin-conventions-page .search_frm .list_sel {
+        min-width: 100%;
+    }
+}
+
+/* Seasons page specific polish */
+.admin-seasons-page .admin_search {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: space-between;
+}
+
+.admin-seasons-page .admin_search form {
+    flex: 1 1 620px;
+}
+
+.admin-seasons-page .add_new_record {
+    float: none;
+    margin-left: auto;
+    padding-right: 0;
+    position: static;
+    right: auto;
+    top: auto;
+}
+
+.admin-seasons-page .add_new_record .btn {
+    background: #184e7a;
+    border: 1px solid #184e7a;
+    border-radius: 10px;
+    color: #fff;
+    font-weight: 700;
+    padding: 9px 14px;
+}
+
+.admin-seasons-page .add_new_record .btn:hover,
+.admin-seasons-page .add_new_record .btn:focus {
+    background: #123e61;
+    border-color: #123e61;
+    color: #fff;
+}
+
+.admin-seasons-page .season-list-table td[data-title="Action"] {
+    min-width: 270px;
+    white-space: normal;
+}
+
+.admin-seasons-page .season-action-cell {
+    line-height: 1.9;
+}
+
+.admin-seasons-page .season-action-cell .btn {
+    border-radius: 8px;
+    margin: 2px 4px 2px 0;
+    padding: 4px 7px;
+}
+
+.admin-seasons-page .season-action-cell .label {
+    display: inline-block;
+    margin: 2px 8px 2px 0;
+    vertical-align: middle;
+}
+
+@media (max-width: 991px) {
+    .admin-seasons-page .admin_search {
+        align-items: stretch;
+    }
+
+    .admin-seasons-page .admin_search form,
+    .admin-seasons-page .add_new_record {
+        flex: 1 1 100%;
+        margin-left: 0;
+    }
+
+    .admin-seasons-page .add_new_record .btn {
+        width: 100%;
+    }
+
+    .admin-seasons-page .season-list-table td[data-title="Action"] {
+        min-width: 230px;
+    }
+}
+
+/* Add season form page polish */
+.admin-form-page {
+    background:
+        radial-gradient(circle at 12% 0%, rgba(40, 90, 152, 0.08), transparent 34%),
+        linear-gradient(180deg, #f1f5fa 0%, #ecf1f7 100%);
+    min-height: calc(100vh - 50px);
+}
+
+.admin-form-page .content-header {
+    padding: 22px 20px 8px;
+}
+
+.admin-form-page .content-header h1 {
+    color: #132a43;
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+}
+
+.admin-form-page .content-header .breadcrumb {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid #d8e3ee;
+    border-radius: 16px;
+    padding: 7px 12px;
+}
+
+.admin-form-page .content {
+    padding: 6px 20px 24px;
+}
+
+.admin-form-page .box.box-info {
+    background: #fff;
+    border: 1px solid #dbe5f0;
+    border-radius: 14px;
+    border-top: 1px solid #dbe5f0;
+    box-shadow: 0 10px 26px rgba(20, 48, 79, 0.10);
+    overflow: hidden;
+}
+
+.admin-addseason-page .box-header.with-border {
+    background: linear-gradient(90deg, #f6f9fd 0%, #eef4fb 100%);
+    border-bottom: 1px solid #dbe5f0;
+    padding: 12px 16px;
+}
+
+.admin-addseason-page .box-header .box-title {
+    color: #1d3a58;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.admin-addseason-page .box-body {
+    padding: 16px 16px 8px;
+}
+
+.admin-addseason-page .form-horizontal .form-group {
+    border-bottom: 1px solid #edf2f7;
+    margin-left: 0;
+    margin-right: 0;
+    padding: 10px 0;
+}
+
+.admin-addseason-page .form-horizontal .form-group:last-of-type {
+    border-bottom: 0;
+}
+
+.admin-addseason-page .form-horizontal .control-label {
+    color: #2e4c69;
+    font-size: 13px;
+    font-weight: 700;
+    padding-top: 9px;
+    text-align: left;
+}
+
+.admin-addseason-page .form-horizontal .form-control {
+    border: 1px solid #c9d8e8;
+    border-radius: 10px;
+    box-shadow: none;
+    height: 40px;
+}
+
+.admin-addseason-page .box-footer {
+    background: #f7fbff;
+    border-top: 1px solid #dbe5f0;
+    margin: 6px 0 0;
+    padding: 14px 16px;
+}
+
+.admin-addseason-page .box-footer .btn {
+    border-radius: 10px;
+    font-weight: 600;
+    margin-right: 8px;
+    padding: 8px 16px;
+}
+
+.admin-addseason-page .box-footer .btn-info {
+    background: #1f5f8f;
+    border-color: #1f5f8f;
+}
+
+.admin-addseason-page .box-footer .btn-default {
+    background: #fff;
+    border: 1px solid #c8d6e6;
+    color: #35577a;
+}
+
+@media (max-width: 991px) {
+    .admin-form-page .content-header,
+    .admin-form-page .content {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    .admin-addseason-page .box-header.with-border,
+    .admin-addseason-page .box-body,
+    .admin-addseason-page .box-footer {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .admin-addseason-page .form-horizontal .form-group {
+        padding: 8px 0;
+    }
+
+    .admin-addseason-page .box-footer .control-label {
+        display: none;
+    }
+}
+
+/* Edit judge form page polish */
+.admin-editjudge-page .box-header.with-border {
+    background: linear-gradient(90deg, #f6f9fd 0%, #eef4fb 100%);
+    border-bottom: 1px solid #dbe5f0;
+    padding: 12px 16px;
+}
+
+.admin-editjudge-page .box-header .box-title {
+    color: #1d3a58;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.admin-editjudge-page .box-body {
+    padding: 16px 16px 8px;
+}
+
+.admin-editjudge-page .form-horizontal .form-group {
+    border-bottom: 1px solid #edf2f7;
+    margin-left: 0;
+    margin-right: 0;
+    padding: 10px 0;
+}
+
+.admin-editjudge-page .form-horizontal .form-group:last-of-type {
+    border-bottom: 0;
+}
+
+.admin-editjudge-page .form-horizontal .control-label {
+    color: #2e4c69;
+    font-size: 13px;
+    font-weight: 700;
+    padding-top: 9px;
+    text-align: left;
+}
+
+.admin-editjudge-page .form-horizontal .form-control {
+    border: 1px solid #c9d8e8;
+    border-radius: 10px;
+    box-shadow: none;
+    height: 40px;
+}
+
+.admin-editjudge-page .judge-flag-display {
+    padding-top: 7px;
+}
+
+.admin-editjudge-page .judge-flag-display .judge-status-pill {
+    min-width: 84px;
+}
+
+.admin-editjudge-page .bugdm {
+    color: #4a6a89;
+    display: inline-block;
+    margin-top: 6px;
+}
+
+.admin-editjudge-page .box-footer {
+    background: #f7fbff;
+    border-top: 1px solid #dbe5f0;
+    margin: 6px 0 0;
+    padding: 14px 16px;
+}
+
+.admin-editjudge-page .box-footer .btn {
+    border-radius: 10px;
+    font-weight: 600;
+    margin-right: 8px;
+    padding: 8px 16px;
+}
+
+.admin-editjudge-page .box-footer .btn-info {
+    background: #1f5f8f;
+    border-color: #1f5f8f;
+}
+
+.admin-editjudge-page .box-footer .btn-default {
+    background: #fff;
+    border: 1px solid #c8d6e6;
+    color: #35577a;
+}
+
+@media (max-width: 991px) {
+    .admin-editjudge-page .box-header.with-border,
+    .admin-editjudge-page .box-body,
+    .admin-editjudge-page .box-footer {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .admin-editjudge-page .form-horizontal .form-group {
+        padding: 8px 0;
+    }
+
+    .admin-editjudge-page .box-footer .control-label {
+        display: none;
+    }
+}
+
+/* Edit school form page polish */
+.admin-editschool-page .box-header.with-border {
+    background: linear-gradient(90deg, #f6f9fd 0%, #eef4fb 100%);
+    border-bottom: 1px solid #dbe5f0;
+    padding: 12px 16px;
+}
+
+.admin-editschool-page .box-header .box-title {
+    color: #1d3a58;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.admin-editschool-page .box-body {
+    padding: 16px 16px 8px;
+}
+
+.admin-editschool-page .form-horizontal .form-group {
+    border-bottom: 1px solid #edf2f7;
+    margin-left: 0;
+    margin-right: 0;
+    padding: 10px 0;
+}
+
+.admin-editschool-page .form-horizontal .form-group:last-of-type {
+    border-bottom: 0;
+}
+
+.admin-editschool-page .form-horizontal .control-label {
+    color: #2e4c69;
+    font-size: 13px;
+    font-weight: 700;
+    padding-top: 9px;
+    text-align: left;
+}
+
+.admin-editschool-page .form-horizontal .form-control {
+    border: 1px solid #c9d8e8;
+    border-radius: 10px;
+    box-shadow: none;
+    height: 40px;
+}
+
+.admin-editschool-page .bugdm {
+    color: #4a6a89;
+    display: inline-block;
+    margin-top: 6px;
+}
+
+.admin-editschool-page .box-footer {
+    background: #f7fbff;
+    border-top: 1px solid #dbe5f0;
+    margin: 6px 0 0;
+    padding: 14px 16px;
+}
+
+.admin-editschool-page .box-footer .btn {
+    border-radius: 10px;
+    font-weight: 600;
+    margin-right: 8px;
+    padding: 8px 16px;
+}
+
+.admin-editschool-page .box-footer .btn-info {
+    background: #1f5f8f;
+    border-color: #1f5f8f;
+}
+
+.admin-editschool-page .box-footer .btn-default {
+    background: #fff;
+    border: 1px solid #c8d6e6;
+    color: #35577a;
+}
+
+@media (max-width: 991px) {
+    .admin-editschool-page .box-header.with-border,
+    .admin-editschool-page .box-body,
+    .admin-editschool-page .box-footer {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .admin-editschool-page .form-horizontal .form-group {
+        padding: 8px 0;
+    }
+
+    .admin-editschool-page .box-footer .control-label {
+        display: none;
+    }
+}
+
+/* Edit supervisor form page polish */
+.admin-editteacher-page .box-header.with-border {
+    background: linear-gradient(90deg, #f6f9fd 0%, #eef4fb 100%);
+    border-bottom: 1px solid #dbe5f0;
+    padding: 12px 16px;
+}
+
+.admin-editteacher-page .box-header .box-title {
+    color: #1d3a58;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.admin-editteacher-page .box-body {
+    padding: 16px 16px 8px;
+}
+
+.admin-editteacher-page .form-horizontal .form-group {
+    border-bottom: 1px solid #edf2f7;
+    margin-left: 0;
+    margin-right: 0;
+    padding: 10px 0;
+}
+
+.admin-editteacher-page .form-horizontal .form-group:last-of-type {
+    border-bottom: 0;
+}
+
+.admin-editteacher-page .form-horizontal .control-label {
+    color: #2e4c69;
+    font-size: 13px;
+    font-weight: 700;
+    padding-top: 9px;
+    text-align: left;
+}
+
+.admin-editteacher-page .form-horizontal .form-control {
+    border: 1px solid #c9d8e8;
+    border-radius: 10px;
+    box-shadow: none;
+    height: 40px;
+}
+
+.admin-editteacher-page .judge-flag-display {
+    padding-top: 7px;
+}
+
+.admin-editteacher-page .judge-flag-display .judge-status-pill {
+    min-width: 72px;
+}
+
+.admin-editteacher-page .bugdm {
+    color: #4a6a89;
+    display: inline-block;
+    margin-top: 6px;
+}
+
+.admin-editteacher-page .box-footer {
+    background: #f7fbff;
+    border-top: 1px solid #dbe5f0;
+    margin: 6px 0 0;
+    padding: 14px 16px;
+}
+
+.admin-editteacher-page .box-footer .btn {
+    border-radius: 10px;
+    font-weight: 600;
+    margin-right: 8px;
+    padding: 8px 16px;
+}
+
+.admin-editteacher-page .box-footer .btn-info {
+    background: #1f5f8f;
+    border-color: #1f5f8f;
+}
+
+.admin-editteacher-page .box-footer .btn-default {
+    background: #fff;
+    border: 1px solid #c8d6e6;
+    color: #35577a;
+}
+
+@media (max-width: 991px) {
+    .admin-editteacher-page .box-header.with-border,
+    .admin-editteacher-page .box-body,
+    .admin-editteacher-page .box-footer {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .admin-editteacher-page .form-horizontal .form-group {
+        padding: 8px 0;
+    }
+
+    .admin-editteacher-page .box-footer .control-label {
+        display: none;
+    }
+}
+
+/* Manage seasons page specific polish */
+.admin-seasons-master-page .admin_search {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: space-between;
+}
+
+.admin-seasons-master-page .admin_search form {
+    flex: 1 1 560px;
+}
+
+/* Users list pages: schools + supervisors */
+.admin-schools-page .admin-users-search,
+.admin-teachers-page .admin-users-search {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: space-between;
+}
+
+.admin-schools-page .admin-users-search form,
+.admin-teachers-page .admin-users-search form {
+    flex: 1 1 560px;
+}
+
+.admin-schools-page .add_new_record,
+.admin-teachers-page .add_new_record {
+    float: none;
+    margin-left: auto;
+    padding-right: 0;
+    position: static;
+    right: auto;
+    top: auto;
+}
+
+.admin-schools-page .add_new_record .btn,
+.admin-teachers-page .add_new_record .btn {
+    border-radius: 9px;
+    font-weight: 600;
+    margin: 2px 6px 2px 0;
+    padding: 8px 12px;
+}
+
+.admin-schools-page .search_frm,
+.admin-teachers-page .search_frm {
+    align-items: center;
+    background: #f5f9fd;
+    border: 1px solid #dce6f1;
+    border-radius: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 14px 18px 16px;
+    padding: 10px 12px;
+}
+
+.admin-schools-page .search_frm .list_sel,
+.admin-teachers-page .search_frm .list_sel {
+    min-width: 220px;
+}
+
+@media (max-width: 991px) {
+    .admin-schools-page .admin-users-search,
+    .admin-teachers-page .admin-users-search {
+        align-items: stretch;
+    }
+
+    .admin-schools-page .admin-users-search form,
+    .admin-teachers-page .admin-users-search form,
+    .admin-schools-page .add_new_record,
+    .admin-teachers-page .add_new_record {
+        flex: 1 1 100%;
+        margin-left: 0;
+    }
+
+    .admin-schools-page .add_new_record .btn,
+    .admin-teachers-page .add_new_record .btn {
+        width: 100%;
+    }
+
+    .admin-schools-page .search_frm,
+    .admin-teachers-page .search_frm {
+        margin: 12px;
+        padding: 10px;
+    }
+
+    .admin-schools-page .search_frm .list_sel,
+    .admin-teachers-page .search_frm .list_sel {
+        min-width: 100%;
+    }
+}
+
+/* Scheduling pre-check page polish */
+.admin-sched-precheck-page {
+    background:
+        radial-gradient(circle at 12% 0%, rgba(40, 90, 152, 0.08), transparent 34%),
+        linear-gradient(180deg, #f1f5fa 0%, #ecf1f7 100%);
+    min-height: calc(100vh - 50px);
+}
+
+.admin-sched-precheck-page .content-header {
+    padding: 22px 20px 8px;
+}
+
+.admin-sched-precheck-page .content-header h1 {
+    color: #132a43;
+    font-size: 29px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+}
+
+.admin-sched-precheck-page .content-header .breadcrumb {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid #d8e3ee;
+    border-radius: 16px;
+    padding: 7px 12px;
+}
+
+.admin-sched-precheck-page .content {
+    padding: 6px 20px 24px;
+}
+
+.admin-sched-precheck-page .box-header.with-border {
+    background: linear-gradient(90deg, #f6f9fd 0%, #eef4fb 100%);
+    border-bottom: 1px solid #dbe5f0;
+    padding: 12px 16px;
+}
+
+.admin-sched-precheck-page .box-header .box-title {
+    color: #1d3a58;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.admin-precheck-summary {
+    padding: 16px 16px 8px;
+}
+
+.admin-precheck-summary h2 {
+    color: #1f3d5b;
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0 0 12px;
+}
+
+.admin-precheck-table {
+    border: 1px solid #dbe5f0;
+    border-radius: 12px;
+    margin-bottom: 0;
+    overflow: hidden;
+}
+
+.admin-precheck-table th {
+    background: #173a63;
+    border-color: #dbe5f0;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    padding: 10px 9px;
+}
+
+.admin-precheck-table td {
+    border-color: #e6edf5;
+    color: #223a54;
+    font-size: 14px;
+    padding: 10px 9px;
+    vertical-align: middle;
+}
+
+.admin-precheck-table tr:nth-child(odd) td {
+    background: #fbfdff;
+}
+
+.precheck-status {
+    border: 1px solid transparent;
+    border-radius: 999px;
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    min-width: 78px;
+    padding: 6px 10px;
+    text-align: center;
+}
+
+.precheck-status i {
+    margin-right: 5px;
+}
+
+.precheck-status-ok {
+    background: #e8f7ee;
+    border-color: #b8e0c8;
+    color: #1f7a45;
+}
+
+.precheck-status-pending {
+    background: #fff4dd;
+    border-color: #f0d9a7;
+    color: #9c6a16;
+}
+
+.precheck-empty {
+    color: #8ba0b5;
+}
+
+.admin-precheck-btn {
+    border-radius: 9px;
+    font-weight: 600;
+}
+
+.admin-precheck-actions {
+    background: #f7fbff;
+    border-top: 1px solid #dbe5f0;
+    margin: 12px 16px 16px;
+    padding: 12px;
+}
+
+.admin-precheck-actions .control-label {
+    display: none;
+}
+
+.admin-precheck-actions .btn {
+    margin: 3px 6px 3px 0;
+    padding: 8px 12px;
+}
+
+@media (max-width: 991px) {
+    .admin-sched-precheck-page .content-header,
+    .admin-sched-precheck-page .content {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    .admin-sched-precheck-page .content-header h1 {
+        font-size: 24px;
+    }
+
+    .admin-precheck-summary,
+    .admin-sched-precheck-page .box-header.with-border {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .admin-precheck-actions {
+        margin: 12px;
+    }
+
+    .admin-precheck-actions .btn {
+        width: 100%;
+    }
+}
+
+/* Scheduling wizard page polish */
+.admin-sched-wizard-page {
+    background:
+        radial-gradient(circle at 12% 0%, rgba(40, 90, 152, 0.08), transparent 34%),
+        linear-gradient(180deg, #f1f5fa 0%, #ecf1f7 100%);
+    min-height: calc(100vh - 50px);
+}
+
+.admin-sched-wizard-page .content-header {
+    padding: 22px 20px 8px;
+}
+
+.admin-sched-wizard-page .content-header h1 {
+    color: #132a43;
+    font-size: 29px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+}
+
+.admin-sched-wizard-page .content-header .breadcrumb {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid #d8e3ee;
+    border-radius: 16px;
+    padding: 7px 12px;
+}
+
+.admin-sched-wizard-page .content {
+    padding: 6px 20px 24px;
+}
+
+.admin-sched-wizard-page .box-header.with-border {
+    background: linear-gradient(90deg, #f6f9fd 0%, #eef4fb 100%);
+    border-bottom: 1px solid #dbe5f0;
+    padding: 12px 16px;
+}
+
+.admin-sched-wizard-page .box-header .box-title {
+    color: #1d3a58;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.admin-sched-wizard-form .box-body {
+    padding: 16px 16px 8px;
+}
+
+.admin-sched-wizard-form .form-group {
+    border-bottom: 1px solid #edf2f7;
+    margin-left: 0;
+    margin-right: 0;
+    padding: 10px 0;
+}
+
+.admin-sched-wizard-form .form-group:last-of-type {
+    border-bottom: 0;
+}
+
+.admin-sched-wizard-form .control-label {
+    color: #2e4c69;
+    font-size: 13px;
+    font-weight: 700;
+    padding-top: 9px;
+    text-align: left;
+}
+
+.admin-sched-wizard-form .form-control {
+    border: 1px solid #c9d8e8;
+    border-radius: 10px;
+    box-shadow: none;
+    height: 40px;
+}
+
+.admin-sched-wizard-form .wizard-section-row {
+    background: linear-gradient(90deg, #f7fafe 0%, #f0f6fd 100%);
+    border: 1px solid #dbe7f2;
+    border-radius: 10px;
+    margin: 12px 0 8px;
+    padding: 10px 8px;
+}
+
+.admin-sched-wizard-form .wizard-section-row .control-label h3 {
+    color: #1f3d5b;
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.admin-sched-wizard-form .wizard-conditional-box {
+    background: #fafdff;
+    border: 1px solid #dfebf6;
+    border-radius: 10px;
+    margin: 8px 0;
+    padding: 6px 8px;
+}
+
+.admin-sched-wizard-form .wizard-warning-row .col-sm-10 {
+    color: #c0392b !important;
+    font-weight: 600;
+}
+
+.admin-wizard-actions {
+    background: #f7fbff;
+    border-top: 1px solid #dbe5f0;
+    margin: 6px 0 0;
+    padding: 14px 16px;
+}
+
+.admin-wizard-actions .btn {
+    border-radius: 10px;
+    font-weight: 600;
+    margin-right: 8px;
+    padding: 8px 16px;
+}
+
+.admin-wizard-actions .btn-info {
+    background: #1f5f8f;
+    border-color: #1f5f8f;
+}
+
+.admin-wizard-actions .btn-default {
+    background: #fff;
+    border: 1px solid #c8d6e6;
+    color: #35577a;
+}
+
+@media (max-width: 991px) {
+    .admin-sched-wizard-page .content-header,
+    .admin-sched-wizard-page .content {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    .admin-sched-wizard-page .content-header h1 {
+        font-size: 24px;
+    }
+
+    .admin-sched-wizard-page .box-header.with-border,
+    .admin-sched-wizard-form .box-body,
+    .admin-wizard-actions {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .admin-sched-wizard-form .form-group {
+        padding: 8px 0;
+    }
+
+    .admin-wizard-actions .control-label {
+        display: none;
+    }
+
+    .admin-wizard-actions .btn {
+        margin-bottom: 8px;
+        width: 100%;
+    }
+}
+
+/* Overwrite timings page polish */
+.admin-sched-overwrite-page {
+    background:
+        radial-gradient(circle at 12% 0%, rgba(40, 90, 152, 0.08), transparent 34%),
+        linear-gradient(180deg, #f1f5fa 0%, #ecf1f7 100%);
+    min-height: calc(100vh - 50px);
+}
+
+.admin-sched-overwrite-page .content-header {
+    padding: 22px 20px 8px;
+}
+
+.admin-sched-overwrite-page .content-header h1 {
+    color: #132a43;
+    font-size: 29px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+}
+
+.admin-sched-overwrite-page .content-header .breadcrumb {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid #d8e3ee;
+    border-radius: 16px;
+    padding: 7px 12px;
+}
+
+.admin-sched-overwrite-page .content {
+    padding: 6px 20px 24px;
+}
+
+.admin-sched-overwrite-page .box-header.with-border {
+    background: linear-gradient(90deg, #f6f9fd 0%, #eef4fb 100%);
+    border-bottom: 1px solid #dbe5f0;
+    padding: 12px 16px;
+}
+
+.admin-sched-overwrite-page .box-header .box-title {
+    color: #1d3a58;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.admin-sched-overwrite-form .box-body {
+    padding: 16px 16px 8px;
+}
+
+.admin-sched-overwrite-form .form-group {
+    border-bottom: 1px solid #edf2f7;
+    margin-left: 0;
+    margin-right: 0;
+    padding: 10px 0;
+}
+
+.admin-sched-overwrite-form .control-label {
+    color: #2e4c69;
+    font-size: 13px;
+    font-weight: 700;
+    padding-top: 9px;
+    text-align: left;
+}
+
+.admin-sched-overwrite-form .form-control {
+    border: 1px solid #c9d8e8;
+    border-radius: 10px;
+    box-shadow: none;
+    height: 40px;
+}
+
+.admin-overwrite-actions {
+    background: #f7fbff;
+    border-top: 1px solid #dbe5f0;
+    margin: 6px 0 0;
+    padding: 14px 16px;
+}
+
+.admin-overwrite-actions .btn {
+    border-radius: 10px;
+    font-weight: 600;
+    margin-right: 8px;
+    padding: 8px 16px;
+}
+
+/* Schedule category page polish */
+.admin-sched-category-page {
+    background:
+        radial-gradient(circle at 12% 0%, rgba(40, 90, 152, 0.08), transparent 34%),
+        linear-gradient(180deg, #f1f5fa 0%, #ecf1f7 100%);
+    min-height: calc(100vh - 50px);
+}
+
+.admin-sched-category-page .content-header {
+    padding: 22px 20px 8px;
+}
+
+.admin-sched-category-page .content-header h1 {
+    color: #132a43;
+    font-size: 29px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+}
+
+.admin-sched-category-page .content-header .breadcrumb {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid #d8e3ee;
+    border-radius: 16px;
+    padding: 7px 12px;
+}
+
+.admin-sched-category-page .content {
+    padding: 6px 20px 24px;
+}
+
+.admin-sched-category-page .box-header.with-border {
+    background: linear-gradient(90deg, #fff8f7 0%, #fff2ef 100%);
+    border-bottom: 1px solid #f0d8d2;
+    padding: 12px 16px;
+}
+
+.admin-sched-category-page .admin-sched-note {
+    color: #aa2f1f !important;
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+.admin-sched-category-summary {
+    padding: 16px 16px 8px;
+}
+
+.admin-sched-category-summary h2 {
+    align-items: center;
+    color: #1f3d5b;
+    display: flex;
+    flex-wrap: wrap;
+    font-size: 22px;
+    font-weight: 700;
+    gap: 10px;
+    justify-content: space-between;
+    margin: 0 0 12px;
+}
+
+.admin-sched-btn {
+    border-radius: 9px;
+    font-weight: 600;
+}
+
+.admin-sched-category-table {
+    border: 1px solid #dbe5f0;
+    border-radius: 12px;
+    margin-bottom: 0;
+}
+
+.admin-sched-category-table th {
+    background: #173a63;
+    border-color: #dbe5f0;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    padding: 10px 9px;
+}
+
+.admin-sched-category-table td {
+    border-color: #e6edf5;
+    color: #223a54;
+    font-size: 14px;
+    padding: 10px 9px;
+    vertical-align: middle;
+}
+
+.admin-sched-category-table tr:nth-child(odd) td {
+    background: #fbfdff;
+}
+
+.admin-sched-category-actions {
+    background: #f7fbff;
+    border-top: 1px solid #dbe5f0;
+    margin: 12px 16px 16px;
+    padding: 12px;
+}
+
+.admin-sched-category-actions .control-label {
+    display: none;
+}
+
+.admin-sched-category-actions .btn {
+    margin: 3px 6px 3px 0;
+    padding: 8px 12px;
+}
+
+@media (max-width: 991px) {
+    .admin-sched-overwrite-page .content-header,
+    .admin-sched-overwrite-page .content,
+    .admin-sched-category-page .content-header,
+    .admin-sched-category-page .content {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    .admin-sched-overwrite-page .content-header h1,
+    .admin-sched-category-page .content-header h1 {
+        font-size: 24px;
+    }
+
+    .admin-sched-overwrite-page .box-header.with-border,
+    .admin-sched-overwrite-form .box-body,
+    .admin-overwrite-actions,
+    .admin-sched-category-page .box-header.with-border,
+    .admin-sched-category-summary {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .admin-sched-category-actions {
+        margin: 12px;
+    }
+
+    .admin-overwrite-actions .btn,
+    .admin-sched-category-actions .btn,
+    .admin-sched-category-summary h2 .btn {
+        width: 100%;
+    }
+}
+
+.admin-seasons-master-page .add_new_record {
+    float: none;
+    margin-left: auto;
+    padding-right: 0;
+    position: static;
+    right: auto;
+    top: auto;
+}
+
+.admin-seasons-master-page .add_new_record .btn {
+    background: #184e7a;
+    border: 1px solid #184e7a;
+    border-radius: 10px;
+    color: #fff;
+    font-weight: 700;
+    padding: 9px 14px;
+}
+
+.admin-seasons-master-page .add_new_record .btn:hover,
+.admin-seasons-master-page .add_new_record .btn:focus {
+    background: #123e61;
+    border-color: #123e61;
+    color: #fff;
+}
+
+.admin-seasons-master-page .season-master-list-table td[data-title="Action"] {
+    white-space: nowrap;
+}
+
+.admin-seasons-master-page .season-master-list-table td[data-title="Action"] .btn {
+    border-radius: 8px;
+    margin: 1px 3px 1px 0;
+    padding: 4px 8px;
+}
+
+@media (max-width: 991px) {
+    .admin-seasons-master-page .admin_search {
+        align-items: stretch;
+    }
+
+    .admin-seasons-master-page .admin_search form,
+    .admin-seasons-master-page .add_new_record {
+        flex: 1 1 100%;
+        margin-left: 0;
+    }
+
+    .admin-seasons-master-page .add_new_record .btn {
+        width: 100%;
+    }
+}
+
+/* Transaction details specific refinements */
+.admin-transaction-details-page .box .box-header {
+    background: linear-gradient(90deg, #f6f9fd 0%, #eef4fb 100%);
+    border-bottom: 1px solid #dbe5f0;
+    padding: 12px 16px;
+}
+
+.admin-transaction-details-page .box .box-header .box-title {
+    color: #1d3a58;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.admin-transaction-details-page .box .box-body {
+    padding: 18px 16px 10px;
+}
+
+.admin-transaction-details-page .form-horizontal .form-group {
+    border-bottom: 1px solid #edf2f7;
+    margin-left: 0;
+    margin-right: 0;
+    padding: 10px 0;
+}
+
+.admin-transaction-details-page .form-horizontal .form-group:last-of-type {
+    border-bottom: 0;
+}
+
+.admin-transaction-details-page .form-horizontal .control-label {
+    color: #274566;
+    font-weight: 700;
+    padding-top: 8px;
+}
+
+.admin-transaction-details-page .form-horizontal em {
+    color: #5f7388;
+    display: block;
+    font-size: 12px;
+    margin-top: 6px;
+}
+
+.admin-transaction-details-page .form-horizontal .form-control {
+    border: 1px solid #c9d8e8;
+    border-radius: 10px;
+    box-shadow: none;
+    min-height: 38px;
+}
+
+.admin-transaction-details-page .box-footer {
+    background: #fff;
+    border-top: 0;
+    padding: 12px 16px;
+}
+
+.admin-transaction-details-page .box-footer .btn {
+    border-radius: 10px;
+    font-weight: 600;
+    min-width: 96px;
+}
+
+.admin-transaction-details-page .box-footer .btn-info {
+    background: #1f5f8f;
+    border-color: #1f5f8f;
+}
+
+.admin-transaction-details-page .box-footer .btn-default {
+    background: #fff;
+    border: 1px solid #c8d6e6;
+    color: #35577a;
+}
+
+.admin-transaction-details-page .tbl-resp-listing {
+    margin: 12px 16px;
+}
+
+.admin-transaction-details-page .form-horizontal[style*="padding-bottom"] {
+    padding: 8px 16px 20px !important;
+}
+
+@media (max-width: 991px) {
+    .admin-transaction-details-page .box .box-header,
+    .admin-transaction-details-page .box .box-body,
+    .admin-transaction-details-page .box-footer,
+    .admin-transaction-details-page .tbl-resp-listing,
+    .admin-transaction-details-page .form-horizontal[style*="padding-bottom"] {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+    }
 }

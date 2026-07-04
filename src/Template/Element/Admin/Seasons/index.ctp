@@ -18,7 +18,7 @@
         </div>   
 
         <div class="tbl-resp-listing">
-            <table class="table table-bordered table-striped table-condensed cf">
+            <table class="table table-bordered table-striped table-condensed cf season-master-list-table">
                 <thead class="cf ajshort">
                     <tr>
                         <th class="sorting_paging"><?php echo $this->Paginator->sort('season_year', 'Season Year'); ?></th>

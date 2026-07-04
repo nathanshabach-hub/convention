@@ -10,7 +10,7 @@ if (empty($eventsDD) || !is_array($eventsDD)) {
     $eventsDD = [];
 }
 ?>
-<div class="content-wrapper">
+<div class="content-wrapper judgeeval-modern">
     <section class="content-header">
       <h1>
          Judge Evaluations

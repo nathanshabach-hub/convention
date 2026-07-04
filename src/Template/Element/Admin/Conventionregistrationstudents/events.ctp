@@ -16,14 +16,14 @@ $this->Conventionregistrationstudents = TableRegistry::get('Conventionregistrati
 ?>
 <div class="admin_loader" id="loaderID"><?php echo $this->Html->image('loader_large_blue.gif');?></div>
 <?php if ($allEventsArr) { ?> 
-    <div class="panel-body">
+    <div class="panel-body admin-data-panel admin-crevents-panel">
         <div class="ersu_message"> <?php echo $this->Flash->render() ?></div>
         <?php echo $this->Form->create(null, ['id'=>'actionFrom', "method" => "Post"]);  ?>
-        <section id="no-more-tables" class="lstng-section">
+        <section id="no-more-tables" class="lstng-section admin-data-section">
                
 
-            <div class="tbl-resp-listing">
-                <table id="convention_registraions" class="table table-bordered table-striped table-condensed cf">
+            <div class="tbl-resp-listing admin-data-table-wrap">
+                <table id="convention_registraions" class="table table-bordered table-striped table-condensed cf admin-data-table">
                     <thead class="cf ajshort">
                         <tr>
                             <th class="sorting_paging">Event Number</th>

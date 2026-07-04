@@ -4,121 +4,120 @@ $(document).ready(function () {
 });
 </script>
 <?php
-$localCurrText = '&nbsp;&nbsp;<small><b>(Amount shown in local currency to Convention region)</b></small>';
+$localCurrText = '<small><b>(Amount shown in local currency to Convention region)</b></small>';
 $onlinetPTxt = '&nbsp;&nbsp;<small><b>(Online payment only available for Australian Conventions, all other regions please request invoice)</b></small>';
 ?>
-<div class="container-fluid p-0">
+<div class="container-fluid p-0 cr-paymentsummary-page">
 	<div class="row">
 		<?php echo $this->element('user_left_menu'); ?>
-		<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+		<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 cr-paymentsummary-main">
 		
 		<div class="ersu_message"> <?php echo $this->Flash->render() ?></div>
 		
-			<h2 class="mt-3">Payment Summary</h2>
+			<h2 class="mt-3 cr-paymentsummary-title">Payment Summary</h2>
+			<p class="cr-paymentsummary-subtitle">Review the totals below to see exactly what is pending and what will be charged.</p>
 			  
 			<!-- dashboard-section-3 start-->
-			<div class="dashboard-form">
+			<div class="dashboard-form cr-paymentsummary-card">
 				<!--<h2 class="form-title">Payment Summary</h2>-->
 				<?php echo $this->Form->create($users, ['id'=>'addstudent', 'type' => 'file', 'class' =>' ']); ?>
-					
-					<div class="form-group">
-						<label for="name">Price Structure</label>
-						<?php echo $priceStructureCR[$CRDetails->price_structure]; ?>
+					<div class="cr-pay-kpis">
+						<div class="cr-pay-kpi">
+							<span class="cr-pay-kpi-label">Students Pending</span>
+							<span class="cr-pay-kpi-value"><?php echo $pendingPaymentStudents; ?></span>
+						</div>
+						<div class="cr-pay-kpi">
+							<span class="cr-pay-kpi-label">Teachers Pending</span>
+							<span class="cr-pay-kpi-value"><?php echo $pendingPaymentTeachers; ?></span>
+						</div>
+						<div class="cr-pay-kpi is-emphasis">
+							<span class="cr-pay-kpi-label">Final Payable Amount</span>
+							<span class="cr-pay-kpi-value"><?php echo number_format($payableAmount,2); ?></span>
+						</div>
 					</div>
+					<div class="cr-pay-currency-note"><?php echo $localCurrText; ?></div>
+
+					<div class="cr-pay-summary-grid">
+						<div class="cr-pay-two-col">
+							<div class="cr-pay-col">
+								<h3 class="cr-pay-section-title">1. Student Charges</h3>
+								<div class="form-group cr-pay-row">
+									<label for="name">Price Structure</label>
+									<span class="cr-pay-value"><?php echo $priceStructureCR[$CRDetails->price_structure]; ?></span>
+								</div>
+								<div class="form-group cr-pay-row">
+									<label for="name">Total Students Registered</label>
+									<span class="cr-pay-value"><?php echo $totalStudentsReg; ?></span>
+								</div>
+								<div class="form-group cr-pay-row">
+									<label for="name">Already Paid Students</label>
+									<span class="cr-pay-value"><?php echo $alreadyPaidStudents; ?></span>
+								</div>
+								<div class="form-group cr-pay-row">
+									<label for="name">Students Awaiting Payment</label>
+									<span class="cr-pay-value"><?php echo $pendingPaymentStudents; ?></span>
+								</div>
+								<div class="form-group cr-pay-row">
+									<label for="name">Price Per Student</label>
+									<span class="cr-pay-value"><?php echo number_format($pricePerStudent,2); ?></span>
+								</div>
+								<div class="form-group cr-pay-row">
+									<label for="name">Student Subtotal</label>
+									<span class="cr-pay-value"><?php echo number_format($subTotalPaymentStudents,2); ?></span>
+								</div>
+								<?php
+								if($totalStudentsApplicableDiscount>0)
+								{
+								?>
+								<div class="cr-pay-section-divider" aria-hidden="true"></div>
+								<div class="form-group cr-pay-row">
+									<label for="name">Total Students Applicable For Discount</label>
+									<span class="cr-pay-value"><?php echo $totalStudentsApplicableDiscount; ?></span>
+								</div>
+								<div class="form-group cr-pay-row">
+									<label for="name">Discount Per Student</label>
+									<span class="cr-pay-value"><?php echo number_format($perStudentDiscountAmount,2); ?>%</span>
+								</div>
+								<div class="form-group cr-pay-row">
+									<label for="name">Total Discount Amount</label>
+									<span class="cr-pay-value"><?php echo number_format($totalDiscountAmount,2); ?></span>
+								</div>
+								<?php
+								}
+								?>
+								<div class="form-group cr-pay-row">
+									<label for="name">Student Total After Discounts</label>
+									<span class="cr-pay-value"><?php echo number_format($netPayableAmountStudent,2); ?></span>
+								</div>
+							</div>
+							<div class="cr-pay-col">
+								<h3 class="cr-pay-section-title">2. Teacher Charges</h3>
+								<div class="form-group cr-pay-row">
+									<label for="name">Total Teachers Registered</label>
+									<span class="cr-pay-value"><?php echo $totalTeachersReg; ?></span>
+								</div>
+								<div class="form-group cr-pay-row">
+									<label for="name">Already Paid Teachers</label>
+									<span class="cr-pay-value"><?php echo $alreadyPaidTeachers; ?></span>
+								</div>
+								<div class="form-group cr-pay-row">
+									<label for="name">Teachers Awaiting Payment</label>
+									<span class="cr-pay-value"><?php echo $pendingPaymentTeachers; ?></span>
+								</div>
+								<div class="form-group cr-pay-row">
+									<label for="name">Price Per Teacher</label>
+									<span class="cr-pay-value"><?php echo number_format($pricePerTeacher,2); ?></span>
+								</div>
+							</div>
+						</div>
+						<div class="cr-pay-section-divider" aria-hidden="true"></div>
+						<h3 class="cr-pay-section-title">3. Final Amount</h3>
 					
-					<div class="form-group">
-						<label for="name">Total Students Registered</label>
-						<?php echo $totalStudentsReg; ?>
+					
+					<div class="form-group cr-pay-row cr-pay-total-row">
+						<label for="name">Final Payable Amount</label>
+						<span class="cr-pay-value"><?php echo number_format($payableAmount,2); ?></span>
 					</div>
-					
-					<div class="form-group">
-						<label for="name">Already Paid Students</label>
-						<?php echo $alreadyPaidStudents; ?>
-					</div>
-					
-					<div class="form-group">
-						<label for="name">Pending Payment Students (A)</label>
-						<?php echo $pendingPaymentStudents; ?>
-					</div>
-					
-					<div class="form-group">
-						<label for="name">Price Per Student (B)</label>
-						<?php echo number_format($pricePerStudent,2); ?> <?php echo $localCurrText; ?>
-					</div>
-					
-					<div class="form-group">
-						<label for="name">Sub-total (AxB)</label>
-						<?php echo number_format($subTotalPaymentStudents,2); ?> <?php echo $localCurrText; ?>
-					</div>
-					
-					<?php
-					if($totalStudentsApplicableDiscount>0)
-					{
-					?>
-					
-					<div class="form-group">
-						&nbsp;
-					</div>
-					
-					
-					<div class="form-group">
-						<label for="name">Total Students Applicable For Discount</label>
-						<?php echo $totalStudentsApplicableDiscount; ?>
-					</div>
-					
-					<div class="form-group">
-						<label for="name">Discount Per Student</label>
-						<?php echo number_format($perStudentDiscountAmount,2); ?>% <?php echo $localCurrText; ?>
-					</div>
-					
-					<div class="form-group">
-						<label for="name">Total Discount Amount</label>
-						<?php echo number_format($totalDiscountAmount,2); ?> <?php echo $localCurrText; ?>
-					</div>
-					<?php
-					}
-					?>
-					
-					<div class="form-group">
-						<label for="name">Net Payable Amount Student (C)</label>
-						<?php echo number_format($netPayableAmountStudent,2); ?> <?php echo $localCurrText; ?>
-					</div>
-					
-					
-					<div class="form-group">
-						----------------------------------------------------------------
-					</div>
-					
-					
-					<div class="form-group">
-						<label for="name">Total Teachers Registered</label>
-						<?php echo $totalTeachersReg; ?>
-					</div>
-					
-					<div class="form-group">
-						<label for="name">Already Paid Teachers</label>
-						<?php echo $alreadyPaidTeachers; ?>
-					</div>
-					
-					<div class="form-group">
-						<label for="name">Pending Payment Teachers (D)</label>
-						<?php echo $pendingPaymentTeachers; ?>
-					</div>
-					
-					<div class="form-group">
-						<label for="name">Price Per Teacher (E)</label>
-						<?php echo number_format($pricePerTeacher,2); ?> <?php echo $localCurrText; ?>
-					</div>
-					
-					
-					<div class="form-group">
-						----------------------------------------------------------------
-					</div>
-					
-					
-					<div class="form-group">
-						<label for="name">Payable Amount (C) + (DxE)</label>
-						<?php echo number_format($payableAmount,2); ?> <?php echo $localCurrText; ?>
 					</div>
 					
 					
@@ -127,25 +126,25 @@ $onlinetPTxt = '&nbsp;&nbsp;<small><b>(Online payment only available for Austral
 					if($pendingPaymentStudents>0)
 					{
 					?>
-					<div class="form-group form-btns">
-						<button id="btn_online_payment" type="submit" class="btn btn-success">Proceed to online payment</button>
-						<button id="btn_invoice" type="submit" class="btn btn-info">Request invoice from SCEE</button>
-						<?php echo $this->Html->link('Cancel', ['controller'=>'conventionregistrations', 'action' => 'students'], ['class'=>'btn btn-secondary']); ?>
+					<div class="form-group form-btns cr-pay-actions">
+						<button id="btn_online_payment" type="submit" class="btn btn-success cr-pay-btn cr-pay-btn-online">Proceed to online payment</button>
+						<button id="btn_invoice" type="submit" class="btn btn-info cr-pay-btn cr-pay-btn-invoice">Request invoice from SCEE</button>
+						<?php echo $this->Html->link('Cancel', ['controller'=>'conventionregistrations', 'action' => 'students'], ['class'=>'btn btn-secondary cr-pay-btn cr-pay-btn-cancel']); ?>
 						<input type="hidden" name="hidd_pay_type" id="hidd_pay_type" value="" />
 					</div>
-					<div class="form-group form-btns">
-						<div class="clear" style="color:#000;"><?php echo $onlinetPTxt; ?></div>
+					<div class="form-group form-btns cr-pay-note-wrap">
+						<div class="clear cr-pay-note"><?php echo $onlinetPTxt; ?></div>
 					</div>
 					<?php
 					}
 					else
 					{
 					?>
-					<div class="form-group form-btns">
-						<div class="clear" style="color:#006400;">No student found pending for payment.</div>
+					<div class="form-group form-btns cr-pay-note-wrap">
+						<div class="clear cr-pay-good">No student found pending for payment.</div>
 					</div>
-					<div class="form-group form-btns">
-						<?php echo $this->Html->link('Back to students list', ['controller'=>'conventionregistrations', 'action' => 'students'], ['class'=>'btn btn-secondary']); ?>
+					<div class="form-group form-btns cr-pay-actions">
+						<?php echo $this->Html->link('Back to students list', ['controller'=>'conventionregistrations', 'action' => 'students'], ['class'=>'btn btn-secondary cr-pay-btn cr-pay-btn-cancel']); ?>
 					</div>
 					<?php
 					}

@@ -724,6 +724,9 @@ class HomesController extends AppController {
         $discardLastEventSelected     = 0;
         $errorFlag                     = 0;
         $errorMsg                     = array();
+		$mediaArtsCombinedCount			 = 0;
+		$mediaArtsDivisionNames			 = ['PHOTOGRAPHY', 'DESIGN AND TECHNOLOGY', 'DESIGN & TECHNOLOGY'];
+        $mediaArtsDivisionCounts       = [];
         
         if($checkedEventIDS)
         {
@@ -781,6 +784,17 @@ class HomesController extends AppController {
                     $arrLiveEventDivs[] = 'div_'.$division_id;
                 }
                 $arrLiveEventDivs['div_'.$division_id][] = $division_id;
+
+				$divisionNameUpper = strtoupper(trim((string)$eventrec->Divisions['name']));
+				if(in_array($divisionNameUpper, $mediaArtsDivisionNames, true))
+				{
+					$mediaArtsCombinedCount++;
+                    if(!isset($mediaArtsDivisionCounts[$divisionNameUpper]))
+                    {
+                        $mediaArtsDivisionCounts[$divisionNameUpper] = 0;
+                    }
+                    $mediaArtsDivisionCounts[$divisionNameUpper]++;
+				}
             }
             
             // now check in each category, max events allowed
@@ -812,12 +826,30 @@ class HomesController extends AppController {
                     }
                 }
             }
+
+			if($mediaArtsCombinedCount > 5)
+			{
+				$errorFlag                     = 1;
+				$errorMsg[]                   = 'Maximum events reached in division Media Arts.';
+				$discardLastEventSelected      = 1;
+			}
+
+            foreach($mediaArtsDivisionCounts as $divisionName => $divisionCount)
+            {
+                if($divisionCount > 3)
+                {
+                    $errorFlag                     = 1;
+                    $errorMsg[]                   = 'Maximum events reached in division '.ucwords(strtolower($divisionName)).'.';
+                    $discardLastEventSelected      = 1;
+                }
+            }
             
             // FIXED: Closed out the variables cleanly and finalized the structural logic termination
             $returnArr['errorFlag']                     = $errorFlag;
             $returnArr['errorMsg']                      = $errorMsg;
             $returnArr['totalEvChecked']                = $totalEvChecked;
             $returnArr['discardLastEventSelected']      = $discardLastEventSelected;
+			$returnArr['lastEventIDChecked']            = $lastCheckedEVID;
             
             echo json_encode($returnArr);
             exit;

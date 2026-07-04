@@ -269,30 +269,69 @@ class ConventionregistrationsController extends AppController {
 			$this->Flash->error('Please choose convention registration first.');
 			$this->redirect(['controller' => 'users', 'action' => 'dashboard']);
 		}
+
+		$conventionregistrationteachers = $this->Conventionregistrationteachers->newEntity([]);
 		
         if ($this->request->is('post')) {
-			
-			//$this->prx($this->request->getData());
-			
-			$teacher_id = $this->request->getData()['Conventionregistrationteachers']['teacher_id'];
-			
-			$conventionregistrationteachers = $this->Conventionregistrationteachers->newEntity([]);
-			$dataCRT = $this->Conventionregistrationteachers->patchEntity($conventionregistrationteachers, $this->request->getData());
 
-			$dataCRT->slug 								= "conv-reg-supervisor-".$sess_selected_convention_registration_id.'-'.$teacher_id.'-'.time();
-			$dataCRT->conventionregistration_id			= $sess_selected_convention_registration_id;
-			$dataCRT->convention_id						= $conventionRegD->convention_id;
-			$dataCRT->user_id							= $conventionRegD->user_id;
-			$dataCRT->season_id 						= $conventionRegD->season_id;
-			$dataCRT->season_year 						= $conventionRegD->season_year;
-			$dataCRT->teacher_id 						= $teacher_id;
-			$dataCRT->status 							= 1;
-			$dataCRT->created 							= date('Y-m-d H:i:s');
+			$teacherIds = [];
+			if (!empty($this->request->getData()['Conventionregistrationteachers']['teacher_ids'])) {
+				$teacherIds = (array)$this->request->getData()['Conventionregistrationteachers']['teacher_ids'];
+			} elseif (!empty($this->request->getData()['Conventionregistrationteachers']['teacher_id'])) {
+				$teacherIds = [(string)$this->request->getData()['Conventionregistrationteachers']['teacher_id']];
+			}
 
-			$resultCRT = $this->Conventionregistrationteachers->save($dataCRT);
-			
-			$this->Flash->success('Supervisor added successfully to convention registration.');
-			$this->redirect(['controller' => 'conventionregistrations', 'action' => 'teachers']);
+			$teacherIds = array_values(array_unique(array_filter(array_map('intval', $teacherIds))));
+
+			if (empty($teacherIds)) {
+				$this->Flash->error('Please choose at least one supervisor.');
+				return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'addteacher']);
+			}
+
+			$existingTeacherIds = $this->Conventionregistrationteachers->find()
+				->where(['Conventionregistrationteachers.conventionregistration_id' => $sess_selected_convention_registration_id])
+				->extract('teacher_id')
+				->toList();
+
+			$existingTeacherIds = array_map('intval', $existingTeacherIds);
+			$addedCount = 0;
+			$skippedCount = 0;
+
+			foreach ($teacherIds as $teacher_id) {
+				if (in_array($teacher_id, $existingTeacherIds, true)) {
+					$skippedCount++;
+					continue;
+				}
+
+				$conventionregistrationteachers = $this->Conventionregistrationteachers->newEntity([]);
+				$dataCRT = $this->Conventionregistrationteachers->patchEntity($conventionregistrationteachers, []);
+
+				$dataCRT->slug 								= "conv-reg-supervisor-".$sess_selected_convention_registration_id.'-'.$teacher_id.'-'.time().'-'.rand(100,99999);
+				$dataCRT->conventionregistration_id			= $sess_selected_convention_registration_id;
+				$dataCRT->convention_id						= $conventionRegD->convention_id;
+				$dataCRT->user_id							= $conventionRegD->user_id;
+				$dataCRT->season_id 						= $conventionRegD->season_id;
+				$dataCRT->season_year 						= $conventionRegD->season_year;
+				$dataCRT->teacher_id 						= $teacher_id;
+				$dataCRT->status 							= 1;
+				$dataCRT->created 							= date('Y-m-d H:i:s');
+
+				if ($this->Conventionregistrationteachers->save($dataCRT)) {
+					$addedCount++;
+				} else {
+					$skippedCount++;
+				}
+			}
+
+			if ($addedCount > 0 && $skippedCount > 0) {
+				$this->Flash->success($addedCount.' supervisor(s) added. '.$skippedCount.' skipped (already linked or invalid).');
+			} elseif ($addedCount > 0) {
+				$this->Flash->success($addedCount.' supervisor(s) added successfully to convention registration.');
+			} else {
+				$this->Flash->error('No supervisors were added. Selected supervisors may already be linked.');
+			}
+
+			return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'teachers']);
         }
         $this->set('conventionregistrationteachers', $conventionregistrationteachers);
     }
@@ -550,42 +589,101 @@ class ConventionregistrationsController extends AppController {
 		
         $conventionregistrationstudents = $this->Conventionregistrationstudents->newEntity([]);
 		if ($this->request->is('post')) {
-			
-			$data = $this->Conventionregistrationstudents->patchEntity($conventionregistrationstudents, $this->request->getData());
-			
-			$flagCheckAge = 1;
-			
-			// to check the age of student
-			$studentD = $this->Users->find()->where(['Users.id' => $data->student_id])->select(['birth_year'])->first();
-			//$this->prx($studentD);
-			$studentAge = $conventionRegD->season_year-$studentD->birth_year;
-			if($studentAge<11 || $studentAge>=21)
-			{
-				$flagCheckAge = 0;
-				$this->Flash->error('Students must be between between 11 years - 20 years in convention year.');
-			}
-			
-            if (count($data->getErrors()) == 0 && $flagCheckAge == 1) {
+			$teacher_parent_id = (int)($this->request->getData()['Conventionregistrationstudents']['teacher_parent_id'] ?? 0);
 
-				$data->slug 						= 'conv-reg-student-'.$sess_selected_convention_registration_id.'-'.$data->student_id.'-'.time();
-				$data->conventionregistration_id	= $sess_selected_convention_registration_id;
-				$data->convention_id				= $conventionRegD->convention_id;
-				$data->user_id						= $conventionRegD->user_id;
-				$data->season_id 					= $conventionRegD->season_id;
-				$data->season_year 					= $conventionRegD->season_year;
-				$data->status 						= 1;
-				$data->created 						= date('Y-m-d H:i:s');
-				
-                if ($this->Conventionregistrationstudents->save($data)) {
-                    $this->Flash->success('Student added successfully to convention registration.');
-					$this->redirect(['controller' => 'conventionregistrations', 'action' => 'students']);
-                }
-            } 
-			else
-			{
-                // $this->Flash->error('Please below listed errors.');
-            }
-			
+			$studentIds = [];
+			if (!empty($this->request->getData()['Conventionregistrationstudents']['student_ids'])) {
+				$studentIds = (array)$this->request->getData()['Conventionregistrationstudents']['student_ids'];
+			} elseif (!empty($this->request->getData()['Conventionregistrationstudents']['student_id'])) {
+				$studentIds = [(string)$this->request->getData()['Conventionregistrationstudents']['student_id']];
+			}
+
+			$studentIds = array_values(array_unique(array_filter(array_map('intval', $studentIds))));
+
+			if (empty($studentIds)) {
+				$this->Flash->error('Please choose at least one student.');
+				return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'addstudent']);
+			}
+
+			if ($teacher_parent_id <= 0) {
+				$this->Flash->error('Please choose supervisor.');
+				return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'addstudent']);
+			}
+
+			$existingStudentIds = $this->Conventionregistrationstudents->find()
+				->where(['Conventionregistrationstudents.conventionregistration_id' => $sess_selected_convention_registration_id])
+				->extract('student_id')
+				->toList();
+
+			$existingStudentIds = array_map('intval', $existingStudentIds);
+
+			$birthYears = $this->Users->find()
+				->where(['Users.id IN' => $studentIds])
+				->select(['id', 'birth_year'])
+				->all()
+				->combine('id', 'birth_year')
+				->toArray();
+
+			$addedCount = 0;
+			$skippedExisting = 0;
+			$skippedAge = 0;
+			$skippedInvalid = 0;
+
+			foreach ($studentIds as $student_id) {
+				if (in_array($student_id, $existingStudentIds, true)) {
+					$skippedExisting++;
+					continue;
+				}
+
+				if (!isset($birthYears[$student_id]) || empty($birthYears[$student_id])) {
+					$skippedInvalid++;
+					continue;
+				}
+
+				$studentAge = (int)$conventionRegD->season_year - (int)$birthYears[$student_id];
+				if ($studentAge < 11 || $studentAge >= 21) {
+					$skippedAge++;
+					continue;
+				}
+
+				$conventionregistrationstudents = $this->Conventionregistrationstudents->newEntity([]);
+				$dataCRS = $this->Conventionregistrationstudents->patchEntity($conventionregistrationstudents, []);
+				$dataCRS->slug 								= 'conv-reg-student-'.$sess_selected_convention_registration_id.'-'.$student_id.'-'.time().'-'.rand(100,99999);
+				$dataCRS->conventionregistration_id			= $sess_selected_convention_registration_id;
+				$dataCRS->convention_id						= $conventionRegD->convention_id;
+				$dataCRS->user_id							= $conventionRegD->user_id;
+				$dataCRS->season_id 						= $conventionRegD->season_id;
+				$dataCRS->season_year 						= $conventionRegD->season_year;
+				$dataCRS->student_id 						= $student_id;
+				$dataCRS->teacher_parent_id 				= $teacher_parent_id;
+				$dataCRS->status 							= 1;
+				$dataCRS->created 							= date('Y-m-d H:i:s');
+
+				if ($this->Conventionregistrationstudents->save($dataCRS)) {
+					$addedCount++;
+				} else {
+					$skippedInvalid++;
+				}
+			}
+
+			if ($skippedAge > 0) {
+				$this->Flash->error($skippedAge.' student(s) skipped: age must be between 11 and 20 in convention year.');
+			}
+
+			if ($addedCount > 0) {
+				$extraSkipped = $skippedExisting + $skippedInvalid;
+				if ($extraSkipped > 0) {
+					$this->Flash->success($addedCount.' student(s) added. '.$extraSkipped.' skipped (already linked or invalid).');
+				} else {
+					$this->Flash->success($addedCount.' student(s) added successfully to convention registration.');
+				}
+			} elseif ($skippedExisting > 0 || $skippedAge > 0 || $skippedInvalid > 0) {
+				$this->Flash->error('No students were added. Selected students may already be linked or not eligible.');
+			} else {
+				$this->Flash->error('Unable to process your request.');
+			}
+
+			return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'students']);
         }
         $this->set('conventionregistrationstudents', $conventionregistrationstudents);
     }
@@ -768,10 +866,65 @@ class ConventionregistrationsController extends AppController {
 			$sess_selected_convention_registration_id = $this->request->session()->read("sess_selected_convention_registration_id");
 			
 			// to get convention registration details
-			$conventionRegD = $this->Conventionregistrations->find()->where(['Conventionregistrations.id' => $sess_selected_convention_registration_id])->first();
-			$this->set('conventionRegD', $conventionRegD);
-			
-			/* Sudhir New prices - 12-Feb-2024 */
+			$conventionRegD = $this->Conventionregistrations->find()->where([
+				'Conventionregistrations.id' => $sess_selected_convention_registration_id,
+				'Conventionregistrations.user_id' => $user_id
+			])->first();
+		}
+		else
+		{
+			$conventionRegD = null;
+		}
+
+		// Recover gracefully if session has stale registration id.
+		if (empty($conventionRegD->id)) {
+			$selectedConventionId = (int)$this->request->session()->read("sess_selected_convention_id");
+			$currentSeasonId = (int)$this->getCurrentSeason();
+
+			$fallbackConditions = ['Conventionregistrations.user_id' => $user_id];
+			if ($selectedConventionId > 0) {
+				$fallbackConditions['Conventionregistrations.convention_id'] = $selectedConventionId;
+			}
+			if ($currentSeasonId > 0) {
+				$fallbackConditions['Conventionregistrations.season_id'] = $currentSeasonId;
+			}
+
+			$conventionRegD = $this->Conventionregistrations->find()
+				->where($fallbackConditions)
+				->order(['Conventionregistrations.id' => 'DESC'])
+				->first();
+
+			if (empty($conventionRegD->id) && $selectedConventionId > 0) {
+				$conventionRegD = $this->Conventionregistrations->find()
+					->where([
+						'Conventionregistrations.user_id' => $user_id,
+						'Conventionregistrations.convention_id' => $selectedConventionId,
+					])
+					->order(['Conventionregistrations.id' => 'DESC'])
+					->first();
+			}
+
+			if (!empty($conventionRegD->id)) {
+				$this->request->session()->write("sess_selected_convention_registration_id", $conventionRegD->id);
+				$this->request->session()->write("sess_selected_convention_id", $conventionRegD->convention_id);
+				$sess_selected_convention_registration_id = $conventionRegD->id;
+			}
+		}
+
+		if (empty($conventionRegD->id)) {
+			$this->request->session()->delete('sess_selected_convention_registration_id');
+			$this->request->session()->delete('sess_selected_convention_id');
+			$this->Flash->error('Please choose convention registration first.');
+			return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'myregistrations']);
+		}
+
+		$this->set('conventionRegD', $conventionRegD);
+
+		/* Sudhir New prices - 12-Feb-2024 */
+		if (empty($conventionRegD->conventionseason_id)) {
+			$this->Flash->error('Convention season details are missing for the selected registration.');
+			return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'myregistrations']);
+		}
 			$convSeasonD = $this->Conventionseasons->find()->where(['Conventionseasons.id' => $conventionRegD->conventionseason_id])->first();
 			if($convSeasonD)
 			{
@@ -780,10 +933,11 @@ class ConventionregistrationsController extends AppController {
 				$non_competitor_registration_fees 		= $convSeasonD->non_competitor_registration_fees;
 				$non_affiliate_registration_fees 		= $convSeasonD->non_affiliate_registration_fees;
 			}
-			else
-			{
-				
-			}
+		else
+		{
+			$this->Flash->error('Unable to find convention season pricing details.');
+			return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'myregistrations']);
+		}
 			
 			// to get prices from settings table
 			//$settingsD = $this->Settings->find()->where(['Settings.id' => 1])->first();
@@ -814,12 +968,6 @@ class ConventionregistrationsController extends AppController {
 			{
 				$this->set('paymentDone', 'No');
 			}
-		}
-		else
-		{
-			$this->Flash->error('Please choose convention registration first.');
-			$this->redirect(['controller' => 'users', 'action' => 'dashboard']);
-		}
 		
         if ($this->request->is('post')) {
 			
@@ -1326,6 +1474,45 @@ class ConventionregistrationsController extends AppController {
 				
 				// New event ids
 				$event_ids 	= $selectedEvents;
+
+				$mediaArtsCombinedCount = 0;
+				$mediaArtsDivisionCounts = [];
+				if(count((array)$event_ids) > 0)
+				{
+					$selectedEventsData = $this->Events->find()
+						->where(['Events.id IN' => $event_ids])
+						->contain(['Divisions'])
+						->all();
+
+					foreach($selectedEventsData as $selectedEventRec)
+					{
+						$divisionNameUpper = strtoupper(trim((string)$selectedEventRec->Divisions['name']));
+						if(in_array($divisionNameUpper, ['PHOTOGRAPHY', 'DESIGN AND TECHNOLOGY', 'DESIGN & TECHNOLOGY'], true))
+						{
+							$mediaArtsCombinedCount++;
+							if(!isset($mediaArtsDivisionCounts[$divisionNameUpper]))
+							{
+								$mediaArtsDivisionCounts[$divisionNameUpper] = 0;
+							}
+							$mediaArtsDivisionCounts[$divisionNameUpper]++;
+						}
+					}
+				}
+
+				if($mediaArtsCombinedCount > 5)
+				{
+					$this->Flash->error('Maximum events reached in division Media Arts.');
+					return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'managestudentevents', $crs_slug]);
+				}
+
+				foreach($mediaArtsDivisionCounts as $divisionName => $divisionCount)
+				{
+					if($divisionCount > 3)
+					{
+						$this->Flash->error('Maximum events reached in division '.ucwords(strtolower($divisionName)).'.');
+						return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'managestudentevents', $crs_slug]);
+					}
+				}
 				
 				// Old event ids
 				if(!empty($checkCRS->event_ids) && $checkCRS->event_ids != NULL)
@@ -1732,10 +1919,49 @@ class ConventionregistrationsController extends AppController {
 					$eventNameIDDD[$eventrec->id] = $eventrec->event_name.' ('.$eventrec->event_id_number.')';
 				}
 				$this->set('eventNameIDDD', $eventNameIDDD);
+				$this->set('eventsList', $eventsList);
+
+				$selectedJudgeEventIds = [];
+				$existingReg = $this->Conventionregistrations->find()->where([
+					'Conventionregistrations.convention_id' => $convention_id,
+					'Conventionregistrations.user_id' => $user_id,
+					'Conventionregistrations.season_id' => $season_id
+				])->first();
+				if ($existingReg && !empty($existingReg->judges_event_ids)) {
+					$selectedJudgeEventIds = array_filter(array_map('intval', explode(',', $existingReg->judges_event_ids)));
+				}
+				$this->set('selectedJudgeEventIds', $selectedJudgeEventIds);
+
+				$eventJudgeCounts = [];
+				$judgeSelections = $this->Conventionregistrations->find()
+					->select(['judges_event_ids'])
+					->where([
+						'Conventionregistrations.convention_id' => $convention_id,
+						'Conventionregistrations.season_id' => $season_id,
+						'Conventionregistrations.judges_event_ids IS NOT' => null,
+						'Conventionregistrations.judges_event_ids !=' => ''
+					])
+					->all();
+				foreach ($judgeSelections as $judgeSelection) {
+					$rowEventIds = array_unique(array_filter(array_map('intval', explode(',', $judgeSelection->judges_event_ids))));
+					foreach ($rowEventIds as $rowEventId) {
+						if (!isset($eventJudgeCounts[$rowEventId])) {
+							$eventJudgeCounts[$rowEventId] = 0;
+						}
+						$eventJudgeCounts[$rowEventId]++;
+					}
+				}
+				$this->set('eventJudgeCounts', $eventJudgeCounts);
 				
 				
 				if ($this->request->is('post'))
 				{
+					$postedJudgeEventIds = [];
+					if (!empty($this->request->getData()['Conventionregistrations']['judges_event_ids']) && is_array($this->request->getData()['Conventionregistrations']['judges_event_ids'])) {
+						$postedJudgeEventIds = array_unique(array_filter(array_map('intval', $this->request->getData()['Conventionregistrations']['judges_event_ids'])));
+					}
+					$postedJudgeEventIdsImplode = count($postedJudgeEventIds) ? implode(',', $postedJudgeEventIds) : null;
+
 					//$this->prx($this->request->getData());
 					// to check if this record already exists
 					$checkRegExists = $this->Conventionregistrations->find()->where(['Conventionregistrations.convention_id' => $convention_id,'Conventionregistrations.user_id' => $user_id,'Conventionregistrations.season_id' => $season_id])->first();
@@ -1743,7 +1969,7 @@ class ConventionregistrationsController extends AppController {
 					{
 						$convRegID 		= $checkRegExists->id;
 						$convRegSlug 	= $checkRegExists->slug;
-						$this->Conventionregistrations->updateAll(['modified' => date('Y-m-d H:i:s')], ["id" => $convRegID]);
+						$this->Conventionregistrations->updateAll(['modified' => date('Y-m-d H:i:s'),'judges_event_ids' => $postedJudgeEventIdsImplode], ["id" => $convRegID]);
 					}
 					else
 					{
@@ -1762,10 +1988,7 @@ class ConventionregistrationsController extends AppController {
 						$dataCR->created 				= date('Y-m-d H:i:s');
 						$dataCR->modified 				= NULL;
 						
-						if($this->request->getData()['Conventionregistrations']['judges_event_ids'])
-						{
-							$dataCR->judges_event_ids 			= implode(",",$this->request->getData()['Conventionregistrations']['judges_event_ids']);
-						}
+						$dataCR->judges_event_ids 			= $postedJudgeEventIdsImplode;
 
 						$resultCR 		= $this->Conventionregistrations->save($dataCR);
 						$convRegID 		= $resultCR->id;
@@ -1786,15 +2009,20 @@ class ConventionregistrationsController extends AppController {
 						
 						//echo $messageToSend; exit;
 						
-						$email = new Email();
-						$email->template('default', 'admintemplate')
-							->emailFormat('html')
-							->to($emailId)
-							->cc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
-							->from([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-							->subject($subjectToSend)
-							->viewVars(['content_for_layout' => $messageToSend])
-							->send();
+						try {
+							$email = new Email();
+							$email->setTemplate('default')
+								->setLayout('admintemplate')
+								->setEmailFormat('html')
+								->setTo($emailId)
+								->setCc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
+								->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
+								->setSubject($subjectToSend)
+								->setViewVars(['content_for_layout' => $messageToSend])
+								->send();
+						} catch (\Exception $e) {
+							// Keep registration successful even if notification email fails.
+						}
 						
 					}
 						

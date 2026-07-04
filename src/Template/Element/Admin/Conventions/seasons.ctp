@@ -18,7 +18,7 @@
             </div>   
 
             <div class="tbl-resp-listing">
-                <table class="table table-bordered table-striped table-condensed cf">
+                <table class="table table-bordered table-striped table-condensed cf season-list-table">
                     <thead class="cf ajshort">
                         <tr>
                             <th class="sorting_paging"><?php echo $this->Paginator->sort('id', '# DB ID'); ?></th>
@@ -48,7 +48,7 @@
 								<td data-title="Non-affiliate registration"><?php echo number_format($datarecord->non_affiliate_registration_fees,2);?></td>
 								<td data-title="Supervisor registration"><?php echo number_format($datarecord->supervisor_registration_fees,2);?></td>
 								
-                                <td data-title="Action">
+                                <td data-title="Action" class="season-action-cell">
 									
 									<?php
 									echo $this->Html->link('<i class="fa fa-pencil"></i>', ['controller' => 'conventions', 'action' => 'changeprices',$datarecord->slug,$slug], [ 'escape' => false, 'title' => 'Change Prices', 'class'=>'btn btn-info btn-xs']);
@@ -71,8 +71,6 @@
 
                                     echo $this->Html->link('<i class="fa fa-book"></i>', ['controller' => 'conventions', 'action' => 'scripturereadinglist',$datarecord->slug,$slug], [ 'escape' => false, 'title' => 'scripture reading list', 'class'=>'btn btn-primary btn-xs']);
 									
-									echo '<br />';
-									echo '<br />';
 									
 									echo $this->Html->link('<i class="fa fa-user-secret"></i>', ['controller' => 'conventions', 'action' => 'judges',$datarecord->slug,$slug], [ 'escape' => false, 'title' => 'Judges List', 'class'=>'btn btn-info btn-xs']);
 									

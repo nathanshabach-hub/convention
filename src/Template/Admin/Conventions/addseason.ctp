@@ -34,7 +34,7 @@
 <style>
     #ui-datepicker-div button.ui-datepicker-current {display: none;}
 </style>
-<div class="content-wrapper">
+<div class="content-wrapper admin-form-page admin-addseason-page">
     <section class="content-header">
       <h1>
          Add Season -  <?php echo $conventionD->name; ?>
@@ -50,7 +50,7 @@
     <section class="content">
      <div class="box box-info">
             <div class="box-header with-border">
-                <h3 class="box-title">&nbsp;</h3>
+                <h3 class="box-title">Season Configuration</h3>
             </div>
             <div class="ersu_message"> <?php echo $this->Flash->render() ?> </div>
             <?php echo $this->Form->create($conventionseasons, ['id'=>'adminForm', 'type' => 'file']); ?>

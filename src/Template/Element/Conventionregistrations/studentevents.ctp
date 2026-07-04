@@ -1,14 +1,14 @@
 <div class="admin_loader" id="loaderID"><?php echo $this->Html->image('loader_large_blue.gif');?></div>
 <?php if ($studentList) { ?>
 
-    <div class="panel-body">
+    <div class="panel-body cr-studentevents-panel">
         
         <?php echo $this->Form->create(null, ['id'=>'actionFrom', "method" => "Post"]);  ?>
         <section id="no-more-tables" class="lstng-section">
             
 
-            <div class="tbl-resp-listing">
-                <table id="cr_students_list" class="table table-striped table-bordered" style="width:100%">
+            <div class="tbl-resp-listing cr-studentevents-table-wrap">
+                <table id="cr_students_list" class="table table-striped table-bordered cr-studentevents-table" style="width:100%">
                     <thead class="cf ajshort">
                         <tr>
                             <th class="sorting_paging">Season Year</th>
@@ -16,7 +16,7 @@
                             <th class="sorting_paging">Gender</th>
                             <th class="sorting_paging">Age</th>
                             <th class="sorting_paging">Events(s)</th>
-							<th class="action_dvv"><i class=" fa fa-gavel"></i> Action</th>
+                            <th class="action_dvv">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -41,13 +41,13 @@
 								</td>
 								
 								
-								<td data-title="Action">
+                                <td data-title="Action" class="cr-action-cell">
                                     <?php
-									echo $this->Html->link('<i class="fa fa-puzzle-piece"></i>', ['controller' => 'conventionregistrations', 'action' => 'managestudentevents',$datarecord->slug], [ 'escape' => false, 'title' => 'Manage Student Events', 'class'=>'']);
+                                    echo $this->Html->link('Manage Events', ['controller' => 'conventionregistrations', 'action' => 'managestudentevents',$datarecord->slug], [ 'escape' => false, 'title' => 'Manage Student Events', 'class'=>'cr-action-btn cr-action-manage']);
 									
 									if($userDetails->user_type == "School")
 									{
-										echo $this->Html->link('<i class="fa fa-trash-o"></i>', ['controller' => 'conventionregistrations', 'action' => 'removestudentevent',$datarecord->slug], [ 'escape' => false, 'title' => 'Remove all events of this student', 'class'=>'', 'confirm' => 'Are you sure you want to remove all events of this student ?']);
+                                            echo $this->Html->link('Remove All', ['controller' => 'conventionregistrations', 'action' => 'removestudentevent',$datarecord->slug], [ 'escape' => false, 'title' => 'Remove all events of this student', 'class'=>'cr-action-btn cr-action-remove', 'confirm' => 'Are you sure you want to remove all events of this student ?']);
 									}
 									?>
                                 </td>

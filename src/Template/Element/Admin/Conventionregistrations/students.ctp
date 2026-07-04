@@ -15,11 +15,11 @@ $this->Events = TableRegistry::get('Events');
 ?>
 <div class="admin_loader" id="loaderID"><?php echo $this->Html->image('loader_large_blue.gif');?></div>
 <?php if (!$conventionregistrationstudents->isEmpty()) { ?> 
-    <div class="panel-body">
+    <div class="panel-body admin-data-panel admin-cr-students-panel">
         <div class="ersu_message"> <?php echo $this->Flash->render() ?></div>
         <?php echo $this->Form->create(null, ['id'=>'actionFrom', "method" => "Post"]);  ?>
-        <section id="no-more-tables" class="lstng-section">
-            <div class="topn">
+        <section id="no-more-tables" class="lstng-section admin-data-section">
+            <div class="topn admin-data-topn">
                 <div class="topn_left">Students List</div>
                 <div class="topn_right ajshort" id="pagingLinks" align="right">
                     <?php 
@@ -31,8 +31,8 @@ $this->Events = TableRegistry::get('Events');
                 </div>
             </div>   
 
-            <div class="tbl-resp-listing">
-                <table class="table table-bordered table-striped table-condensed cf">
+            <div class="tbl-resp-listing admin-data-table-wrap">
+                <table class="table table-bordered table-striped table-condensed cf admin-data-table">
                     <thead class="cf ajshort">
                         <tr>
                             <th class="sorting_paging">#</th>

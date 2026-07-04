@@ -1,19 +1,19 @@
 <?php echo $this->Html->script('ajax-pagging.js'); ?>
-<div class="container-fluid p-0">
+<div class="container-fluid p-0 cr-packreg-page">
 	<div class="row">
 		<?php echo $this->element('user_left_menu'); ?>
-		<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+		<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 cr-packreg-main">
 
 			<div class="ersu_message">
 				<?php echo $this->Flash->render() ?>
 			</div>
-			<div class="teachers-top-heading">
-				<span>Registration Checklist</span>
-				<?php echo $this->Html->link('<i class="fa fa-print"></i> Print', ['controller' => 'conventionregistrations', 'action' => 'packageregistrationprint'], ['escape' => false, 'class' => 'btn btn-primary', 'target' => '_blank']); ?>
+			<div class="teachers-top-heading cr-packreg-header">
+				<span class="cr-packreg-title">Registration Checklist</span>
+				<?php echo $this->Html->link('<i class="fa fa-print"></i> Print Checklist', ['controller' => 'conventionregistrations', 'action' => 'packageregistrationprint'], ['escape' => false, 'class' => 'btn btn-primary cr-packreg-print-btn', 'target' => '_blank']); ?>
 			</div>
 			<!-- dashboard-section-2 start-->
 
-			<div class="m_content" id="listID">
+			<div class="m_content cr-packreg-card" id="listID">
 				<?php echo $this->element("Conventionregistrations/packageregistration"); ?>
 			</div>
 

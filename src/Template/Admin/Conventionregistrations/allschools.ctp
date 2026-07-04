@@ -1,5 +1,5 @@
 <?php echo $this->Html->script('ajax-pagging.js'); ?>
-<div class="content-wrapper">
+<div class="content-wrapper admin-list-page">
     <section class="content-header">
       <h1>
          Convention Registrations Schools

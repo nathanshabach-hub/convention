@@ -6,6 +6,7 @@ use App\Controller\AppController;
 use Cake\Core\Configure;
 use Cake\Core\Configure\Engine\PhpConfig;
 use Cake\Mailer\Email;
+use Cake\Datasource\ConnectionManager;
 
 #[\AllowDynamicProperties]
 class ConventionregistrationsController extends AppController {
@@ -52,6 +53,16 @@ class ConventionregistrationsController extends AppController {
             return false;
         }
     }
+
+	protected function hasTable($tableName) {
+		try {
+			$connection = ConnectionManager::get('default');
+			$tables = $connection->getSchemaCollection()->listTables();
+			return in_array($tableName, $tables, true);
+		} catch (\Throwable $e) {
+			return false;
+		}
+	}
     public function index() {
 
         $this->set('title', ADMIN_TITLE . 'Manage Convention Registrations');
@@ -437,15 +448,20 @@ class ConventionregistrationsController extends AppController {
 			
 			//echo $messageToSend; exit;
 			
-			$email = new Email();
-			$email->template('default', 'admintemplate')
-				->emailFormat('html')
-				->to($emailId)
-				->cc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
-				->from([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-				->subject($subjectToSend)
-				->viewVars(['content_for_layout' => $messageToSend])
-				->send();
+			try {
+				$email = new Email();
+				$email->setTemplate('default')
+					->setLayout('admintemplate')
+					->setEmailFormat('html')
+					->setTo($emailId)
+					->setCc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
+					->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
+					->setSubject($subjectToSend)
+					->setViewVars(['content_for_layout' => $messageToSend])
+					->send();
+			} catch (\Exception $e) {
+				// Keep admin action successful even if email transport fails.
+			}
 			
 			$this->Flash->success('Registration approved successfully.');
 		
@@ -477,15 +493,20 @@ class ConventionregistrationsController extends AppController {
 			
 			//echo $messageToSend; exit;
 			
-			$email = new Email();
-			$email->template('default', 'admintemplate')
-				->emailFormat('html')
-				->to($emailId)
-				->cc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
-				->from([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-				->subject($subjectToSend)
-				->viewVars(['content_for_layout' => $messageToSend])
-				->send();
+			try {
+				$email = new Email();
+				$email->setTemplate('default')
+					->setLayout('admintemplate')
+					->setEmailFormat('html')
+					->setTo($emailId)
+					->setCc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
+					->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
+					->setSubject($subjectToSend)
+					->setViewVars(['content_for_layout' => $messageToSend])
+					->send();
+			} catch (\Exception $e) {
+				// Keep admin action successful even if email transport fails.
+			}
 			
 			$this->Flash->success('Registration approved successfully.');
 		
@@ -589,15 +610,20 @@ class ConventionregistrationsController extends AppController {
 					
 					//echo $messageToSend; exit;
 					
-					$email = new Email();
-					$email->template('default', 'admintemplate')
-						->emailFormat('html')
-						->to($emailId)
-						->cc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
-						->from([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-						->subject($subjectToSend)
-						->viewVars(['content_for_layout' => $messageToSend])
-						->send();
+					try {
+						$email = new Email();
+						$email->setTemplate('default')
+							->setLayout('admintemplate')
+							->setEmailFormat('html')
+							->setTo($emailId)
+							->setCc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
+							->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
+							->setSubject($subjectToSend)
+							->setViewVars(['content_for_layout' => $messageToSend])
+							->send();
+					} catch (\Exception $e) {
+						// Keep event update successful even if email transport fails.
+					}
 					
 					$msgNot = " Email notification sent successfully to judge.";
 				}
@@ -1058,6 +1084,78 @@ class ConventionregistrationsController extends AppController {
 		$conventionregistrations = $this->Conventionregistrations->find()->contain(['Users'])->where($condition)->order(["Conventionregistrations.id" => "DESC"])->all();
 		$this->set('conventionregistrations', $conventionregistrations);
     }
+
+	public function deleteschoolregistration($conv_reg_slug = null) {
+
+		$sess_admin_header_season_id = $this->request->session()->read("sess_admin_header_season_id");
+		if (empty($sess_admin_header_season_id)) {
+			$this->Flash->error('Please choose a convention/season first.');
+			return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'allschools']);
+		}
+
+		$convSeasonD = $this->Conventionseasons->find()->where(['Conventionseasons.id' => $sess_admin_header_season_id])->first();
+		if (empty($convSeasonD->id)) {
+			$this->Flash->error('Invalid convention/season selected.');
+			return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'allschools']);
+		}
+
+		$convRegD = $this->Conventionregistrations->find()->contain(['Users'])->where([
+			'Conventionregistrations.slug' => $conv_reg_slug,
+			'Conventionregistrations.convention_id' => $convSeasonD->convention_id,
+			'Conventionregistrations.season_id' => $convSeasonD->season_id,
+			'Conventionregistrations.season_year' => $convSeasonD->season_year,
+		])->first();
+
+		if (empty($convRegD->id)) {
+			$this->Flash->error('School registration not found.');
+			return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'allschools']);
+		}
+
+		$registrationId = (int)$convRegD->id;
+
+		// Remove linked submissions and uploaded files first.
+		if ($this->hasTable('eventsubmissions')) {
+			$this->loadModel('Eventsubmissions');
+			$eventSubmissions = $this->Eventsubmissions->find()->where(['conventionregistration_id' => $registrationId])->all();
+			foreach ($eventSubmissions as $submission) {
+				$fileFields = ['mediafile_file_system_name', 'report', 'score_sheet', 'additional_documents'];
+				foreach ($fileFields as $field) {
+					$fileName = isset($submission->{$field}) ? $submission->{$field} : null;
+					if (!empty($fileName) && file_exists(UPLOAD_EVENTS_SUBMISSION_DOCUMENT_PATH . $fileName)) {
+						@unlink(UPLOAD_EVENTS_SUBMISSION_DOCUMENT_PATH . $fileName);
+					}
+				}
+			}
+			$this->Eventsubmissions->deleteAll(['conventionregistration_id' => $registrationId]);
+		}
+
+		if ($this->hasTable('judgeevaluations')) {
+			$this->loadModel('Judgeevaluations');
+			$this->Judgeevaluations->deleteAll(['conventionregistration_id' => $registrationId]);
+		}
+
+		if ($this->hasTable('crstudentevents')) {
+			$this->loadModel('Crstudentevents');
+			$this->Crstudentevents->deleteAll(['conventionregistration_id' => $registrationId]);
+		}
+
+		if ($this->hasTable('resultpositions')) {
+			$this->Resultpositions->deleteAll(['conventionregistration_id' => $registrationId]);
+		}
+
+		$this->Conventionregistrationstudents->deleteAll(['conventionregistration_id' => $registrationId]);
+		$this->Conventionregistrationteachers->deleteAll(['conventionregistration_id' => $registrationId]);
+
+		if ($this->hasTable('heartevents')) {
+			$this->Heartevents->deleteAll(['conventionregistration_id' => $registrationId]);
+		}
+
+		$this->Conventionregistrations->deleteAll(['id' => $registrationId]);
+
+		$schoolName = !empty($convRegD->Users['first_name']) ? $convRegD->Users['first_name'] : 'School';
+		$this->Flash->success($schoolName . ' registration deleted successfully.');
+		return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'allschools']);
+	}
 	
 	public function alljudges() {
 

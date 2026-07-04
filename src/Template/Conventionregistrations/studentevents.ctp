@@ -1,19 +1,19 @@
 <?php echo $this->Html->script('ajax-pagging.js'); ?>
-<div class="container-fluid p-0">
+<div class="container-fluid p-0 cr-studentevents-page">
 	<div class="row">
 		<?php echo $this->element('user_left_menu'); ?>
-		<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+		<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 cr-studentevents-main">
 
 			<div class="ersu_message">
 				<?php echo $this->Flash->render() ?>
 			</div>
-			<div class="teachers-top-heading">
-				<span>Student Event Registration</span>
+			<div class="teachers-top-heading cr-studentevents-header">
+				<span class="cr-studentevents-title">Student Event Registration</span>
 				<?php //echo $this->Html->link(' + Add Student Event', ['controller' => 'conventionregistrations', 'action' => 'addstudentevent'], ['escape' => false, 'class' => 'btn btn-primary']); ?>
 			</div>
 			<!-- dashboard-section-2 start-->
 
-			<div class="m_content" id="listID">
+			<div class="m_content cr-studentevents-card" id="listID">
 				<?php echo $this->element("Conventionregistrations/studentevents"); ?>
 			</div>
 

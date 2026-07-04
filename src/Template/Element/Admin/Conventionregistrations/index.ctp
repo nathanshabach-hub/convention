@@ -17,12 +17,12 @@ $this->Eventsubmissions = TableRegistry::get('Eventsubmissions');
 ?>
 <div class="admin_loader" id="loaderID"><?php echo $this->Html->image('loader_large_blue.gif');?></div>
 <?php if ($conventionregistrations) { ?> 
-    <div class="panel-body">
+    <div class="panel-body admin-convreg-panel">
         <div class="ersu_message"> <?php echo $this->Flash->render() ?></div>
         <?php echo $this->Form->create(null, ['id'=>'actionFrom', "method" => "Post"]);  ?>
         <section id="no-more-tables" class="lstng-section">
-            <div class="tbl-resp-listing">
-                <table id="convention_registraions" class="table table-bordered table-striped table-condensed cf">
+            <div class="tbl-resp-listing admin-convreg-table-wrap">
+                <table id="convention_registraions" class="table table-bordered table-striped table-condensed cf admin-convreg-table">
                     <thead class="cf ajshort">
                         <tr>
                             <th class="sorting_paging">#ID</th>
@@ -75,37 +75,39 @@ $this->Eventsubmissions = TableRegistry::get('Eventsubmissions');
                                     ?>
                                 </td>
                                 <td data-title="Registration Date"><?php echo $datarecord->created->format('M d, Y'); ?></td>
-                                <td data-title="Action">
+                                <td data-title="Action" class="admin-convreg-actions-cell">
+                                    <div class="admin-convreg-actions">
                                     <?php
                                     if($datarecord->Users['user_type'] == 'School') {
                                         if($datarecord->status == 1) {
-                                            echo $this->Html->link('<i class="fa fa-user-secret"></i>', ['controller' => 'conventionregistrations', 'action' => 'teachers',$datarecord->slug], [ 'escape' => false, 'title' => 'Supervisors', 'class'=>'btn btn-primary btn-xs']);
-                                            echo $this->Html->link('<i class="fa fa-group"></i>', ['controller' => 'conventionregistrations', 'action' => 'students',$datarecord->slug], [ 'escape' => false, 'title' => 'Students', 'class'=>'btn btn-primary btn-xs']);
+                                            echo $this->Html->link('<i class="fa fa-user-secret"></i>', ['controller' => 'conventionregistrations', 'action' => 'teachers',$datarecord->slug], [ 'escape' => false, 'title' => 'Supervisors', 'class'=>'btn btn-primary btn-xs admin-convreg-action-btn']);
+                                            echo $this->Html->link('<i class="fa fa-group"></i>', ['controller' => 'conventionregistrations', 'action' => 'students',$datarecord->slug], [ 'escape' => false, 'title' => 'Students', 'class'=>'btn btn-primary btn-xs admin-convreg-action-btn']);
                                             
                                             $checkHE = $this->Heartevents->find()->where(['Heartevents.conventionregistration_id' => $datarecord->id])->count();
                                             if($checkHE>0) {
-                                                echo $this->Html->link('<i class="fa fa-heart"></i>', ['controller' => 'conventionregistrations', 'action' => 'heartevents',$datarecord->slug], [ 'escape' => false, 'title' => 'Events of the heart', 'class'=>'btn btn-primary btn-xs']);
+                                                echo $this->Html->link('<i class="fa fa-heart"></i>', ['controller' => 'conventionregistrations', 'action' => 'heartevents',$datarecord->slug], [ 'escape' => false, 'title' => 'Events of the heart', 'class'=>'btn btn-primary btn-xs admin-convreg-action-btn']);
                                             }
                                             
                                             $checkES = $this->Eventsubmissions->find()->where(['Eventsubmissions.conventionregistration_id' => $datarecord->id])->count();
                                             if($checkES>0) {
-                                                echo $this->Html->link('<i class="fa fa-database"></i>', ['controller' => 'eventsubmissions', 'action' => 'index',$datarecord->slug], [ 'escape' => false, 'title' => 'Events submissions', 'class'=>'btn btn-primary btn-xs']);
+                                                echo $this->Html->link('<i class="fa fa-database"></i>', ['controller' => 'eventsubmissions', 'action' => 'index',$datarecord->slug], [ 'escape' => false, 'title' => 'Events submissions', 'class'=>'btn btn-primary btn-xs admin-convreg-action-btn']);
                                             }
                                             
-                                            echo $this->Html->link('<i class="fa fa-group"></i>', ['controller' => 'crstudentevents', 'action' => 'groups',$datarecord->slug], [ 'escape' => false, 'title' => 'Groups', 'class'=>'btn btn-primary btn-xs']);
-                                            echo $this->Html->link('<i class="fa fa-puzzle-piece"></i>', ['controller' => 'conventionregistrationstudents', 'action' => 'events',$datarecord->slug], [ 'escape' => false, 'title' => 'View Events Registered By This School', 'class'=>'btn btn-primary btn-xs']);
+                                            echo $this->Html->link('<i class="fa fa-group"></i>', ['controller' => 'crstudentevents', 'action' => 'groups',$datarecord->slug], [ 'escape' => false, 'title' => 'Groups', 'class'=>'btn btn-primary btn-xs admin-convreg-action-btn']);
+                                            echo $this->Html->link('<i class="fa fa-puzzle-piece"></i>', ['controller' => 'conventionregistrationstudents', 'action' => 'events',$datarecord->slug], [ 'escape' => false, 'title' => 'View Events Registered By This School', 'class'=>'btn btn-primary btn-xs admin-convreg-action-btn']);
                                         }
                                     }
                                     
                                     if($datarecord->Users['user_type'] == 'Teacher_Parent' || $datarecord->Users['user_type'] == 'Judge') {
-                                        echo $this->Html->link('<i class="fa fa-puzzle-piece"></i>', ['controller' => 'conventionregistrations', 'action' => 'judgeregevents', $datarecord->slug], [ 'escape' => false, 'title' => 'Events', 'class' => 'btn btn-primary btn-xs']);
+                                        echo $this->Html->link('<i class="fa fa-puzzle-piece"></i>', ['controller' => 'conventionregistrations', 'action' => 'judgeregevents', $datarecord->slug], [ 'escape' => false, 'title' => 'Events', 'class' => 'btn btn-primary btn-xs admin-convreg-action-btn']);
                                         
                                         if($datarecord->status == 2) {
-                                            echo $this->Html->link('<i class="fa fa-check"></i>', ['controller' => 'conventionregistrations', 'action' => 'approvejudgeregistration', $datarecord->slug], [ 'escape' => false, 'title' => 'Approve', 'class' => 'btn btn-primary btn-xs', 'confirm' => 'Are you sure you want to approve this registration?']);
-                                            echo $this->Html->link('<i class="fa fa-times"></i>', ['controller' => 'conventionregistrations', 'action' => 'declinejudgeregistration', $datarecord->slug], [ 'escape' => false, 'title' => 'Reject', 'class' => 'btn btn-warning btn-xs', 'confirm' => 'Are you sure you want to reject this registration?']);
+                                            echo $this->Html->link('<i class="fa fa-check"></i>', ['controller' => 'conventionregistrations', 'action' => 'approvejudgeregistration', $datarecord->slug], [ 'escape' => false, 'title' => 'Approve', 'class' => 'btn btn-primary btn-xs admin-convreg-action-btn', 'confirm' => 'Are you sure you want to approve this registration?']);
+                                            echo $this->Html->link('<i class="fa fa-times"></i>', ['controller' => 'conventionregistrations', 'action' => 'declinejudgeregistration', $datarecord->slug], [ 'escape' => false, 'title' => 'Reject', 'class' => 'btn btn-warning btn-xs admin-convreg-action-btn', 'confirm' => 'Are you sure you want to reject this registration?']);
                                         }
                                     }
                                     ?>
+                                    </div>
                                 </td>
                             </tr>
                         <?php } ?>

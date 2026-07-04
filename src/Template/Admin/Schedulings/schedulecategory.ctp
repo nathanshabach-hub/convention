@@ -8,7 +8,7 @@ $this->Schedulingtimings = TableRegistry::get('Schedulingtimings');
     });
 
 </script>
-<div class="content-wrapper">
+<div class="content-wrapper admin-sched-category-page">
     <section class="content-header">
       <h1>
         Schedule Category - [Convention - <?php echo $conventionSD->Conventions['name']; ?>]&nbsp;&nbsp;&nbsp;&nbsp;
@@ -22,10 +22,10 @@ $this->Schedulingtimings = TableRegistry::get('Schedulingtimings');
       </ol>
     </section>
 
-    <section class="content">
-     <div class="box box-info">
+	<section class="content">
+	 <div class="box box-info admin-data-box">
             <div class="box-header with-border">
-                <h3 class="box-title" style="color:Red;">
+				<h3 class="box-title admin-sched-note">
 				Note: Schedulings for all categories will be done when you press "Start Scheduling" button.
 				<br /><br />
 				If this button is not visible, it might be possible that there is no event found in any of these below 4 categories.
@@ -39,17 +39,17 @@ $this->Schedulingtimings = TableRegistry::get('Schedulingtimings');
 			
 			
 			
-			<div class="container">
+			<div class="admin-sched-category-summary">
 				<h2>Schedule Category
 				 
 				<?php
 				if(count($arrEventsC1) > 0 && count($arrEventsC2) > 0 && count($arrEventsC3) > 0 && count($arrEventsC4) > 0)
 				{
-					echo $this->Html->link('Start Scheduling', ['controller'=>'schedulingtimings', 'action' => 'startschedulec1',$convention_season_slug], ['class'=>'btn btn-primary canlcel_le', 'confirm' => 'Are you sure you want to start scheduling?']);
+					echo $this->Html->link('Start Scheduling', ['controller'=>'schedulingtimings', 'action' => 'startschedulec1',$convention_season_slug], ['class'=>'btn btn-primary canlcel_le admin-sched-btn', 'confirm' => 'Are you sure you want to start scheduling?']);
 				}
 				?>
 				</h2> 
-				<table class="table table-bordered">
+				<table class="table table-bordered admin-sched-category-table">
 					<tr>
 						<th>#</th>
 						<th>Needs Schedule</th>
@@ -76,11 +76,11 @@ $this->Schedulingtimings = TableRegistry::get('Schedulingtimings');
 								
 								if($checkScheduling)
 								{
-									echo $this->Html->link('View Scheduling', ['controller'=>'schedulingtimings', 'action' => 'viewscheduling',$convention_season_slug,1], ['class'=>'btn btn-success canlcel_le']);
+									echo $this->Html->link('View Scheduling', ['controller'=>'schedulingtimings', 'action' => 'viewscheduling',$convention_season_slug,1], ['class'=>'btn btn-success canlcel_le admin-sched-btn']);
 								}
 								else
 								{
-									echo 'Schedulings not yet done';
+									echo '<span class="precheck-empty">Schedulings not yet done</span>';
 								}
 							}
 							?>
@@ -103,11 +103,11 @@ $this->Schedulingtimings = TableRegistry::get('Schedulingtimings');
 								
 								if($checkScheduling)
 								{
-									echo $this->Html->link('View Scheduling', ['controller'=>'schedulingtimings', 'action' => 'viewscheduling',$convention_season_slug,2], ['class'=>'btn btn-success canlcel_le']);
+									echo $this->Html->link('View Scheduling', ['controller'=>'schedulingtimings', 'action' => 'viewscheduling',$convention_season_slug,2], ['class'=>'btn btn-success canlcel_le admin-sched-btn']);
 								}
 								else
 								{
-									echo 'Schedulings not yet done';
+									echo '<span class="precheck-empty">Schedulings not yet done</span>';
 								}
 							}
 							?>
@@ -132,11 +132,11 @@ $this->Schedulingtimings = TableRegistry::get('Schedulingtimings');
 								
 								if($checkScheduling)
 								{
-									echo $this->Html->link('View Scheduling', ['controller'=>'schedulingtimings', 'action' => 'viewscheduling',$convention_season_slug,3], ['class'=>'btn btn-success canlcel_le']);
+									echo $this->Html->link('View Scheduling', ['controller'=>'schedulingtimings', 'action' => 'viewscheduling',$convention_season_slug,3], ['class'=>'btn btn-success canlcel_le admin-sched-btn']);
 								}
 								else
 								{
-									echo 'Schedulings not yet done';
+									echo '<span class="precheck-empty">Schedulings not yet done</span>';
 								}
 							}
 							?>
@@ -162,11 +162,11 @@ $this->Schedulingtimings = TableRegistry::get('Schedulingtimings');
 								
 								if($checkScheduling)
 								{
-									echo $this->Html->link('View Scheduling', ['controller'=>'schedulingtimings', 'action' => 'viewscheduling',$convention_season_slug,4], ['class'=>'btn btn-success canlcel_le']);
+									echo $this->Html->link('View Scheduling', ['controller'=>'schedulingtimings', 'action' => 'viewscheduling',$convention_season_slug,4], ['class'=>'btn btn-success canlcel_le admin-sched-btn']);
 								}
 								else
 								{
-									echo 'Schedulings not yet done';
+									echo '<span class="precheck-empty">Schedulings not yet done</span>';
 								}
 							}
 							?>
@@ -188,11 +188,11 @@ $this->Schedulingtimings = TableRegistry::get('Schedulingtimings');
              
                 <div class="form-horizontal">
 					<div class="box-body">
-                    <div class="box-footer">
+					<div class="box-footer admin-sched-category-actions">
                         <label class="col-sm-2 control-label" for="inputPassword3">&nbsp;</label>
 						
 						<?php
-						echo $this->Html->link('<< Back To Pre-check', ['controller'=>'schedulings', 'action' => 'precheck',$convention_season_slug], ['class'=>'btn btn-default canlcel_le']);
+						echo $this->Html->link('<< Back To Pre-check', ['controller'=>'schedulings', 'action' => 'precheck',$convention_season_slug], ['class'=>'btn btn-default canlcel_le admin-sched-btn']);
 						?>
 						
 						

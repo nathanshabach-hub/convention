@@ -1,5 +1,5 @@
 <?php echo $this->Html->script('ajax-pagging.js'); ?>
-<div class="content-wrapper">
+<div class="content-wrapper admin-teachers-page admin-list-page">
     <section class="content-header">
       <h1>
          Manage Supervisors
@@ -11,9 +11,9 @@
     </section>
 
     <section class="content">
-        <div class="box box-info">
+        <div class="box box-info admin-data-box">
             <div class="ersu_message"> <?php echo $this->Flash->render() ?></div>
-            <div class="admin_search">
+            <div class="admin_search admin-users-search">
                 <?php echo $this->Form->create(Null, ['id'=>'adminSearch']); ?>
                     <div class="form-group align_box dtpickr_inputs">
                        <span class="hints">Search by First Name, Last Name or Email Address</span>
@@ -29,7 +29,7 @@
                 <?php echo $this->Form->end(); ?>
                 <div class="add_new_record"><?php //echo $this->Html->link('<i class="fa fa-plus"></i> Add Supervisor', ['controller'=>'users', 'action'=>'addteacher'], ['escape'=>false, 'class'=>'btn btn-default']);?></div>
             </div>
-            <div class="m_content" id="listID">
+            <div class="m_content admin-data-content" id="listID">
                 <?php echo $this->element("Admin/Users/teachers"); ?>
             </div>
             

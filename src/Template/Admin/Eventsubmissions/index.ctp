@@ -7,7 +7,7 @@ if (empty($seasonsDD) || !is_array($seasonsDD)) {
     $seasonsDD = [];
 }
 ?>
-<div class="content-wrapper">
+<div class="content-wrapper admin-esub-page">
     <section class="content-header">
         <?php $conventionName = isset($CRDetails->Conventions['name']) ? $CRDetails->Conventions['name'] : 'All Conventions'; ?>
       <h1>
@@ -21,7 +21,7 @@ if (empty($seasonsDD) || !is_array($seasonsDD)) {
     </section>
 
     <section class="content">
-        <div class="box box-info">
+        <div class="box box-info admin-data-box admin-esub-box">
             <div class="ersu_message"> <?php echo $this->Flash->render() ?></div>
             <div class="admin_search" style="display:none;">
                 <?php echo $this->Form->create(Null, ['id'=>'adminSearch']); ?>
@@ -53,7 +53,7 @@ if (empty($seasonsDD) || !is_array($seasonsDD)) {
                 <?php echo $this->Form->end(); ?>
                 <div class="add_new_record"><?php //echo $this->Html->link('<i class="fa fa-plus"></i> Add Division', ['controller'=>'conventionregistrations', 'action'=>'add'], ['escape'=>false, 'class'=>'btn btn-default']);?></div>
             </div>
-            <div class="m_content" id="listID">
+            <div class="m_content admin-data-content" id="listID">
                 <?php echo $this->element("Admin/Eventsubmissions/index"); ?>
             </div>
             

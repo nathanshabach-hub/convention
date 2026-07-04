@@ -175,8 +175,8 @@ class JudgeevaluationsController extends AppController {
 					$question_marks_possible		= $request_data['question_marks_possible_'.$cntrQL];
 					$question_marks_obtained 		= $request_data['question_marks_obtained_'.$cntrQL];
 					
-					$totalMarksPossible 			= $totalMarksPossible + $question_marks_possible;
-					$totalMarksObtained 			= intval($totalMarksObtained) + intval($question_marks_obtained);
+					$totalMarksPossible 			= $totalMarksPossible + (float)$question_marks_possible;
+					$totalMarksObtained 			= $totalMarksObtained + (float)$question_marks_obtained;
 					
 					$judgeevaluationmarks = $this->Judgeevaluationmarks->newEntity([]);
 					$dataM = $this->Judgeevaluationmarks->patchEntity($judgeevaluationmarks, array());
@@ -222,7 +222,7 @@ class JudgeevaluationsController extends AppController {
 					$this->Judgeevaluations->updateAll(
 					[
 						'total_marks_possible' => $totalMarksPossible,
-						'total_marks_obtained' => intval($totalMarksObtained)+intval($negative_question_marks_obtained),
+						'total_marks_obtained' => $totalMarksObtained + (float)$negative_question_marks_obtained,
 						
 						'total_negative_marks_possible' => $negative_question_marks_possible,
 						'total_negative_marks_obtained' => $negative_question_marks_obtained,
@@ -458,8 +458,8 @@ class JudgeevaluationsController extends AppController {
 					$question_marks_possible		= $this->request->getData()['question_marks_possible_'.$cntrQL];
 					$question_marks_obtained 		= $this->request->getData()['question_marks_obtained_'.$cntrQL];
 					
-					$totalMarksPossible 			= $totalMarksPossible + $question_marks_possible;
-					$totalMarksObtained 			= intval($totalMarksObtained) + intval($question_marks_obtained);
+					$totalMarksPossible 			= $totalMarksPossible + (float)$question_marks_possible;
+					$totalMarksObtained 			= $totalMarksObtained + (float)$question_marks_obtained;
 					
 					$judgeevaluationmarks = $this->Judgeevaluationmarks->newEntity([]);
 					$dataM = $this->Judgeevaluationmarks->patchEntity($judgeevaluationmarks, $this->request->getData());
@@ -505,7 +505,7 @@ class JudgeevaluationsController extends AppController {
 					$this->Judgeevaluations->updateAll(
 					[
 						'total_marks_possible' => $totalMarksPossible,
-						'total_marks_obtained' => intval($totalMarksObtained)+intval($negative_question_marks_obtained),
+						'total_marks_obtained' => $totalMarksObtained + (float)$negative_question_marks_obtained,
 						
 						'total_negative_marks_possible' => $negative_question_marks_possible,
 						'total_negative_marks_obtained' => $negative_question_marks_obtained,

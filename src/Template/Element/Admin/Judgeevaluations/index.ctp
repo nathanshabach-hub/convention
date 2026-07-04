@@ -24,7 +24,7 @@ $this->Evaluationquestions = TableRegistry::get('Evaluationquestions');
             </div>   
 
             <div class="tbl-resp-listing">
-                <table id="judge_eval_table" class="table table-bordered table-striped table-condensed cf">
+                <table id="judge_eval_table" class="table table-bordered table-striped table-condensed cf judge-evaluations-table">
                     <thead class="cf ajshort">
                         <tr>
                             <th class="sorting_paging">Convention</th>
@@ -56,7 +56,7 @@ $this->Evaluationquestions = TableRegistry::get('Evaluationquestions');
                                 <td data-title="Event Number"><?php echo $datarecord->event_id_number;?></td>
                                 <td data-title="Event Name"><?php echo $datarecord->Events['event_name'];?></td>
                                 <td data-title="Group Event?"><?php echo ($datarecord->Events['group_event_yes_no'] == 1) ? "Yes" : "No"; ?></td>
-                                <td data-title="Submitted For Group">
+                                <td data-title="Group">
                                 <?php
                                 if(!empty($datarecord->Eventsubmissions['group_name'])) {
                                     echo "Group ".$datarecord->Eventsubmissions['group_name'];
@@ -65,7 +65,7 @@ $this->Evaluationquestions = TableRegistry::get('Evaluationquestions');
                                 }
                                 ?>
                                 </td>
-                                <td data-title="Submitted For Student">
+                                <td data-title="Student">
                                 <?php
                                 if($datarecord->Eventsubmissions['student_id'] > 0) {
                                     echo $datarecord->Students['first_name'].' '.$datarecord->Students['middle_name'].' '.$datarecord->Students['last_name'];
@@ -75,7 +75,17 @@ $this->Evaluationquestions = TableRegistry::get('Evaluationquestions');
                                 ?>
                                 </td>
                                 <td data-title="School"><?php echo $datarecord->Schools['first_name']; ?></td>
-                                <td data-title="Judge"><?php echo ($datarecord->Judge) ? $datarecord->Judge['first_name'].' '.$datarecord->Judge['last_name'] : '-';?></td>
+                                    <td data-title="Judge">
+                                    <?php
+                                        $judgeName = '-';
+                                        if (!empty($datarecord->uploaded_by_user_id) && !empty($judgeUsersById[$datarecord->uploaded_by_user_id])) {
+                                            $judgeName = $judgeUsersById[$datarecord->uploaded_by_user_id];
+                                        } elseif (!empty($datarecord->Judge)) {
+                                            $judgeName = trim(($datarecord->Judge['first_name'] ?? '') . ' ' . ($datarecord->Judge['last_name'] ?? '')) ?: '-';
+                                        }
+                                        echo $judgeName;
+                                    ?>
+                                    </td>
                                 <td data-title="Marks">
                                 <?php
                                 if($datarecord->Events['event_judging_type'] == 'times') {
@@ -185,11 +195,99 @@ $this->Evaluationquestions = TableRegistry::get('Evaluationquestions');
 
 <script>
 $(document).ready(function() {
-    $('#judge_eval_table').dataTable({
+    if ($.fn.dataTable.isDataTable('#judge_eval_table')) {
+        $('#judge_eval_table').DataTable().destroy();
+    }
+
+    var table = $('#judge_eval_table').DataTable({
         "bPaginate": true,
         "bLengthChange": false,
+        "autoWidth": false,
+        "scrollX": false,
+        "scrollY": false,
+        "scrollCollapse": false,
         "pageLength": 100,
+        "deferRender": true,
         order: [[11, 'desc']],
+    });
+
+    function refreshJudgeEvalColumns() {
+        table.columns.adjust().draw(false);
+    }
+
+    $(window).on('resize', function() {
+        refreshJudgeEvalColumns();
+    });
+
+    $('.sidebar-toggle').on('click', function() {
+        setTimeout(refreshJudgeEvalColumns, 320);
+    });
+
+    function normalizeText(val) {
+        return (val || '').toString().replace(/\s+/g, ' ').trim().toLowerCase();
+    }
+
+    var filterConvention = '';
+    var filterSeason = '';
+    var filterEvent = '';
+
+    $.fn.dataTable.ext.search.push(function(settings, data) {
+        if (!settings || !settings.nTable || settings.nTable.id !== 'judge_eval_table') {
+            return true;
+        }
+
+        var rowConvention = normalizeText(data[0]);
+        var rowSeason = normalizeText(data[1]);
+        var rowEventName = normalizeText(data[3]);
+
+        var passesConvention = !filterConvention || rowConvention === filterConvention;
+        var passesSeason = !filterSeason || rowSeason === filterSeason;
+        var passesEvent = !filterEvent || rowEventName.indexOf(filterEvent) !== -1;
+
+        return passesConvention && passesSeason && passesEvent;
+    });
+
+    function applyJudgeEvalFilters() {
+        filterConvention = normalizeText($('#convention_id option:selected').text());
+        filterSeason = normalizeText($('#season_year').val());
+
+        var eventLabel = $('#event_id option:selected').text();
+        if (normalizeText($('#event_id').val()) === '') {
+            eventLabel = '';
+        }
+        eventLabel = eventLabel.replace(/^\s*\d+\s*[-:|]\s*/i, '');
+        filterEvent = normalizeText(eventLabel);
+
+        table.search($('#judgeeval_keyword').val() || '').draw();
+    }
+
+    $('#judgeeval_apply').on('click', function(e) {
+        e.preventDefault();
+        applyJudgeEvalFilters();
+    });
+
+    $('#convention_id, #season_year, #event_id').on('change', function() {
+        applyJudgeEvalFilters();
+    });
+
+    $('#judgeeval_reset').on('click', function(e) {
+        e.preventDefault();
+        $('#convention_id').val('');
+        $('#season_year').val('');
+        $('#event_id').val('');
+        $('#judgeeval_keyword').val('');
+        filterConvention = '';
+        filterSeason = '';
+        filterEvent = '';
+        table.search('').draw();
+    });
+
+    $('#judgeeval_keyword').on('keyup', function() {
+        table.search($(this).val() || '').draw();
+    });
+
+    $('#adminSearch').on('submit', function(e) {
+        e.preventDefault();
     });
 });
 </script>
@@ -197,6 +295,9 @@ $(document).ready(function() {
 <script type="text/javascript" src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
 <style type="text/css">
+    .judge-evaluations-table {
+        width: 100% !important;
+    }
     .page-link { color: #1c2452 !important; background-color: #fff !important; }
     .active>.page-link, .page-link.active { background-color: #1c2452 !important; border-color: #1c2452 !important; color: #fff !important; }
     .pagination { border-radius: 0rem !important; }
