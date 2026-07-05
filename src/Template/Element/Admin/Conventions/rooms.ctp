@@ -21,7 +21,7 @@
             </div>   
 
             <div class="tbl-resp-listing">
-                <table class="table table-bordered table-striped table-condensed cf">
+                <table class="table table-bordered table-striped table-condensed cf room-list-table">
                     <thead class="cf ajshort">
                         <tr>
                             <th class="sorting_paging"><?php echo $this->Paginator->sort('id', '# DB ID'); ?></th>
@@ -39,7 +39,7 @@
                                 <td data-title="Room Name"><?php echo $datarecord->room_name;?></td>
                                 <td data-title="Short Description"><?php echo $datarecord->short_description;?></td>
 								
-                                <td data-title="Action">
+                                <td data-title="Action" class="room-action-cell">
 									
 									<?php
 									echo $this->Html->link('<i class="fa fa-pencil"></i>', ['controller' => 'conventions', 'action' => 'editroom',$datarecord->slug,$slug], [ 'escape' => false, 'title' => 'Change Prices', 'class'=>'btn btn-info btn-xs']);
@@ -60,6 +60,6 @@
     </div>
 <?php } else { ?>
     <div id="listingJS" style="display: none;" class="alert alert-success alert-block fade in"></div>
-    <div class="admin_no_record">Sorry, no record found.</div>
+    <div class="admin_no_record admin-rooms-empty">Sorry, no room record found.</div>
 <?php }
 ?>

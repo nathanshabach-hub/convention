@@ -4,7 +4,7 @@
     });
 
 </script>
-<div class="content-wrapper">
+<div class="content-wrapper admin-form-page admin-editconvention-page">
     <section class="content-header">
       <h1>
          Edit Convention
@@ -19,28 +19,30 @@
     <section class="content">
      <div class="box box-info">
             <div class="box-header with-border">
-                <h3 class="box-title">&nbsp;</h3>
+                <h3 class="box-title">Convention Details</h3>
             </div>
             <div class="ersu_message"> <?php echo $this->Flash->render() ?> </div>
-            <?php echo $this->Form->create($conventions, ['id'=>'adminForm', 'type' => 'file']); ?>
+            <?php echo $this->Form->create($conventions, ['id'=>'adminForm', 'type' => 'file', 'class' => 'admin-convention-edit-form']); ?>
                 <div class="form-horizontal">
                     <div class="box-body">
+
+					<div class="admin-form-note">Adjust the core convention information below. Changes apply immediately after saving.</div>
 					
-					<div class="form-group">
+					<div class="form-group compact-field">
                       <label class="col-sm-2 control-label">Convention Name <span class="require">*</span></label>
                       <div class="col-sm-10">
                           <?php echo $this->Form->input('Conventions.name', ['label'=>false, 'type'=>'text',  'div'=>false, 'class'=>'form-control required', 'placeholder'=>'Convention Name', 'autocomplete'=>'off']); ?>
                       </div>
                     </div>
 					
-					<div class="form-group">
+					<div class="form-group compact-field">
                       <label class="col-sm-2 control-label">Convention Type <span class="require">*</span></label>
                       <div class="col-sm-10">
                           <?php echo $this->Form->select('Conventions.convention_type', $conventionTypeDD, ['id' => 'convention_type', 'label' => false, 'div' => false, 'class' => 'form-control required', 'autocomplete' => 'off', 'empty' => 'Choose']); ?>
                       </div>
                     </div>
 					
-					<div class="form-group">
+					<div class="form-group compact-field">
                       <label class="col-sm-2 control-label">Address <span class="require">*</span></label>
                       <div class="col-sm-10">
                           <?php echo $this->Form->input('Conventions.address', ['label'=>false, 'type'=>'text',  'div'=>false, 'class'=>'form-control required', 'placeholder'=>'Address', 'autocomplete'=>'off']); ?>

@@ -1518,6 +1518,12 @@ fieldset{
     min-width: 220px;
 }
 
+.admin-conventions-page .table thead th a,
+.admin-conventions-page .table thead th a:hover,
+.admin-conventions-page .table thead th a:focus {
+    color: #fff !important;
+}
+
 @media (max-width: 991px) {
     .admin-conventions-page .admin_search {
         align-items: stretch;
@@ -1581,6 +1587,12 @@ fieldset{
     color: #fff;
 }
 
+.admin-seasons-page .table thead th a,
+.admin-seasons-page .table thead th a:hover,
+.admin-seasons-page .table thead th a:focus {
+    color: #fff !important;
+}
+
 .admin-seasons-page .season-list-table td[data-title="Action"] {
     min-width: 270px;
     white-space: normal;
@@ -1619,6 +1631,462 @@ fieldset{
 
     .admin-seasons-page .season-list-table td[data-title="Action"] {
         min-width: 230px;
+    }
+}
+
+/* Rooms page specific polish */
+.admin-rooms-page .admin_search {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: space-between;
+}
+
+.admin-rooms-page .admin_search form {
+    flex: 1 1 620px;
+}
+
+.admin-rooms-page .search_frm {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+}
+
+.admin-rooms-page .search_frm .hints {
+    min-width: 170px;
+}
+
+.admin-rooms-page .search_frm .list_sel {
+    flex: 1 1 260px;
+    min-width: 240px;
+}
+
+.admin-rooms-page .search_frm .list_sel .form-control {
+    border-radius: 10px;
+}
+
+.admin-rooms-page .add_new_record {
+    display: flex;
+    flex-wrap: wrap;
+    float: none;
+    gap: 8px;
+    margin-left: auto;
+    padding-right: 0;
+    position: static;
+}
+
+.admin-rooms-page .add_new_record .btn {
+    background: #184e7a;
+    border: 1px solid #184e7a;
+    border-radius: 10px;
+    color: #fff;
+    font-weight: 700;
+    padding: 8px 12px;
+}
+
+.admin-rooms-page .add_new_record .btn:hover,
+.admin-rooms-page .add_new_record .btn:focus {
+    background: #123e61;
+    border-color: #123e61;
+    color: #fff;
+}
+
+.admin-rooms-page .table thead th a,
+.admin-rooms-page .table thead th a:hover,
+.admin-rooms-page .table thead th a:focus {
+    color: #fff !important;
+}
+
+.admin-rooms-page .room-list-table td[data-title="Action"] {
+    min-width: 100px;
+    white-space: nowrap;
+}
+
+.admin-rooms-page .room-action-cell .btn {
+    border-radius: 8px;
+    margin: 2px 4px 2px 0;
+    padding: 4px 8px;
+}
+
+.admin-rooms-page .admin-rooms-empty {
+    background: #f1f6fc;
+    border: 1px solid #d6e2ef;
+    border-radius: 12px;
+    color: #325270;
+    margin: 14px 18px 18px;
+    padding: 16px;
+    text-align: center;
+}
+
+@media (max-width: 991px) {
+    .admin-rooms-page .admin_search {
+        align-items: stretch;
+    }
+
+    .admin-rooms-page .admin_search form,
+    .admin-rooms-page .add_new_record {
+        flex: 1 1 100%;
+        margin-left: 0;
+    }
+
+    .admin-rooms-page .add_new_record .btn {
+        width: 100%;
+    }
+
+    .admin-rooms-page .search_frm {
+        margin: 0;
+        padding: 0;
+    }
+
+    .admin-rooms-page .search_frm .hints,
+    .admin-rooms-page .search_frm .list_sel {
+        min-width: 100%;
+    }
+}
+
+/* Room events page specific polish */
+.admin-roomevents-page .roomevents-toolbar {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: space-between;
+}
+
+.admin-roomevents-page .roomevents-toolbar-title {
+    color: #355577;
+    font-weight: 600;
+}
+
+.admin-roomevents-page .add_new_record {
+    display: flex;
+    flex-wrap: wrap;
+    float: none;
+    gap: 8px;
+    margin-left: auto;
+    padding-right: 0;
+    position: static;
+    right: auto;
+    top: auto;
+}
+
+.admin-roomevents-page .add_new_record .btn {
+    border-radius: 10px;
+    font-weight: 700;
+    padding: 8px 12px;
+}
+
+.admin-roomevents-page .add_new_record .btn-default {
+    background: #184e7a;
+    border: 1px solid #184e7a;
+    color: #fff;
+}
+
+.admin-roomevents-page .add_new_record .btn-default:hover,
+.admin-roomevents-page .add_new_record .btn-default:focus {
+    background: #123e61;
+    border-color: #123e61;
+    color: #fff;
+}
+
+.admin-roomevents-page .add_new_record .btn-success {
+    background: #1c7a4c;
+    border-color: #1c7a4c;
+}
+
+.admin-roomevents-page .topn_left {
+    color: #1f3f5e;
+    font-weight: 700;
+}
+
+.admin-roomevents-page .roomevents-table thead th {
+    white-space: nowrap;
+}
+
+.admin-roomevents-page .roomevents-table td[data-title="Event(s)"] {
+    max-width: 560px;
+}
+
+.admin-roomevents-page .roomevents-action-cell {
+    white-space: nowrap;
+}
+
+.admin-roomevents-page .roomevents-action-cell .btn {
+    border-radius: 8px;
+    margin: 2px 4px 2px 0;
+    padding: 4px 8px;
+}
+
+.admin-roomevents-page .dataTables_wrapper .dataTables_filter {
+    margin-bottom: 10px;
+    text-align: right;
+}
+
+.admin-roomevents-page .dataTables_wrapper .dataTables_filter label {
+    color: #2f4f70;
+    font-weight: 700;
+}
+
+.admin-roomevents-page .dataTables_wrapper .dataTables_filter input {
+    border: 1px solid #c9d8e8;
+    border-radius: 10px;
+    box-shadow: none;
+    height: 36px;
+    margin-left: 8px;
+    padding: 6px 10px;
+}
+
+.admin-roomevents-page .dataTables_wrapper .dataTables_info {
+    color: #516b84;
+}
+
+.admin-roomevents-page .dataTables_wrapper .dataTables_paginate .paginate_button {
+    border-radius: 8px;
+    margin: 0 2px;
+}
+
+.admin-roomevents-page .admin-roomevents-empty {
+    background: #f1f6fc;
+    border: 1px solid #d6e2ef;
+    border-radius: 12px;
+    color: #325270;
+    margin: 14px 18px 18px;
+    padding: 16px;
+    text-align: center;
+}
+
+@media (max-width: 991px) {
+    .admin-roomevents-page .roomevents-toolbar {
+        align-items: stretch;
+    }
+
+    .admin-roomevents-page .roomevents-toolbar-title,
+    .admin-roomevents-page .add_new_record {
+        flex: 1 1 100%;
+        margin-left: 0;
+    }
+
+    .admin-roomevents-page .add_new_record .btn {
+        width: 100%;
+    }
+
+    .admin-roomevents-page .dataTables_wrapper .dataTables_filter {
+        text-align: left;
+    }
+}
+
+/* Add room events form page polish */
+.admin-addroomevents-page .box-header.with-border {
+    background: linear-gradient(90deg, #f6f9fd 0%, #eef4fb 100%);
+    border-bottom: 1px solid #dbe5f0;
+    padding: 12px 16px;
+}
+
+.admin-addroomevents-page .box-header .box-title {
+    color: #1d3a58;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.admin-addroomevents-page .box-body {
+    padding: 16px 16px 8px;
+}
+
+.admin-addroomevents-page .admin-form-note {
+    background: #f3f8ff;
+    border: 1px solid #d4e3f4;
+    border-radius: 10px;
+    color: #335574;
+    margin-bottom: 12px;
+    padding: 10px 12px;
+}
+
+.admin-addroomevents-page .form-horizontal .form-group {
+    border-bottom: 1px solid #edf2f7;
+    margin-left: 0;
+    margin-right: 0;
+    padding: 10px 0;
+}
+
+.admin-addroomevents-page .form-horizontal .form-group:last-of-type {
+    border-bottom: 0;
+}
+
+.admin-addroomevents-page .form-horizontal .control-label {
+    color: #2e4c69;
+    font-size: 13px;
+    font-weight: 700;
+    padding-top: 9px;
+    text-align: left;
+}
+
+.admin-addroomevents-page .form-horizontal .form-control {
+    border: 1px solid #c9d8e8;
+    border-radius: 10px;
+    box-shadow: none;
+    min-height: 40px;
+}
+
+.admin-addroomevents-page .select2-container .select2-selection--single,
+.admin-addroomevents-page .select2-container .select2-selection--multiple {
+    border: 1px solid #c9d8e8;
+    border-radius: 10px;
+    min-height: 40px;
+}
+
+.admin-addroomevents-page .select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 38px;
+}
+
+.admin-addroomevents-page .box-footer {
+    background: #f7fbff;
+    border-top: 1px solid #dbe5f0;
+    margin: 6px 0 0;
+    padding: 14px 16px;
+}
+
+.admin-addroomevents-page .box-footer .btn {
+    border-radius: 10px;
+    font-weight: 600;
+    margin-right: 8px;
+    min-width: 108px;
+    padding: 8px 16px;
+}
+
+.admin-addroomevents-page .box-footer .btn-info {
+    background: #1f5f8f;
+    border-color: #1f5f8f;
+}
+
+.admin-addroomevents-page .box-footer .btn-default {
+    background: #fff;
+    border: 1px solid #c8d6e6;
+    color: #35577a;
+}
+
+@media (max-width: 991px) {
+    .admin-addroomevents-page .box-header.with-border,
+    .admin-addroomevents-page .box-body,
+    .admin-addroomevents-page .box-footer {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .admin-addroomevents-page .form-horizontal .form-group {
+        padding: 8px 0;
+    }
+
+    .admin-addroomevents-page .box-footer .control-label {
+        display: none;
+    }
+
+    .admin-addroomevents-page .box-footer .btn {
+        margin-bottom: 8px;
+        width: 100%;
+    }
+}
+
+/* Edit convention form page polish */
+.admin-editconvention-page .box-header.with-border {
+    background: linear-gradient(90deg, #f6f9fd 0%, #eef4fb 100%);
+    border-bottom: 1px solid #dbe5f0;
+    padding: 12px 16px;
+}
+
+.admin-editconvention-page .box-header .box-title {
+    color: #1d3a58;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.admin-editconvention-page .box-body {
+    padding: 16px 16px 8px;
+}
+
+.admin-editconvention-page .admin-form-note {
+    background: #f3f8ff;
+    border: 1px solid #d4e3f4;
+    border-radius: 10px;
+    color: #335574;
+    margin-bottom: 12px;
+    padding: 10px 12px;
+}
+
+.admin-editconvention-page .form-horizontal .form-group {
+    border-bottom: 1px solid #edf2f7;
+    margin-left: 0;
+    margin-right: 0;
+    padding: 10px 0;
+}
+
+.admin-editconvention-page .form-horizontal .form-group:last-of-type {
+    border-bottom: 0;
+}
+
+.admin-editconvention-page .form-horizontal .control-label {
+    color: #2e4c69;
+    font-size: 13px;
+    font-weight: 700;
+    padding-top: 9px;
+    text-align: left;
+}
+
+.admin-editconvention-page .form-horizontal .form-control {
+    border: 1px solid #c9d8e8;
+    border-radius: 10px;
+    box-shadow: none;
+    height: 40px;
+}
+
+.admin-editconvention-page .box-footer {
+    background: #f7fbff;
+    border-top: 1px solid #dbe5f0;
+    margin: 6px 0 0;
+    padding: 14px 16px;
+}
+
+.admin-editconvention-page .box-footer .btn {
+    border-radius: 10px;
+    font-weight: 600;
+    margin-right: 8px;
+    min-width: 108px;
+    padding: 8px 16px;
+}
+
+.admin-editconvention-page .box-footer .btn-info {
+    background: #1f5f8f;
+    border-color: #1f5f8f;
+}
+
+.admin-editconvention-page .box-footer .btn-default {
+    background: #fff;
+    border: 1px solid #c8d6e6;
+    color: #35577a;
+}
+
+@media (max-width: 991px) {
+    .admin-editconvention-page .box-header.with-border,
+    .admin-editconvention-page .box-body,
+    .admin-editconvention-page .box-footer {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .admin-editconvention-page .form-horizontal .form-group {
+        padding: 8px 0;
+    }
+
+    .admin-editconvention-page .box-footer .control-label {
+        display: none;
+    }
+
+    .admin-editconvention-page .box-footer .btn {
+        margin-bottom: 8px;
+        width: 100%;
     }
 }
 

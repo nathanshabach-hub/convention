@@ -5,7 +5,7 @@ $slug_convention_season = $slug_convention_season ?? '';
 $pendingEventsToRoomsList = $pendingEventsToRoomsList ?? [];
 $conventionseasonroomevents = $conventionseasonroomevents ?? [];
 ?>
-<div class="content-wrapper">
+<div class="content-wrapper admin-list-page admin-roomevents-page">
     <section class="content-header">
       <h1>
 			Manage Room Events - <?php echo $conventionSD->Conventions['name']; ?>
@@ -21,32 +21,20 @@ $conventionseasonroomevents = $conventionseasonroomevents ?? [];
     <section class="content">
         <div class="box box-info">
             <div class="ersu_message"> <?php echo $this->Flash->render() ?></div>
-            <div class="admin_search" style="display:nones;">
-                <?php echo $this->Form->create(Null, ['id'=>'adminSearch']); ?>
-                    <div class="form-group align_box dtpickr_inputs">
-                       <span class="hints" style="display:none;">Search by Season Name or Year</span>
-                       <span class="hint">
-                           <?php //echo $this->Form->input('Seasons.keyword', ['label'=>false, 'type'=>'text',  'div'=>false, 'class'=>'form-control', 'placeholder'=>'Search by Season Name or Year']); ?>
-                       </span>
-                      
-                       <div class="admin_asearch">
-                            <div class="ad_s ajshort"> <?php //echo $this->Form->button('Search', ['class'=>'btn btn-info admin_ajax_search', 'type'=>'button']); ?></div>
-                            <div class="ad_cancel"> <?php //echo $this->Html->link('Clear Search', ['controller'=>'conventions', 'action'=>'index'], ['escape'=>false, 'class'=>'btn btn-default canlcel_le']);?></div>
-                       </div>
-                    </div>
-                <?php echo $this->Form->end(); ?>
-                <div class="add_new_record"><?php echo $this->Html->link('<i class="fa fa-plus"></i> Add Room Event', ['controller'=>'conventions', 'action'=>'addroomevents',$slug_convention_season], ['escape'=>false, 'class'=>'btn btn-default']);?>
-				
-				<?php
-				if(count($pendingEventsToRoomsList)>0)
-				{
-				?>
-				<button type="button" class="btn btn-success" data-toggle="modal" data-target="#myModalPendingEvents">Pending Events (<?php echo count($pendingEventsToRoomsList); ?>)</button>
-				<?php
-				}
-				?>
+			<div class="admin_search roomevents-toolbar">
+				<div class="roomevents-toolbar-title">Assign events to rooms for this season.</div>
+				<div class="add_new_record">
+					<?php echo $this->Html->link('<i class="fa fa-plus"></i> Add Room Event', ['controller'=>'conventions', 'action'=>'addroomevents',$slug_convention_season], ['escape'=>false, 'class'=>'btn btn-default']);?>
+					<?php
+					if(count($pendingEventsToRoomsList)>0)
+					{
+					?>
+					<button type="button" class="btn btn-success" data-toggle="modal" data-target="#myModalPendingEvents">Pending Events (<?php echo count($pendingEventsToRoomsList); ?>)</button>
+					<?php
+					}
+					?>
 				</div>
-            </div>
+			</div>
 			
             <div class="m_content" id="listID">
 				<?php echo $this->element("Admin/Conventions/roomevents", [

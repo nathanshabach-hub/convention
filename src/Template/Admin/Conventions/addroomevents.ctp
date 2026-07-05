@@ -4,7 +4,7 @@
     });
 </script>
 
-<div class="content-wrapper">
+<div class="content-wrapper admin-form-page admin-addroomevents-page">
     <section class="content-header">
       <h1>
         Add Room Events :: Convention - <?php echo $conventionSD->Conventions['name']; ?>
@@ -20,14 +20,16 @@
     <section class="content">
      <div class="box box-info">
             <div class="box-header with-border">
-                <h3 class="box-title">&nbsp;</h3>
+              <h3 class="box-title">Room Event Setup</h3>
             </div>
             <div class="ersu_message"> <?php echo $this->Flash->render() ?> </div>
             <?php echo $this->Form->create($conventionseasonroomevents, ['id'=>'adminForm', 'type' => 'file']); ?>
                 <div class="form-horizontal">
                     <div class="box-body">
+
+      					<div class="admin-form-note">Choose one room and assign the relevant events for this season.</div>
 					
-					<div class="form-group">
+      					<div class="form-group compact-field">
                       <label class="col-sm-2 control-label">Choose Room <span class="require">*</span></label>
                       <div class="col-sm-10">
 						  <?php echo $this->Form->select('Conventionseasonroomevents.room_id', $convRooms, ['id' => 'room_id', 'label' => false, 'div' => false, 'class' => 'form-control required', 'autocomplete' => 'off', 'empty' =>'Choose Room']); ?>
@@ -39,7 +41,7 @@
                       </div>
                     </div>
 					
-					<div class="form-group">
+          <div class="form-group compact-field">
                       <label class="col-sm-2 control-label">Choose Event(s) <span class="require">*</span></label>
                       <div class="col-sm-10">
 						  <?php echo $this->Form->select('Conventionseasonroomevents.event_ids', $convSeasEventDD, ['id' => 'event_ids', 'multiple' =>'multiple', 'label' => false, 'div' => false, 'class' => 'form-control js-example-basic-multiple required', 'autocomplete' => 'off', 'value' =>$convRoomIDS]); ?>

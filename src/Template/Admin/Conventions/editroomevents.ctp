@@ -4,7 +4,7 @@
     });
 </script>
 
-<div class="content-wrapper">
+<div class="content-wrapper admin-form-page admin-editroomevents-page">
     <section class="content-header">
       <h1>
         Edit Room Events :: Convention - <?php echo $conventionSD->Conventions['name']; ?>
@@ -20,24 +20,26 @@
     <section class="content">
      <div class="box box-info">
             <div class="box-header with-border">
-                <h3 class="box-title">&nbsp;</h3>
+                <h3 class="box-title">Edit Room Event Setup</h3>
             </div>
             <div class="ersu_message"> <?php echo $this->Flash->render() ?> </div>
             <?php echo $this->Form->create($conventionseasonroomevents, ['id'=>'adminForm', 'type' => 'file']); ?>
                 <div class="form-horizontal">
                     <div class="box-body">
+
+					<div class="admin-form-note">Review current events in this room, remove any you no longer need, then assign new events.</div>
 					
-					<div class="form-group">
+					<div class="form-group compact-field">
                       <label class="col-sm-2 control-label">Room <span class="require"></span></label>
-                      <div class="col-sm-10" style="padding-top:8px;">
+					  <div class="col-sm-10 room-display-value">
 						  <?php echo $conventionSRoomD->Conventionrooms['room_name']; ?>
                       </div>
                     </div>
 					
-					<div class="form-group">
+					<div class="form-group compact-field">
                       <label class="col-sm-2 control-label">Current Events</label>
-                      <div class="col-sm-10" style="padding-top:8px;">
-						<table>
+					  <div class="col-sm-10 room-current-events">
+						<table class="current-events-table">
 							<?php
 							foreach($roomEventsL as $datarecevent)
 							{
@@ -58,7 +60,7 @@
                     </div>
 					
 					
-					<div class="form-group">
+          <div class="form-group compact-field">
                       <label class="col-sm-2 control-label">Choose New Event(s) <span class="require">*</span></label>
                       <div class="col-sm-10">
 						  <?php echo $this->Form->select('Conventionseasonroomevents.event_ids', $convSeasEventDD, ['id' => 'event_ids', 'multiple' =>'multiple', 'label' => false, 'div' => false, 'class' => 'form-control js-example-basic-multiple required', 'autocomplete' => 'off', 'value' =>$convRoomIDS]); ?>

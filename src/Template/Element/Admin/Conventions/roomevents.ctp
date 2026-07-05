@@ -10,9 +10,7 @@ $this->Events = TableRegistry::get('Events');
         <section id="no-more-tables" class="lstng-section">
             <div class="topn">
                 <div class="topn_left">
-				 
-				 
-				
+				Room Event Assignments
 				</div> 
 				
                 <div class="topn_right ajshort" id="pagingLinks" align="right">
@@ -21,10 +19,10 @@ $this->Events = TableRegistry::get('Events');
             </div>   
 
             <div class="tbl-resp-listing">
-                <table id="convention_events" class="table table-bordered table-striped table-condensed cf">
+                <table id="convention_events" class="table table-bordered table-striped table-condensed cf roomevents-table">
                     <thead class="cf ajshort">
                         <tr>
-                            <th class="sorting_paging">#DB ID Room</th>
+                            <th class="sorting_paging"># DB ID</th>
                             <th class="sorting_paging">Room</th>
 							<th class="sorting_paging">Event(s)</th>
 							<th class="sorting_paging"><i class=" fa fa-gavel"></i>  Action</th>
@@ -65,7 +63,7 @@ $this->Events = TableRegistry::get('Events');
 								?>
 								</td>
                                 
-								<td data-title="Action">
+                                <td data-title="Action" class="roomevents-action-cell">
 								<?php
 								echo $this->Html->link('<i class="fa fa-pencil"></i>', ['controller' => 'conventions', 'action' => 'editroomevents',$datarecord->slug,$slug_convention_season], [ 'escape' => false, 'title' => 'Edit', 'class'=>'btn btn-primary btn-xs']);
 								
@@ -102,7 +100,7 @@ $this->Events = TableRegistry::get('Events');
     </div>
 <?php } else { ?>
     <div id="listingJS" style="display: none;" class="alert alert-success alert-block fade in"></div>
-    <div class="admin_no_record">No record found.</div>
+    <div class="admin_no_record admin-roomevents-empty">No room events found for this season.</div>
 <?php }
 ?>
 

@@ -1,5 +1,5 @@
 <?php echo $this->Html->script('ajax-pagging.js'); ?>
-<div class="content-wrapper">
+<div class="content-wrapper admin-list-page admin-rooms-page">
     <section class="content-header">
       <h1>
          Manage Rooms -  <?php echo $conventionD->name; ?>
@@ -17,9 +17,9 @@
             <div class="admin_search">
                 <?php echo $this->Form->create(Null, ['id'=>'adminSearch']); ?>
                     <?php echo $this->Form->hidden('all', ['value' => !empty($showAll) ? 1 : 0]); ?>
-                    <div class="form-group align_box dtpickr_inputs">
+                          <div class="form-group align_box dtpickr_inputs search_frm">
                        <span class="hints">Search by Room Name</span>
-                       <span class="hint">
+                              <span class="hint list_sel">
                            <?php echo $this->Form->input('Conventions.keyword', ['label'=>false, 'type'=>'text',  'div'=>false, 'class'=>'form-control', 'placeholder'=>'Search by keyword']); ?>
 						   <?php //echo $this->Form->select('Conventionseasons.season_id', $seasonsDD, ['id' => 'season_id','label' => false, 'div' => false, 'class' => 'form-control required', 'empty' => 'Choose Season Year', 'autocomplete' => 'off']); ?>
                        </span>
