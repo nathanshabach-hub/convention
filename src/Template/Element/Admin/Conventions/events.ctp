@@ -4,6 +4,39 @@ $this->Conventionregistrations = TableRegistry::getTableLocator()->get('Conventi
 $this->Eventsubmissions = TableRegistry::getTableLocator()->get('Eventsubmissions');
 $this->Judgeevaluations = TableRegistry::getTableLocator()->get('Judgeevaluations');
 $this->Conventionseasonroomevents = TableRegistry::getTableLocator()->get('Conventionseasonroomevents');
+$closeOnly = ((string)$this->request->getQuery('close_only') === '1');
+$eventsToCloseCount = 0;
+foreach ($conventionseasonevents as $eventRow) {
+	if (empty($eventRow->Events) || (int)$eventRow->judging_ends === 1) continue;
+
+	// Count entries (same logic as the table rows below)
+	$cntCond = [
+		"(Eventsubmissions.conventionseason_id = '{$eventRow->conventionseasons_id}')",
+		"(Eventsubmissions.convention_id = '{$eventRow->convention_id}')",
+		"(Eventsubmissions.season_id = '{$eventRow->season_id}')",
+		"(Eventsubmissions.event_id = '{$eventRow->Events['id']}')",
+	];
+	$entryCount = $this->Eventsubmissions->find()->where($cntCond)->count();
+	if ($entryCount === 0) continue; // skip No Entries
+
+	// Must have at least one judge assigned
+	$judgeCheck = $this->Conventionregistrations->find()->where([
+		"(Conventionregistrations.conventionseason_id = '{$eventRow->conventionseasons_id}')",
+		"(Conventionregistrations.convention_id = '{$eventRow->convention_id}')",
+		"(Conventionregistrations.season_id = '{$eventRow->season_id}')",
+		"(Conventionregistrations.status = '1')",
+	])->all();
+	$hasJudge = false;
+	foreach ($judgeCheck as $cr) {
+		if (!empty($cr->judges_event_ids)) {
+			$jids = explode(',', $cr->judges_event_ids);
+			if (in_array((string)$eventRow->event_id, $jids)) { $hasJudge = true; break; }
+		}
+	}
+	if (!$hasJudge) continue; // skip No Judges
+
+	$eventsToCloseCount++;
+}
 ?>
 <div class="admin_loader" id="loaderID"><?php echo $this->Html->image('loader_large_blue.gif');?></div>
 <?php if (!$conventionseasonevents->isEmpty()) { ?> 
@@ -20,6 +53,13 @@ $this->Conventionseasonroomevents = TableRegistry::getTableLocator()->get('Conve
                 </div>
                 <div class="events-toolbar__right">
                     <?php echo $this->Html->link('<i class="fa fa-toggle-left"></i> Back to seasons', ['controller'=>'conventions', 'action'=>'seasons',$slug_convention], ['escape'=>false, 'class'=>'btn btn-default btn-sm']);?>
+					<?php
+					if ($closeOnly) {
+						echo $this->Html->link('<i class="fa fa-list"></i> All Events', ['controller'=>'conventions', 'action'=>'events',$slug_convention_season,$slug_convention], ['escape'=>false, 'class'=>'btn btn-default btn-sm']);
+					} else {
+						echo $this->Html->link('<i class="fa fa-close"></i> Events to Close ('.number_format($eventsToCloseCount).')', ['controller'=>'conventions', 'action'=>'events',$slug_convention_season,$slug_convention,'?' => ['close_only' => 1]], ['escape'=>false, 'class'=>'btn btn-warning btn-sm']);
+					}
+					?>
                     <?php echo $this->Html->link('<i class="fa fa-refresh"></i> Reset Event List', ['controller'=>'conventions', 'action' => 'reseteventlist',$slug_convention_season,$slug_convention], ['class'=>'btn btn-success btn-sm', 'escape' => false, 'confirm' => 'Are you sure you want to reset event list for this convention? This will delete all events for this convention & selected season ?']); ?>
                 </div>
             </div>   
@@ -48,6 +88,11 @@ $this->Conventionseasonroomevents = TableRegistry::getTableLocator()->get('Conve
 						{
 							// Skip rows whose underlying Event has been deleted
 							if (empty($datarecord->Events)) {
+								continue;
+							}
+
+							// In "Events to Close" mode, show only events that are not closed yet.
+							if ($closeOnly && (int)$datarecord->judging_ends === 1) {
 								continue;
 							}
 							// Here check room ids alocated for this Event
@@ -98,9 +143,17 @@ $this->Conventionseasonroomevents = TableRegistry::getTableLocator()->get('Conve
 								$condTotalEntries[] = "(Eventsubmissions.season_id = '".$datarecord->season_id."')";
 								$condTotalEntries[] = "(Eventsubmissions.event_id = '".$datarecord->Events['id']."')";
 								$totalEntriesEvent = $this->Eventsubmissions->find()->where($condTotalEntries)->count();
+								$effectiveEntriesEvent = $this->Eventsubmissions->find()
+									->where($condTotalEntries)
+									->where(['Eventsubmissions.guideline_breach !=' => 2])
+									->count();
 								$pendingGuidelineBreaches = $this->Eventsubmissions->find()
 									->where($condTotalEntries)
 									->where(['Eventsubmissions.guideline_breach' => 1])
+									->count();
+								$approvedGuidelineBreaches = $this->Eventsubmissions->find()
+									->where($condTotalEntries)
+									->where(['Eventsubmissions.guideline_breach' => 2])
 									->count();
 								echo $totalEntriesEvent;
 								?>
@@ -146,14 +199,20 @@ $this->Conventionseasonroomevents = TableRegistry::getTableLocator()->get('Conve
 
 								$pendingEntries = 0;
 								$completedEntries = 0;
-								if($totalEntriesEvent > 0 && $totalAssignedJudges > 0)
+								if($effectiveEntriesEvent > 0 && $totalAssignedJudges > 0)
 								{
 									$eventSubmissionIds = $this->Eventsubmissions->find()
 										->select(['id'])
 										->where($condTotalEntries)
+										->where(['Eventsubmissions.guideline_breach !=' => 2])
 										->enableHydration(false)
 										->extract('id')
 										->toList();
+
+									$approvedBreachSubmissionCount = $this->Eventsubmissions->find()
+										->where($condTotalEntries)
+										->where(['Eventsubmissions.guideline_breach' => 2])
+										->count();
 
 									if(count($eventSubmissionIds))
 									{
@@ -193,7 +252,21 @@ $this->Conventionseasonroomevents = TableRegistry::getTableLocator()->get('Conve
 										}
 									}
 
-									$pendingEntries = ($totalEntriesEvent - $completedEntries);
+									if($approvedBreachSubmissionCount > 0)
+									{
+										$completedEntries += $approvedBreachSubmissionCount;
+										if($completedEntries > $effectiveEntriesEvent)
+										{
+											$completedEntries = $effectiveEntriesEvent;
+										}
+
+										foreach($judgeUserIdsArr as $jUid)
+										{
+											$perJudgeSubmittedCount[$jUid] += $approvedBreachSubmissionCount;
+										}
+									}
+
+									$pendingEntries = ($effectiveEntriesEvent - $completedEntries);
 									if($pendingEntries < 0)
 									{
 										$pendingEntries = 0;
@@ -207,19 +280,19 @@ $this->Conventionseasonroomevents = TableRegistry::getTableLocator()->get('Conve
 									{
 										$jName = isset($judgeNameById[$jUid]) ? $judgeNameById[$jUid] : ('User #'.$jUid);
 										$jSubmitted = isset($perJudgeSubmittedCount[$jUid]) ? (int)$perJudgeSubmittedCount[$jUid] : 0;
-										if($jSubmitted > $totalEntriesEvent)
+										if($jSubmitted > $effectiveEntriesEvent)
 										{
-											$jSubmitted = $totalEntriesEvent;
+											$jSubmitted = $effectiveEntriesEvent;
 										}
 
-										$pct = $totalEntriesEvent > 0 ? min(100, round(($jSubmitted / $totalEntriesEvent) * 100)) : 0;
+										$pct = $effectiveEntriesEvent > 0 ? min(100, round(($jSubmitted / $effectiveEntriesEvent) * 100)) : 0;
 
-										if($totalEntriesEvent > 0 && $jSubmitted >= $totalEntriesEvent)
+										if($effectiveEntriesEvent > 0 && $jSubmitted >= $effectiveEntriesEvent)
 										{
 											$statusClass = 'is-complete';
 											$statusLabel = 'Completed';
 										}
-										else if($totalEntriesEvent == 0)
+										else if($effectiveEntriesEvent == 0)
 										{
 											$statusClass = 'is-none';
 											$statusLabel = 'No Entries';
@@ -238,10 +311,10 @@ $this->Conventionseasonroomevents = TableRegistry::getTableLocator()->get('Conve
 										echo '<li class="judge-progress-item '.$statusClass.'">';
 										echo '<span class="judge-progress-name">'.h($jName).'</span>';
 										echo '<span class="judge-progress-meta">';
-										echo '<span class="judge-progress-count">'.$jSubmitted.'/'.$totalEntriesEvent.'</span>';
+										echo '<span class="judge-progress-count">'.$jSubmitted.'/'.$effectiveEntriesEvent.'</span>';
 										echo '<span class="judge-progress-badge">'.$statusLabel.'</span>';
 										echo '</span>';
-										if($totalEntriesEvent > 0)
+										if($effectiveEntriesEvent > 0)
 										{
 											echo '<span class="judge-progress-bar"><span class="judge-progress-bar__fill" style="width:'.$pct.'%;"></span></span>';
 										}
@@ -261,7 +334,7 @@ $this->Conventionseasonroomevents = TableRegistry::getTableLocator()->get('Conve
 									{
 										echo '<span class="status-pill status-pill--closed">Closed</span>';
 									}
-									else if($totalEntriesEvent == 0)
+									else if($effectiveEntriesEvent == 0)
 									{
 										echo '<span class="status-pill status-pill--neutral">No Entries</span>';
 									}
@@ -276,10 +349,18 @@ $this->Conventionseasonroomevents = TableRegistry::getTableLocator()->get('Conve
 									else if($pendingEntries > 0)
 									{
 										echo '<span class="status-pill status-pill--pending">'.$pendingEntries.' remaining</span>';
+										if($approvedGuidelineBreaches > 0)
+										{
+											echo '<br /><small class="text-muted">'.$approvedGuidelineBreaches.' breach approved</small>';
+										}
 									}
 									else
 									{
 										echo '<span class="status-pill status-pill--ready">Ready to Close</span>';
+										if($approvedGuidelineBreaches > 0)
+										{
+											echo '<br /><small class="text-muted">'.$approvedGuidelineBreaches.' breach approved</small>';
+										}
 									}
 									?>
 								</td>

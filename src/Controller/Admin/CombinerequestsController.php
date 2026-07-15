@@ -124,13 +124,14 @@ class CombinerequestsController extends AppController {
 			//echo $messageToSend; exit;
 			
 			$email = new Email();
-			$email->template('default', 'admintemplate')
-				->emailFormat('html')
-				->to($emailId)
-				->cc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
-				->from([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-				->subject($subjectToSend)
-				->viewVars(['content_for_layout' => $messageToSend])
+			$email->setTemplate('default')
+                            ->setLayout('admintemplate')
+				->setEmailFormat('html')
+				->setTo($emailId)
+				->setCc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
+				->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
+				->setSubject($subjectToSend)
+				->setViewVars(['content_for_layout' => $messageToSend])
 				->send();
 			
 			$this->Flash->success('Request approved successfully.');
@@ -164,13 +165,14 @@ class CombinerequestsController extends AppController {
 			//echo $messageToSend; exit;
 			
 			$email = new Email();
-			$email->template('default', 'admintemplate')
-				->emailFormat('html')
-				->to($emailId)
-				->cc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
-				->from([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-				->subject($subjectToSend)
-				->viewVars(['content_for_layout' => $messageToSend])
+			$email->setTemplate('default')
+                            ->setLayout('admintemplate')
+				->setEmailFormat('html')
+				->setTo($emailId)
+				->setCc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
+				->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
+				->setSubject($subjectToSend)
+				->setViewVars(['content_for_layout' => $messageToSend])
 				->send();
 			
 			$this->Flash->success('Request declined successfully.');

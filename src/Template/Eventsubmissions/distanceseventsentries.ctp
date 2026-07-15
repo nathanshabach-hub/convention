@@ -7,8 +7,11 @@
 			<div class="ersu_message">
 				<?php echo $this->Flash->render() ?>
 			</div>
-			<div class="teachers-top-heading">
-				<span>Distance Event Entries :: <?php echo $eventD->event_name; ?> (<?php echo $eventD->event_id_number; ?>)</span>
+			<div class="teachers-top-heading cr-es-header" style="display:flex;align-items:center;gap:10px;">
+				<a href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" class="sidebar-toggle-btn d-md-none" style="background:var(--blue);color:#fff;border:none;border-radius:5px;padding:7px 11px;font-size:18px;line-height:1;cursor:pointer;text-decoration:none;">
+					<i class="fa fa-bars"></i>
+				</a>
+				<span style="flex:1;">Distance Event Entries :: <?php echo $eventD->event_name; ?> (<?php echo $eventD->event_id_number; ?>)</span>
 				<?php echo $this->Html->link('<< Back', ['controller' => 'conventionregistrations', 'action' => 'judgeevents',$conv_reg_slug], ['escape' => false, 'class' => 'btn btn-primary']); ?>
 			</div>
 			<!-- dashboard-section-2 start-->

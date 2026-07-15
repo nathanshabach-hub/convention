@@ -5,6 +5,9 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title><?php echo $title; ?></title>
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+  <meta name="theme-color" content="#1c2452">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/img/pwa-icon-192.png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
   <link rel="shortcut icon" type="image/x-icon" href="<?php echo HTTP_PATH; ?>/img/favicon.ico" /> 
@@ -70,6 +73,13 @@
             function hideSessionMessage(){
                 $('.ersu_message').fadeOut("slow");
             }
-        </script> 
+        </script>
+
+<!-- PWA: offline bar for admin -->
+<div id="acp-offline-bar" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#1c2452;color:#fff;padding:10px 18px;font-size:14px;font-weight:600;align-items:center;justify-content:space-between;gap:12px;">
+  <span>📡 You are offline — changes may not save until reconnected.</span>
+  <span id="acp-sync-badge" style="display:none;background:#d6b23c;color:#1c2452;border-radius:999px;padding:3px 12px;font-size:12px;font-weight:700;"></span>
+</div>
+<script src="/js/acp-pwa.js"></script>
 </body>
 </html>

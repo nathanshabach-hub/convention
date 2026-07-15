@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Offline – Accelerate Convention Portal</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      background: linear-gradient(160deg, #1c2452 0%, #2c3e7a 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      color: #fff;
+    }
+    .card {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 20px;
+      padding: 40px 32px;
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+    .icon {
+      font-size: 56px;
+      margin-bottom: 16px;
+      display: block;
+    }
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      margin: 0 0 12px;
+    }
+    p {
+      color: rgba(255,255,255,0.78);
+      line-height: 1.6;
+      margin: 0 0 24px;
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 999px;
+      padding: 6px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.9);
+      margin-bottom: 24px;
+    }
+    .sync-status {
+      background: rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-size: 14px;
+      color: rgba(255,255,255,0.75);
+      margin-bottom: 24px;
+      display: none;
+    }
+    .sync-status.has-pending {
+      display: block;
+      background: rgba(255,200,60,0.15);
+      border: 1px solid rgba(255,200,60,0.3);
+      color: #ffd966;
+    }
+    button {
+      background: #fff;
+      color: #1c2452;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 28px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+    }
+    button:hover { opacity: 0.9; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <span class="icon">📡</span>
+    <h1>You're offline</h1>
+    <p>No internet connection detected. Any evaluations you submitted while offline are saved on this device and will sync automatically when you reconnect.</p>
+    <div class="badge" id="offlineBadge">Checking local data…</div>
+    <div class="sync-status" id="syncStatus"></div>
+    <button onclick="window.location.reload()">Try Again</button>
+  </div>
+
+  <script>
+    // Check IndexedDB for pending evaluations
+    (function() {
+      var badge = document.getElementById('offlineBadge');
+      var syncStatus = document.getElementById('syncStatus');
+
+      if (!window.indexedDB) {
+        badge.textContent = 'Offline mode';
+        return;
+      }
+
+      var req = indexedDB.open('acp_offline', 1);
+      req.onsuccess = function(e) {
+        var db = e.target.result;
+        if (!db.objectStoreNames.contains('pending_evaluations')) {
+          badge.textContent = 'Offline mode';
+          db.close();
+          return;
+        }
+        var tx = db.transaction('pending_evaluations', 'readonly');
+        var store = tx.objectStore('pending_evaluations');
+        var countReq = store.count();
+        countReq.onsuccess = function() {
+          var count = countReq.result;
+          if (count > 0) {
+            badge.textContent = count + ' evaluation' + (count > 1 ? 's' : '') + ' queued for sync';
+            syncStatus.className = 'sync-status has-pending';
+            syncStatus.textContent = 'These will upload automatically when your internet connection is restored.';
+          } else {
+            badge.textContent = 'Offline mode';
+          }
+          db.close();
+        };
+      };
+      req.onerror = function() {
+        badge.textContent = 'Offline mode';
+      };
+    })();
+  </script>
+</body>
+</html>

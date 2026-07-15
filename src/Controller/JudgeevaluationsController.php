@@ -6,6 +6,7 @@ use Cake\Datasource\ConnectionManager;
 use App\Controller\AppController;
 use Cake\Core\Configure;
 use Cake\Core\Configure\Engine\PhpConfig;
+use Cake\Utility\Security;
 use Cake\Mailer\Email;
 use Cake\I18n\I18n;
 
@@ -250,6 +251,187 @@ class JudgeevaluationsController extends AppController {
 		
 	}
 	
+	/**
+	 * PWA Phase 3a: receive queued offline evaluations and persist them.
+	 * Called by the service worker background sync via acp-pwa.js.
+	 * Accepts JSON body: { evaluations: [ { url, payload } ] }
+	 */
+	public function syncpending() {
+		$this->userLoginCheck();
+		$this->viewBuilder()->setLayout(null);
+		$this->response = $this->response->withType('application/json');
+
+		if (!$this->request->is('post')) {
+			echo json_encode(['ok' => false, 'error' => 'POST required']);
+			return $this->response;
+		}
+
+		$user_id = $this->request->session()->read('user_id');
+		$body = $this->request->getData();
+
+		$evaluations = $body['evaluations'] ?? [];
+		if (empty($evaluations) || !is_array($evaluations)) {
+			echo json_encode(['ok' => false, 'error' => 'No evaluations provided']);
+			return $this->response;
+		}
+
+		$results = [];
+		foreach ($evaluations as $evalItem) {
+			$url     = $evalItem['url'] ?? '';
+			$payload = $evalItem['payload'] ?? [];
+			$localId = $evalItem['localId'] ?? null;
+
+			// Extract slugs from original URL: /judgeevaluations/addnew/{conv_reg_slug}/{submission_slug}
+			if (!preg_match('#/judgeevaluations/addnew/([^/]+)/([^/?#]+)#', $url, $m)) {
+				$results[] = ['localId' => $localId, 'ok' => false, 'error' => 'Invalid URL'];
+				continue;
+			}
+			$conv_reg_slug          = $m[1];
+			$event_submission_slug  = $m[2];
+
+			try {
+				$eventsubmissionD = $this->Eventsubmissions->find()
+					->where(['Eventsubmissions.slug' => $event_submission_slug])
+					->first();
+
+				if (!$eventsubmissionD) {
+					$results[] = ['localId' => $localId, 'ok' => false, 'error' => 'Submission not found'];
+					continue;
+				}
+
+				$event_id_number = str_pad((string)$eventsubmissionD->event_id_number, 3, '0', STR_PAD_LEFT);
+
+				$condEvalForm = [
+					"(Evaluationforms.event_id_numbers LIKE '{$event_id_number}'" .
+					" OR Evaluationforms.event_id_numbers LIKE '{$event_id_number},%'" .
+					" OR Evaluationforms.event_id_numbers LIKE '%,{$event_id_number},%'" .
+					" OR Evaluationforms.event_id_numbers LIKE '%,{$event_id_number}')"
+				];
+				$evalFormD = $this->Evaluationforms->find()->where($condEvalForm)->order(['Evaluationforms.id' => 'DESC'])->first();
+
+				if (!$evalFormD) {
+					$results[] = ['localId' => $localId, 'ok' => false, 'error' => 'No evaluation form for event'];
+					continue;
+				}
+
+				// Remove any existing evaluation by this judge for this submission
+				$condExisting = [
+					'Judgeevaluations.eventsubmission_id'  => $eventsubmissionD->id,
+					'Judgeevaluations.event_id'            => $eventsubmissionD->event_id,
+					'Judgeevaluations.uploaded_by_user_id' => $user_id,
+				];
+				$existing = $this->Judgeevaluations->find()->where($condExisting)->first();
+				if ($existing) {
+					$this->Judgeevaluationmarks->deleteAll(['judgeevaluation_id' => $existing->id]);
+					$this->Judgeevaluations->deleteAll(['id' => $existing->id]);
+				}
+
+				// Build division and tag strings
+				$divSelected  = '';
+				$tagsSelected = '';
+				if (!empty($payload['division_ids']) && is_array($payload['division_ids'])) {
+					$divSelected = implode(',', $payload['division_ids']);
+				}
+				if (!empty($payload['tags']) && is_array($payload['tags'])) {
+					$tagsSelected = implode(',', $payload['tags']);
+				}
+
+				// Save judgeevaluation header
+				$dataJ = $this->Judgeevaluations->newEntity([]);
+				$dataJ->slug                      = 'judge-event-evaluation-' . $eventsubmissionD->id . '-' . time();
+				$dataJ->eventsubmission_id        = $eventsubmissionD->id;
+				$dataJ->conventionregistration_id = $eventsubmissionD->conventionregistration_id;
+				$dataJ->conventionseason_id       = $eventsubmissionD->conventionseason_id;
+				$dataJ->convention_id             = $eventsubmissionD->convention_id;
+				$dataJ->user_id                   = $eventsubmissionD->user_id;
+				$dataJ->season_id                 = $eventsubmissionD->season_id;
+				$dataJ->season_year               = $eventsubmissionD->season_year;
+				$dataJ->event_id                  = $eventsubmissionD->event_id;
+				$dataJ->event_id_number           = $eventsubmissionD->event_id_number;
+				$dataJ->group_name                = $eventsubmissionD->group_name;
+				$dataJ->student_id                = $eventsubmissionD->student_id;
+				$dataJ->uploaded_by_user_id       = $user_id;
+				$dataJ->evaluationform_id         = $evalFormD->id;
+				$dataJ->division_ids              = $divSelected;
+				$dataJ->tag_ids                   = $tagsSelected;
+				$dataJ->comments                  = $payload['comments'] ?? '';
+				$dataJ->created                   = date('Y-m-d H:i:s');
+				$dataJ->modified                  = date('Y-m-d H:i:s');
+				$resultJ = $this->Judgeevaluations->save($dataJ);
+
+				if (!$resultJ) {
+					$results[] = ['localId' => $localId, 'ok' => false, 'error' => 'Save failed'];
+					continue;
+				}
+
+				// Save per-question marks
+				$maxQuestions   = (int)($payload['max_questions'] ?? 0);
+				$totalPossible  = 0;
+				$totalObtained  = 0;
+				for ($q = 1; $q <= $maxQuestions; $q++) {
+					$qId       = $payload['question_id_' . $q]              ?? null;
+					$qPossible = (float)($payload['question_marks_possible_' . $q]  ?? 0);
+					$qObtained = (float)($payload['question_marks_obtained_' . $q]  ?? 0);
+					if (!$qId) continue;
+
+					$totalPossible += $qPossible;
+					$totalObtained += $qObtained;
+
+					$dataM = $this->Judgeevaluationmarks->newEntity([]);
+					$dataM->judgeevaluation_id       = $resultJ->id;
+					$dataM->question_id              = $qId;
+					$dataM->question_marks_possible  = $qPossible;
+					$dataM->question_marks_obtained  = $qObtained;
+					$dataM->created                  = date('Y-m-d H:i:s');
+					$this->Judgeevaluationmarks->save($dataM);
+				}
+
+				// Negative question (if any)
+				$negQId       = $payload['negative_question_id']             ?? 0;
+				$negPossible  = (float)($payload['negative_question_marks_possible'] ?? 0);
+				$negObtained  = (float)($payload['negative_question_marks_obtained'] ?? 0);
+				if ($negQId > 0) {
+					$dataM = $this->Judgeevaluationmarks->newEntity([]);
+					$dataM->judgeevaluation_id       = $resultJ->id;
+					$dataM->question_id              = $negQId;
+					$dataM->question_marks_possible  = $negPossible;
+					$dataM->question_marks_obtained  = $negObtained;
+					$dataM->created                  = date('Y-m-d H:i:s');
+					$this->Judgeevaluationmarks->save($dataM);
+					$totalObtained += $negObtained;
+				}
+
+				$this->Judgeevaluations->updateAll(
+					[
+						'total_marks_possible'          => $totalPossible,
+						'total_marks_obtained'          => $totalObtained,
+						'total_negative_marks_possible' => $negQId > 0 ? $negPossible : 0,
+						'total_negative_marks_obtained' => $negQId > 0 ? $negObtained : 0,
+						'modified'                      => date('Y-m-d H:i:s'),
+					],
+					['id' => $resultJ->id]
+				);
+
+				$results[] = ['localId' => $localId, 'ok' => true, 'evaluationId' => $resultJ->id];
+
+			} catch (\Throwable $ex) {
+				$results[] = ['localId' => $localId, 'ok' => false, 'error' => $ex->getMessage()];
+			}
+		}
+
+		$synced  = count(array_filter($results, fn($r) => $r['ok']));
+		$failed  = count($results) - $synced;
+
+		echo json_encode([
+			'ok'      => true,
+			'synced'  => $synced,
+			'failed'  => $failed,
+			'results' => $results,
+		], JSON_UNESCAPED_SLASHES);
+
+		return $this->response;
+	}
+
 	public function addnew($conv_reg_slug=null,$event_submission_slug=null) {
 		//echo 'ddd';exit;
 		$this->userLoginCheck();
@@ -668,22 +850,24 @@ class JudgeevaluationsController extends AppController {
 			
 			try {
 				$email = new Email();
-				$email->template('default', 'admintemplate')
-					->emailFormat('html')
-					->to($emailId)
-					->cc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
-					->from([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-					->subject($subjectToSend)
-					->viewVars(['content_for_layout' => $messageToSend])
+				$email->setTemplate('default')
+                            ->setLayout('admintemplate')
+					->setEmailFormat('html')
+					->setTo($emailId)
+					->setCc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
+					->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
+					->setSubject($subjectToSend)
+					->setViewVars(['content_for_layout' => $messageToSend])
 					->send();
 					
 				$email = new Email();
-				$email->template('default', 'admintemplate')
-					->emailFormat('html')
-					->to('voizacinc@gmail.com')
-					->from([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-					->subject($subjectToSend)
-					->viewVars(['content_for_layout' => $messageToSend])
+				$email->setTemplate('default')
+                            ->setLayout('admintemplate')
+					->setEmailFormat('html')
+					->setTo('voizacinc@gmail.com')
+					->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
+					->setSubject($subjectToSend)
+					->setViewVars(['content_for_layout' => $messageToSend])
 					->send();
 			} catch (\Throwable $e) {
 				// Email sending failed - breach has already been saved, continue
@@ -855,19 +1039,42 @@ class JudgeevaluationsController extends AppController {
 		
 		global $resultPositions;
 		$this->set('resultPositions', $resultPositions);
-		
-		if($this->request->session()->read("sess_selected_convention_registration_id")>0)
-		{
-			$sess_selected_convention_registration_id = $this->request->session()->read("sess_selected_convention_registration_id");
-		}
-		else
-		{
-			$this->Flash->error('Please choose convention registration first.');
-			$this->redirect(['controller' => 'conventionregistrations', 'action' => 'students']);
-		}
-		
+
 		// to get convention registration student details
 		$convRegStudentD = $this->Conventionregistrationstudents->find()->where(['Conventionregistrationstudents.slug' => $conv_reg_student_slug])->contain(['Students','Users'])->first();
+		if(!$convRegStudentD)
+		{
+			return $this->response->withStatus(404)->withStringBody('Student registration not found.');
+		}
+
+		$sess_selected_convention_registration_id = (int)$this->request->session()->read("sess_selected_convention_registration_id");
+		$isAuthorized = ($sess_selected_convention_registration_id > 0 && $sess_selected_convention_registration_id === (int)$convRegStudentD->conventionregistration_id);
+
+		if(!$isAuthorized)
+		{
+			$exp = (int)$this->request->getQuery('exp');
+			$sig = (string)$this->request->getQuery('sig');
+			if($exp > time() && $sig !== '')
+			{
+				$payload = $conv_reg_student_slug.'|'.$exp.'|'.(int)$convRegStudentD->conventionregistration_id;
+				$expectedSig = hash_hmac('sha256', $payload, Security::getSalt());
+				if(hash_equals($expectedSig, $sig))
+				{
+					$isAuthorized = true;
+				}
+			}
+		}
+
+		if(!$isAuthorized)
+		{
+			if((string)$this->request->getQuery('sig') !== '')
+			{
+				return $this->response->withStatus(403)->withStringBody('Invalid or expired download token.');
+			}
+			$this->Flash->error('Please choose convention registration first.');
+			return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'students']);
+		}
+
 		$this->set('convRegStudentD', $convRegStudentD);
 		
 		// to get convention registration details

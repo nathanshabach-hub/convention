@@ -1,0 +1,28 @@
+{
+  "name": "Accelerate Convention Portal",
+  "short_name": "Accelerate",
+  "description": "A.C.E. Student Convention Registration and Judging Portal",
+  "start_url": "/users/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#1c2452",
+  "theme_color": "#1c2452",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/img/pwa-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/img/pwa-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "categories": ["education", "productivity"]
+}

@@ -39,6 +39,7 @@ $this->Evaluationquestions = TableRegistry::get('Evaluationquestions');
                             <th class="sorting_paging">Marks/Score</th>
                             <th class="sorting_paging">Withdrawn</th>
                             <th class="sorting_paging">Submitted</th>
+                            <th class="sorting_paging">Submitted Time</th>
                             <th class="sorting_paging">File</th>
                             <th class="action_dvv"><i class=" fa fa-gavel"></i> Action</th>
                         </tr>
@@ -100,15 +101,67 @@ $this->Evaluationquestions = TableRegistry::get('Evaluationquestions');
                                             $formattedTime = $tScoreC;
                                         }
                                         echo $formattedTime;
+                                    } else {
+                                        echo '-';
                                     }
                                 } else if($datarecord->Events['event_judging_type'] == 'distances') {
-                                    echo $datarecord->distance_score;
+                                    $distanceAttempts = [
+                                        $datarecord->distance_attempt_1,
+                                        $datarecord->distance_attempt_2,
+                                        $datarecord->distance_attempt_3,
+                                    ];
+                                    $distanceAttempts = array_filter($distanceAttempts, function ($v) {
+                                        return $v !== null && $v !== '';
+                                    });
+                                    $computedBestDistance = !empty($distanceAttempts) ? max(array_map('floatval', $distanceAttempts)) : null;
+                                    $storedDistanceScore = ($datarecord->distance_score !== null && $datarecord->distance_score !== '') ? (float)$datarecord->distance_score : null;
+
+                                    if ($storedDistanceScore !== null && $storedDistanceScore > 0) {
+                                        echo $datarecord->distance_score;
+                                    } elseif ($computedBestDistance !== null && $computedBestDistance > 0) {
+                                        echo $computedBestDistance;
+                                    } else {
+                                        echo '-';
+                                    }
                                 } else if($datarecord->Events['event_judging_type'] == 'scores') {
-                                    echo $datarecord->all_pos_score;
+                                    $scoreRaw = $datarecord->all_pos_score;
+                                    $scoreFields = [
+                                        'comp_choice_pos_1_score',
+                                        'comp_choice_pos_2_score',
+                                        'comp_choice_pos_3_score',
+                                        'pos_1_score',
+                                        'pos_2_score',
+                                        'pos_3_score',
+                                        'pos_4_score',
+                                        'pos_5_score',
+                                        'pos_6_score',
+                                        'pos_7_score',
+                                        'pos_8_score',
+                                        'pos_9_score',
+                                    ];
+                                    $scoreBreakdownTotal = 0;
+                                    $hasScoreBreakdown = false;
+                                    foreach ($scoreFields as $scoreField) {
+                                        $scorePart = $datarecord->{$scoreField};
+                                        if ($scorePart !== null && $scorePart !== '') {
+                                            $hasScoreBreakdown = true;
+                                            $scoreBreakdownTotal += (float)$scorePart;
+                                        }
+                                    }
+
+                                    if (($scoreRaw === null || $scoreRaw === '') && !$hasScoreBreakdown) {
+                                        echo '-';
+                                    } elseif ((float)$scoreRaw === 0.0 && !$hasScoreBreakdown) {
+                                        echo '-';
+                                    } elseif ((float)$scoreRaw === 0.0 && $hasScoreBreakdown) {
+                                        echo $scoreBreakdownTotal;
+                                    } else {
+                                        echo $scoreRaw;
+                                    }
                                 } else if($datarecord->Events['event_judging_type'] == 'soccer_kick') {
-                                    echo $datarecord->soccer_kick_best_kick.'m';
+                                    echo ($datarecord->soccer_kick_best_kick !== null && $datarecord->soccer_kick_best_kick !== '') ? ($datarecord->soccer_kick_best_kick.'m') : '-';
                                 } else if($datarecord->Events['event_judging_type'] == 'spellings') {
-                                    echo $datarecord->spelling_score;
+                                    echo ($datarecord->spelling_score !== null && $datarecord->spelling_score !== '') ? $datarecord->spelling_score : '-';
                                 } else if($datarecord->did_not_attend == 0) {
                                     echo "$datarecord->total_marks_obtained/$datarecord->total_marks_possible";
                                 } else {
@@ -118,6 +171,24 @@ $this->Evaluationquestions = TableRegistry::get('Evaluationquestions');
                                 </td>
                                 <td data-title="Withdrawn"><?php echo ($datarecord->withdraw_yes_no == 1) ? 'W' : ''; ?></td>
                                 <td data-title="Submitted Date"><?php echo $datarecord->created->format('M d, Y'); ?></td>
+                                <?php
+                                    $submittedTs = 0;
+                                    $submittedTimeDisplay = '-';
+                                    if (!empty($datarecord->created)) {
+                                        if (is_object($datarecord->created) && method_exists($datarecord->created, 'getTimestamp')) {
+                                            $submittedTs = (int)$datarecord->created->getTimestamp();
+                                            $submittedTimeDisplay = $datarecord->created->format('h:i:s A');
+                                        } else {
+                                            $submittedTs = strtotime((string)$datarecord->created);
+                                            if ($submittedTs !== false && $submittedTs > 0) {
+                                                $submittedTimeDisplay = date('h:i:s A', $submittedTs);
+                                            } else {
+                                                $submittedTs = 0;
+                                            }
+                                        }
+                                    }
+                                ?>
+                                <td data-title="Submitted Time" data-order="<?php echo $submittedTs; ?>"><?php echo $submittedTimeDisplay; ?></td>
                                 <td data-title="File">
                                 <?php
                                     $files = [
@@ -182,9 +253,24 @@ $this->Evaluationquestions = TableRegistry::get('Evaluationquestions');
                         <tr><td colspan="2">&nbsp;</td><td><b><?php echo $datarecord->total_marks_possible; ?></b></td><td><b><?php echo $datarecord->total_marks_obtained; ?></b></td></tr>
                     </table>
                     <?php } else if($datarecord->Events['event_judging_type'] == 'distances') { ?>
-                    <table class="table table-bordered">
+                    <table class="table table-bordered distance-attempts-table">
                         <tr><td>1st Attempt</td><td>2nd Attempt</td><td>3rd Attempt</td><td><b>Best Score</b></td></tr>
-                        <tr><td><?php echo $datarecord->distance_attempt_1 ?></td><td><?php echo $datarecord->distance_attempt_2 ?></td><td><?php echo $datarecord->distance_attempt_3 ?></td><td><b><?php echo $datarecord->distance_score ?></b></td></tr>
+                        <?php
+                            $distanceAttemptsPopup = [
+                                $datarecord->distance_attempt_1,
+                                $datarecord->distance_attempt_2,
+                                $datarecord->distance_attempt_3,
+                            ];
+                            $distanceAttemptsPopup = array_filter($distanceAttemptsPopup, function ($v) {
+                                return $v !== null && $v !== '';
+                            });
+                            $computedBestDistancePopup = !empty($distanceAttemptsPopup) ? max(array_map('floatval', $distanceAttemptsPopup)) : null;
+                            $storedDistanceScorePopup = ($datarecord->distance_score !== null && $datarecord->distance_score !== '') ? (float)$datarecord->distance_score : null;
+                            $displayBestDistance = ($storedDistanceScorePopup !== null && $storedDistanceScorePopup > 0)
+                                ? $datarecord->distance_score
+                                : (($computedBestDistancePopup !== null && $computedBestDistancePopup > 0) ? $computedBestDistancePopup : '-');
+                        ?>
+                        <tr><td><?php echo $datarecord->distance_attempt_1 ?></td><td><?php echo $datarecord->distance_attempt_2 ?></td><td><?php echo $datarecord->distance_attempt_3 ?></td><td><b><?php echo $displayBestDistance; ?></b></td></tr>
                     </table>
                     <?php } ?>
                 </div>
@@ -208,7 +294,7 @@ $(document).ready(function() {
         "scrollCollapse": false,
         "pageLength": 100,
         "deferRender": true,
-        order: [[11, 'desc']],
+        order: [[12, 'desc']],
     });
 
     function refreshJudgeEvalColumns() {

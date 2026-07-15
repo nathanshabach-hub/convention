@@ -33,7 +33,57 @@ class EventsubmissionsController extends AppController {
 		$this->loadModel("Books");
 		$this->loadModel("Crstudentevents");
 		$this->loadModel("Judgeevaluations");
+		$this->loadModel("Results");
+		$this->loadModel("Resultpositions");
+		$this->loadModel("Conventionseasons");
     }
+
+	// ── Silver Apple Award helpers ────────────────────────────────────
+	private function isSilverAppleEvent($eventD)
+	{
+		$name = strtolower(preg_replace('/\s+/',' ',trim((string)($eventD->event_name ?? ''))));
+		return in_array($name, ['silver apple award u16','silver apple award open'], true);
+	}
+
+	private function silverAppleBookTable()
+	{
+		// [book_id => [chapters, verses]] — matches books table IDs 1-63
+		return [
+			1=>[50,1533], 2=>[40,1213], 3=>[27,859],  4=>[36,1263], 5=>[34,959],
+			6=>[24,658],  7=>[21,618],  8=>[4,85],    9=>[31,810],  10=>[24,672],
+			11=>[22,816], 12=>[25,719], 13=>[29,941], 14=>[36,821], 15=>[10,280],
+			16=>[13,406], 17=>[10,167], 18=>[42,1049],19=>[12,222], 20=>[8,117],
+			21=>[66,1264],22=>[52,1363],23=>[5,154],  24=>[48,1273],25=>[12,357],
+			26=>[14,197], 27=>[3,73],   28=>[9,146],  29=>[1,21],   30=>[4,48],
+			31=>[7,105],  32=>[3,47],   33=>[3,56],   34=>[3,53],   35=>[2,38],
+			36=>[14,211], 37=>[4,55],   38=>[28,1071],39=>[16,678], 40=>[24,1151],
+			41=>[28,1007],42=>[16,433], 43=>[16,437], 44=>[13,239], 45=>[6,149],
+			46=>[6,155],  47=>[4,104],  48=>[4,95],   49=>[5,89],   50=>[3,47],
+			51=>[6,98],   52=>[4,83],   53=>[3,46],   54=>[1,25],   55=>[13,303],
+			56=>[5,108],  57=>[5,105],  58=>[3,61],   59=>[5,105],  60=>[1,13],
+			61=>[1,14],   62=>[1,25],   63=>[21,404],
+		];
+	}
+
+	private function silverAppleCalcPlace($bookIdsString)
+	{
+		$table         = $this->silverAppleBookTable();
+		$ids           = array_filter(array_map('intval', explode(',', $bookIdsString)));
+		$totalVerses   = 0;
+		$totalChapters = 0;
+
+		foreach ($ids as $bid) {
+			if (isset($table[$bid])) {
+				$totalChapters += $table[$bid][0];
+				$totalVerses   += $table[$bid][1];
+			}
+		}
+
+		if ($totalVerses <= 0)   return null;
+		if ($totalVerses >= 300) return 1;
+		if ($totalChapters > 1)  return 2;
+		return 3;
+	}
 	
 	public function viewlist() {
 
@@ -522,7 +572,64 @@ class EventsubmissionsController extends AppController {
 				//$this->prx($data);
 				
                 if ($this->Eventsubmissions->save($data)) {
-					
+
+					// ── Silver Apple: auto-calculate place and save result position ──
+					if ($this->isSilverAppleEvent($eventD)) {
+						$bookIdsSubmitted = trim((string)($data->book_ids ?? ''));
+						$place = $bookIdsSubmitted ? $this->silverAppleCalcPlace($bookIdsSubmitted) : null;
+						$pointsMap = [1 => 12, 2 => 10, 3 => 8];
+						$points = ($place && isset($pointsMap[$place])) ? $pointsMap[$place] : null;
+
+						if ($place) {
+							// Find or create the Results row for this event
+							$conventionSeasonD = $this->Conventionseasons->find()->where(['Conventionseasons.id' => $conventionRegD->conventionseason_id])->first();
+							$resultRow = $this->Results->find()->where([
+								'Results.conventionseason_id' => $conventionRegD->conventionseason_id,
+								'Results.convention_id'      => $conventionRegD->convention_id,
+								'Results.event_id'           => $eventD->id,
+							])->first();
+
+							if (!$resultRow) {
+								$resultRow = $this->Results->newEntity([]);
+								$resultRow->slug                 = 'result-sa-'.$conventionRegD->conventionseason_id.'-'.$eventD->id.'-'.time();
+								$resultRow->conventionseason_id  = $conventionRegD->conventionseason_id;
+								$resultRow->convention_id        = $conventionRegD->convention_id;
+								$resultRow->season_id            = $conventionRegD->season_id;
+								$resultRow->season_year          = $conventionRegD->season_year;
+								$resultRow->event_id             = $eventD->id;
+								$resultRow->event_id_number      = $eventD->event_id_number;
+								$resultRow->created              = date('Y-m-d H:i:s');
+								$resultRow->modified             = date('Y-m-d H:i:s');
+								$this->Results->save($resultRow);
+							}
+
+							// Remove existing resultposition for this submission if re-submitting
+							$this->Resultpositions->deleteAll(['Resultpositions.eventsubmission_id' => $data->id]);
+
+							$rp = $this->Resultpositions->newEntity([]);
+							$rp->slug                   = 'result-pos-sa-'.$data->id.'-'.time();
+							$rp->result_id              = $resultRow->id;
+							$rp->eventsubmission_id     = $data->id;
+							$rp->conventionregistration_id = $conventionRegD->id;
+							$rp->conventionseason_id    = $conventionRegD->conventionseason_id;
+							$rp->convention_id          = $conventionRegD->convention_id;
+							$rp->user_id                = $conventionRegD->user_id;
+							$rp->season_id              = $conventionRegD->season_id;
+							$rp->season_year            = $conventionRegD->season_year;
+							$rp->event_id               = $eventD->id;
+							$rp->event_id_number        = $eventD->event_id_number;
+							$rp->student_id             = $data->student_id;
+							$rp->division_id            = $eventD->division_id ?? null;
+							$rp->avg_marks              = null;
+							$rp->position               = $place;
+							$rp->points_obtained        = $points;
+							$rp->created                = date('Y-m-d H:i:s');
+							$rp->modified               = date('Y-m-d H:i:s');
+							$this->Resultpositions->save($rp);
+						}
+					}
+					// ─────────────────────────────────────────────────────────────────
+
 					$this->Flash->success('Events submission completed successfully.');
                     $this->redirect(['controller' => 'conventionregistrations', 'action' => 'packageregistration']);
                 }
@@ -943,56 +1050,50 @@ class EventsubmissionsController extends AppController {
 			
 			for($cntrE=1;$cntrE<=$total_records;$cntrE++)
 			{
-				$arrBestD = array();
-				
-				$distance_attempt_1			= $this->request->getData()['distance_attempt_1_'.$cntrE];
-				$distance_attempt_2			= $this->request->getData()['distance_attempt_2_'.$cntrE];
-				$distance_attempt_3			= $this->request->getData()['distance_attempt_3_'.$cntrE];
-				
-				$submission_id			= $this->request->getData()['submission_id_'.$cntrE];
+				$submission_id = $this->request->getData()['submission_id_'.$cntrE];
+
 				if(isset($this->request->getData()['withdrawn_'.$cntrE]))
-				{
 					$withdraw_yes_no = 1;
-				}
 				else
-				{
 					$withdraw_yes_no = 0;
+
+				// Soccer kick grid
+				$soccer_kick_best_kick  = $this->request->getData()['soccer_kick_best_kick_'.$cntrE];
+				$soccer_kick_all_kicks  = $this->request->getData()['soccer_kick_all_kicks_'.$cntrE];
+				$place                  = $this->request->getData()['place_'.$cntrE];
+
+				$soccer_kick_best_kick = (!empty($soccer_kick_best_kick) && is_numeric($soccer_kick_best_kick)) ? (int)$soccer_kick_best_kick : null;
+				$place = (!empty($place) && is_numeric($place)) ? (int)$place : null;
+
+				// Validate JSON
+				$decodedGrid = json_decode($soccer_kick_all_kicks, true);
+				if(!is_array($decodedGrid)) $soccer_kick_all_kicks = null;
+
+				// Keep legacy distance_attempt columns from grid data for backward compat
+				$distance_attempt_1 = $distance_attempt_2 = $distance_attempt_3 = null;
+				$bestScore = $soccer_kick_best_kick;
+				if(is_array($decodedGrid)) {
+					foreach([1,2,3] as $att) {
+						$attKey = (string)$att;
+						if(!empty($decodedGrid[$attKey]) && is_array($decodedGrid[$attKey])) {
+							$varName = 'distance_attempt_'.$att;
+							$$varName = max($decodedGrid[$attKey]);
+						}
+					}
 				}
-				
-				if(empty($distance_attempt_1))
-				{
-					$distance_attempt_1 = NULL;
-				}
-				else
-				{
-					$arrBestD[] = $distance_attempt_1;
-				}
-				
-				if(empty($distance_attempt_2))
-				{
-					$distance_attempt_2 = NULL;
-				}
-				else
-				{
-					$arrBestD[] = $distance_attempt_2;
-				}
-				
-				if(empty($distance_attempt_3))
-				{
-					$distance_attempt_3 = NULL;
-				}
-				else
-				{
-					$arrBestD[] = $distance_attempt_3;
-				}
-				
-				if(count($arrBestD))
-				{
-					$bestScore = max($arrBestD);
-				}
-				else
-				{
-					$bestScore = NULL;
+
+				if (($bestScore === null || $bestScore === '' || (float)$bestScore <= 0) &&
+					($distance_attempt_1 !== null || $distance_attempt_2 !== null || $distance_attempt_3 !== null)) {
+					$attemptCandidates = array_filter([
+						$distance_attempt_1,
+						$distance_attempt_2,
+						$distance_attempt_3,
+					], function ($v) {
+						return $v !== null && $v !== '';
+					});
+					if (!empty($attemptCandidates)) {
+						$bestScore = max(array_map('floatval', $attemptCandidates));
+					}
 				}
 				
 				
@@ -1013,6 +1114,9 @@ class EventsubmissionsController extends AppController {
 						'distance_attempt_1' 		=> $distance_attempt_1,
 						'distance_attempt_2' 		=> $distance_attempt_2,
 						'distance_attempt_3' 		=> $distance_attempt_3,
+						'soccer_kick_best_kick'		=> $soccer_kick_best_kick,
+						'soccer_kick_all_kicks'		=> $soccer_kick_all_kicks,
+						'place'						=> $place,
 						'withdraw_yes_no' 			=> $withdraw_yes_no,
 					], 
 					[
@@ -1043,6 +1147,9 @@ class EventsubmissionsController extends AppController {
 					$dataJ->distance_attempt_2				= $distance_attempt_2;
 					$dataJ->distance_attempt_3				= $distance_attempt_3;
 					$dataJ->distance_score					= $bestScore;
+					$dataJ->soccer_kick_best_kick			= $soccer_kick_best_kick;
+					$dataJ->soccer_kick_all_kicks			= $soccer_kick_all_kicks;
+					$dataJ->place							= $place;
 					
 					$dataJ->withdraw_yes_no					= $withdraw_yes_no;
 					$dataJ->created 						= date('Y-m-d H:i:s');

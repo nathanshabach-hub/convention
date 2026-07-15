@@ -335,3 +335,90 @@ $(document).ready(function () {
 	})
 });
 </script>
+
+<script>
+/* Phase 3c: Offline-aware evaluation submit */
+(function () {
+  var form = document.getElementById('judgingform');
+  if (!form) return;
+
+  var redirectUrl = <?php echo json_encode($this->Url->build(['controller' => 'conventionregistrations', 'action' => 'judgeevententries', $convRegD->slug, $eventD->slug])); ?>;
+
+  form.addEventListener('submit', function (e) {
+    if (navigator.onLine) return; // online: let normal submit through
+
+    e.preventDefault();
+
+    var submitBtn = form.querySelector('button[type="submit"]');
+    var origLabel = submitBtn ? submitBtn.textContent : '';
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Saving offline\u2026'; }
+
+    var formData = new FormData(form);
+    var payload = {};
+    formData.forEach(function (value, key) {
+      if (payload[key] !== undefined) {
+        if (!Array.isArray(payload[key])) payload[key] = [payload[key]];
+        payload[key].push(value);
+      } else {
+        payload[key] = value;
+      }
+    });
+
+    if (!window.indexedDB) {
+      alert('Your browser does not support offline storage. Please reconnect and try again.');
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = origLabel; }
+      return;
+    }
+
+    var openReq = indexedDB.open('acp_offline', 1);
+    openReq.onupgradeneeded = function (ev) {
+      var db = ev.target.result;
+      if (!db.objectStoreNames.contains('pending_evaluations')) {
+        db.createObjectStore('pending_evaluations', { keyPath: 'id', autoIncrement: true });
+      }
+    };
+    openReq.onsuccess = function (ev) {
+      var db = ev.target.result;
+      var tx = db.transaction('pending_evaluations', 'readwrite');
+      tx.objectStore('pending_evaluations').add({
+        url: form.action || window.location.href,
+        method: 'POST',
+        payload: payload,
+        queuedAt: new Date().toISOString()
+      });
+      tx.oncomplete = function () {
+        db.close();
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.ready.then(function (reg) {
+            if ('sync' in reg) reg.sync.register('sync-evaluations').catch(function () {});
+          });
+        }
+        showOfflineSavedUI(redirectUrl);
+      };
+      tx.onerror = function () {
+        db.close();
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = origLabel; }
+        alert('Could not save offline. Please reconnect and try again.');
+      };
+    };
+    openReq.onerror = function () {
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = origLabel; }
+      alert('Offline storage unavailable. Please reconnect and try again.');
+    };
+  });
+
+  function showOfflineSavedUI(backUrl) {
+    var shell = document.querySelector('main') || document.body;
+    var box = document.createElement('div');
+    box.style.cssText = 'background:#e8f7ec;border:2px solid #51a66e;border-radius:14px;padding:32px 24px;margin:32px auto;max-width:480px;text-align:center;';
+    box.innerHTML =
+      '<div style="font-size:44px;margin-bottom:12px;">\uD83D\uDCE5</div>' +
+      '<h3 style="color:#1b5f36;margin:0 0 10px;">Evaluation saved offline</h3>' +
+      '<p style="color:#2e6e47;margin:0 0 20px;font-size:0.95rem;">Your scores are saved on this device and will sync automatically when internet is restored.</p>' +
+      '<a href="' + backUrl + '" class="btn btn-success" style="font-weight:700;">\u2190 Back to event entries</a>';
+    shell.innerHTML = '';
+    shell.appendChild(box);
+    window.scrollTo(0, 0);
+  }
+})();
+</script>

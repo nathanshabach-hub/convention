@@ -209,6 +209,18 @@
 	background: #5a7695;
 	box-shadow: inset 0 0 0 2px #d8e3f0;
 }
+.jr-table tbody tr.jr-event-full {
+	background: #fde8e8;
+	box-shadow: inset 4px 0 0 #d9534f;
+}
+.jr-table tbody tr.jr-event-full:hover {
+	background: #fbdede;
+}
+.jr-table tbody tr.jr-event-full .jr-event-name,
+.jr-table tbody tr.jr-event-full td {
+	color: #7a1f1a;
+	font-weight: 600;
+}
 .jr-help {
 	display: block;
 	margin-top: 10px;
@@ -339,8 +351,9 @@
 								$occupiedSlots = min(3, max(0, $eventSelectedCount));
 								$otherOccupiedSlots = $isChecked ? max(0, $occupiedSlots - 1) : $occupiedSlots;
 								$currentJudgeSlot = $isChecked ? min(3, $otherOccupiedSlots + 1) : 0;
+								$isFullyOccupied = ($occupiedSlots >= 3 && !$isChecked);
 							?>
-								<tr>
+								<tr class="<?php echo $isFullyOccupied ? 'jr-event-full' : ''; ?>">
 									<td><?php echo $counter; ?></td>
 									<td><?php echo h($eventrec->event_id_number); ?></td>
 									<td class="jr-event-name"><?php echo h($eventrec->event_name); ?></td>

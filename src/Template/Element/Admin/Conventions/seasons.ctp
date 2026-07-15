@@ -60,7 +60,7 @@
 									echo $this->Html->link('<i class="fa fa-bullseye"></i>', ['controller' => 'results', 'action' => 'overallpoints',$datarecord->slug,$slug], [ 'escape' => false, 'title' => 'Overall Points', 'class'=>'btn btn-warning btn-xs']);
 									
 									echo $this->Html->link('<i class="fa fa-trophy"></i>', ['controller' => 'results', 'action' => 'divisionwinners',$datarecord->slug,$slug], [ 'escape' => false, 'title' => 'Division Winners', 'class'=>'btn btn-warning btn-xs']);
-									
+
 									echo $this->Html->link('<i class="fa fa-heart"></i>', ['controller' => 'heartevents', 'action' => 'listheartevents',$datarecord->slug,$slug], [ 'escape' => false, 'title' => 'Events of the heart students', 'class'=>'btn btn-primary btn-xs']);
 									
 									echo $this->Html->link('<i class="fa fa-gavel"></i>', ['controller' => 'conventions', 'action' => 'brokenrecordcertificate',$datarecord->slug,$slug], [ 'escape' => false, 'title' => 'Broken record certificate', 'class'=>'btn btn-primary btn-xs']);

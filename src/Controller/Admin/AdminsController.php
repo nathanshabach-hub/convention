@@ -135,12 +135,13 @@ class AdminsController extends AppController {
                     $messageToSend = str_replace($toRepArray, $fromRepArray, $emailtemplateMessage['template']);
 
                     $email = new Email();
-                    $email->template('default', 'admintemplate');
-                    $email->emailFormat('html')
-                        ->to($emailId)
-                        ->from([MAIL_FROM => SITE_TITLE])
-                        ->subject($subjectToSend)
-                        ->viewVars(['content_for_layout' => $messageToSend])
+                    $email->setTemplate('default')
+                            ->setLayout('admintemplate');
+                    $email->setEmailFormat('html')
+                        ->setTo($emailId)
+                        ->setFrom([MAIL_FROM => SITE_TITLE])
+                        ->setSubject($subjectToSend)
+                        ->setViewVars(['content_for_layout' => $messageToSend])
                         ->send();
 
                     $this->Flash->success('New admin password sent to admin email address.');
@@ -198,7 +199,17 @@ class AdminsController extends AppController {
 			
             $this->set('conv_season_slug', $convSD->slug);
 			
-            $total_students = $this->Conventionregistrationstudents->find()->where(["convention_id"=> $convSD->convention_id,"season_id"=> $convSD->season_id,"season_year"=> $convSD->season_year])->count();
+            $total_students = $this->Conventionregistrationstudents->find()
+                ->select(['student_id'])
+                ->where([
+                    "convention_id" => $convSD->convention_id,
+                    "season_id" => $convSD->season_id,
+                    "season_year" => $convSD->season_year,
+                    "student_id IS NOT" => null,
+                    "student_id >" => 0,
+                ])
+                ->distinct(['student_id'])
+                ->count();
             $this->set('total_students', $total_students);
 			
             $total_teachers_parents = $this->Conventionregistrationteachers->find()->where(["convention_id"=> $convSD->convention_id,"season_id"=> $convSD->season_id,"season_year"=> $convSD->season_year])->count();
@@ -970,6 +981,70 @@ class AdminsController extends AppController {
 
         $adminInfo = $this->Admins->find()->where(['Admins.id' => $adminId])->first();
         $this->set('adminInfo', $adminInfo);
+    }
+
+    public function videos() {
+        $this->viewBuilder()->setLayout('admin');
+        $this->set('title', ADMIN_TITLE . 'Dashboard Videos');
+
+        $adminId = $this->request->getSession()->read('admin_id');
+        if (!$adminId) {
+            return $this->redirect(['action' => 'login']);
+        }
+
+        $settingsInfo = $this->Settings->find()->where(['Settings.id' => 1])->first();
+        if (!$settingsInfo) {
+            $this->Flash->error('Settings record not found.');
+            return $this->redirect(['action' => 'dashboard']);
+        }
+
+        $videoLinks = [];
+        if (!empty($settingsInfo->video_links_json)) {
+            $decodedLinks = json_decode((string)$settingsInfo->video_links_json, true);
+            if (is_array($decodedLinks)) {
+                $videoLinks = array_values(array_filter(array_map('trim', $decodedLinks), static function ($value) {
+                    return $value !== '';
+                }));
+            }
+        }
+
+        if (empty($videoLinks)) {
+            for ($i = 1; $i <= 9; $i++) {
+                $fieldName = 'video_link_' . $i;
+                $fieldValue = isset($settingsInfo->{$fieldName}) ? trim((string)$settingsInfo->{$fieldName}) : '';
+                if ($fieldValue !== '') {
+                    $videoLinks[] = $fieldValue;
+                }
+            }
+        }
+
+        if ($this->request->is('post')) {
+            $settingsData = (array)$this->request->getData('Settings', []);
+            $submittedVideoLinks = isset($settingsData['video_links']) && is_array($settingsData['video_links']) ? $settingsData['video_links'] : [];
+            $submittedVideoLinks = array_values(array_filter(array_map('trim', $submittedVideoLinks), static function ($value) {
+                return $value !== '';
+            }));
+
+            $fields = [
+                'video_links_json' => json_encode($submittedVideoLinks, JSON_UNESCAPED_SLASHES),
+            ];
+
+            for ($i = 1; $i <= 9; $i++) {
+                $fieldName = 'video_link_' . $i;
+                $fields[$fieldName] = isset($submittedVideoLinks[$i - 1]) ? $submittedVideoLinks[$i - 1] : null;
+            }
+
+            $fields['modified'] = date('Y-m-d H:i:s');
+            $this->Settings->updateAll($fields, ['Settings.id' => 1]);
+
+            $this->Flash->success('Dashboard video links updated successfully.');
+            return $this->redirect(['action' => 'videos']);
+        }
+
+        $this->set('settingsInfo', $settingsInfo);
+        $this->set('videoLinks', $videoLinks);
+        $this->set('manageConfig', '1');
+        $this->set('videos', '1');
     }
 
     /**

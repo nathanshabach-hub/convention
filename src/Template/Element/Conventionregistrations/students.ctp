@@ -145,13 +145,20 @@ $this->Transactionstudents = TableRegistry::get('Transactionstudents');
                                 
                                 <td data-title="Action" class="cr-action-cell">
                                     <?php
-                                    if(!$checkStudentPaymentStatus)
+                                    if (!empty($resultsReleased))
                                     {
-                                        echo $this->Html->link('Remove Student', ['controller' => 'conventionregistrations', 'action' => 'removestudent',$datarecord->slug], [ 'escape' => false, 'title' => 'Remove', 'class'=>'cr-action-btn cr-action-remove', 'confirm' => 'Are you sure you want to remove this student from this convention registration ?']);
+                                        echo $this->Html->link('<i class="fa fa-file-pdf-o"></i>', ['controller' => 'judgeevaluations', 'action' => 'indrespackprint',$datarecord->slug], [ 'escape' => false, 'title' => 'Download Individual Result Package', 'target'=>'_blank', 'class' => 'cr-action-btn cr-action-result']);
                                     }
                                     else
                                     {
-                                        echo $this->Html->link('Result PDF', ['controller' => 'judgeevaluations', 'action' => 'indrespackprint',$datarecord->slug], [ 'escape' => false, 'title' => 'Download Individual Result Package', 'target'=>'_blank', 'class' => 'cr-action-btn cr-action-result']);  
+                                        if(!$checkStudentPaymentStatus)
+                                        {
+                                            echo $this->Html->link('Remove Student', ['controller' => 'conventionregistrations', 'action' => 'removestudent',$datarecord->slug], [ 'escape' => false, 'title' => 'Remove', 'class'=>'cr-action-btn cr-action-remove', 'confirm' => 'Are you sure you want to remove this student from this convention registration ?']);
+                                        }
+                                        else
+                                        {
+                                            echo '<span class="cr-action-btn cr-action-result" style="opacity:.6;cursor:not-allowed;">Result Locked</span>';
+                                        }
                                     }
                                     ?>
                                 </td>

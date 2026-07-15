@@ -8,6 +8,65 @@ $totalEvents = count($raceGroupsArray);
 $heatMap = isset($heatMap) && is_array($heatMap) ? $heatMap : [];
 $submissionsByEvent = isset($submissionsByEvent) && is_array($submissionsByEvent) ? $submissionsByEvent : [];
 $printedBlockCount = 0;
+$seasonYearForAge = (isset($convSeasonD->season_year) && is_numeric($convSeasonD->season_year)) ? (int)$convSeasonD->season_year : null;
+
+// Pre-calculate total printable race blocks (including split heats) for "Race X of Y" labels.
+$totalPrintableRaces = 0;
+foreach ($raceGroupsArray as $previewRaceGroup) {
+    $previewGroupEvents = isset($previewRaceGroup['events']) && is_array($previewRaceGroup['events']) ? $previewRaceGroup['events'] : [];
+    if (empty($previewGroupEvents)) {
+        continue;
+    }
+
+    $previewIsCombined = count($previewGroupEvents) > 1;
+    $previewRows = [];
+    $previewHeatSizeCandidates = [];
+
+    foreach ($previewGroupEvents as $previewEventRecord) {
+        $previewEventRows = isset($submissionsByEvent[(int)$previewEventRecord->event_id]) ? $submissionsByEvent[(int)$previewEventRecord->event_id] : [];
+        $previewRows = array_merge($previewRows, $previewEventRows);
+
+        $previewCseId = (int)$previewEventRecord->id;
+        if (isset($heatMap[$previewCseId]) && (int)$heatMap[$previewCseId] > 0) {
+            $previewHeatSize = (int)$heatMap[$previewCseId];
+            $previewEntryCount = count($previewEventRows);
+            if (!$previewIsCombined || $previewHeatSize !== $previewEntryCount) {
+                $previewHeatSizeCandidates[] = $previewHeatSize;
+            }
+        }
+    }
+
+    $previewUniqueRows = [];
+    $previewSeenStudents = [];
+    foreach ($previewRows as $previewSubmission) {
+        if (!empty($previewSubmission->student_id) && isset($previewSeenStudents[$previewSubmission->student_id])) {
+            continue;
+        }
+        if (!empty($previewSubmission->student_id)) {
+            $previewSeenStudents[$previewSubmission->student_id] = true;
+        }
+        $previewUniqueRows[] = $previewSubmission;
+    }
+
+    $previewEntriesCount = count($previewUniqueRows);
+    if ($previewEntriesCount <= 0) {
+        continue;
+    }
+
+    if (!empty($previewHeatSizeCandidates)) {
+        $previewHeatSize = max($previewHeatSizeCandidates);
+    } elseif ($previewIsCombined) {
+        $previewHeatSize = $previewEntriesCount;
+    } else {
+        $previewHeatSize = (int)(isset($runnersPerHeat) ? $runnersPerHeat : 6);
+    }
+
+    if (!empty($previewHeatSize) && $previewHeatSize > 0 && $previewEntriesCount > $previewHeatSize) {
+        $totalPrintableRaces += (int)ceil($previewEntriesCount / $previewHeatSize);
+    } else {
+        $totalPrintableRaces++;
+    }
+}
 ?>
 
 <style>
@@ -24,6 +83,17 @@ body {
 .print-head h2 {
     margin: 0 0 6px;
     font-size: 24px;
+}
+.race-badge {
+    display: inline-block;
+    margin: 0 0 8px;
+    padding: 4px 10px;
+    border: 2px solid #000;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    background: #f3f3f3;
 }
 .meta-row {
     display: flex;
@@ -171,10 +241,12 @@ body {
         $formatLabel = $isHeated ? "Heat {$heatNumber} of {$totalHeats}" : 'FINAL';
         $heatEntries = count($heatRows);
         $needsPageBreak = ($printedBlockCount > 0);
+        $raceNumber = $printedBlockCount + 1;
         ?>
 
         <div class="event-block"<?php echo $needsPageBreak ? ' style="page-break-before: always;"' : ''; ?>>
             <div class="print-head">
+                <div class="race-badge">Race <?php echo h($raceNumber); ?> of <?php echo h($totalPrintableRaces); ?></div>
                 <h2><?php echo h($displayEventName); ?> (<?php echo h($displayEventCodes); ?>)</h2>
                 <div class="meta-row">
                     <div><strong>Qualifying Time:</strong> <?php echo h($qualifyingTime); ?></div>
@@ -188,7 +260,7 @@ body {
                     <tr>
                         <th style="width:70px;">Lane</th>
                         <th>Name</th>
-                        <th style="width:110px;">Year of Birth</th>
+                        <th style="width:110px;">Age</th>
                         <th>School</th>
                         <th style="width:100px;">Time</th>
                         <th style="width:100px;">Place</th>
@@ -196,10 +268,10 @@ body {
                 </thead>
                 <tbody>
                     <?php if ($heatEntries > 0) { ?>
-                        <?php foreach ($heatRows as $submission) { ?>
+                        <?php foreach ($heatRows as $laneIndex => $submission) { ?>
                             <?php
                             $studentName = 'N/A';
-                            $birthYear = '';
+                            $ageDisplay = '';
                             $schoolName = 'N/A';
 
                             if (!empty($submission->student_id) && !empty($submission->Students)) {
@@ -208,7 +280,14 @@ body {
                                     (isset($submission->Students['middle_name']) ? $submission->Students['middle_name'] : '') . ' ' .
                                     (isset($submission->Students['last_name']) ? $submission->Students['last_name'] : '')
                                 );
-                                $birthYear = isset($submission->Students['birth_year']) ? (string)$submission->Students['birth_year'] : '';
+
+                                $birthYearRaw = isset($submission->Students['birth_year']) ? $submission->Students['birth_year'] : null;
+                                if ($seasonYearForAge !== null && is_numeric($birthYearRaw)) {
+                                    $calculatedAge = $seasonYearForAge - (int)$birthYearRaw;
+                                    if ($calculatedAge >= 0) {
+                                        $ageDisplay = (string)$calculatedAge;
+                                    }
+                                }
                             }
 
                             if (!empty($submission->Users)) {
@@ -263,9 +342,9 @@ body {
                             }
                             ?>
                             <tr>
-                                <td><span class="blank-box"></span></td>
+                                <td><?php echo (int)$laneIndex + 1; ?></td>
                                 <td><?php echo h($studentName); ?></td>
-                                <td><?php echo h($birthYear); ?></td>
+                                <td><?php echo h($ageDisplay); ?></td>
                                 <td><?php echo h($schoolName); ?></td>
                                 <td></td>
                                 <td></td>

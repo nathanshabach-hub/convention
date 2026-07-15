@@ -4,7 +4,7 @@
     });
 </script>
 
-<div class="content-wrapper">
+<div class="content-wrapper admin-form-page admin-brokenrecordcertificate-page">
     <section class="content-header">
       <h1>
          Broken Record Certificate -  <?php echo $conventionD->name; ?> (<?php echo $conventionSD->season_year; ?>)
@@ -20,15 +20,17 @@
     <section class="content">
      <div class="box box-info">
             <div class="box-header with-border">
-                <h3 class="box-title">&nbsp;</h3>
+                <h3 class="box-title">Broken Record Details</h3>
             </div>
             <div class="ersu_message"> <?php echo $this->Flash->render() ?> </div>
             <?php //echo $this->Form->create(NULL, ['id'=>'adminForm', 'type' => 'file']); ?>
             <?php echo $this->Form->create(null, array('url' => array('controller' => 'conventions', 'action' => 'brokenrecordcertificatepdf',$slug_convention_season,$slug_convention),'id' => 'adminForm')); ?>
                 <div class="form-horizontal">
                     <div class="box-body">
+
+					<div class="admin-form-note">Choose the event and recipient details to generate a broken record certificate.</div>
 					
-					<div class="form-group">
+					<div class="form-group compact-field">
                       <label class="col-sm-2 control-label">Choose Event <span class="require">*</span></label>
                       <div class="col-sm-10">
 						  <?php echo $this->Form->select('Conventionseasons.event_id', $eventNI, ['id' => 'event_id', 'label' => false, 'div' => false, 'class' => 'form-control required', 'autocomplete' => 'off', 'empty' => 'Choose Event', 'style' => 'margin-bottom:2px;']); ?>
@@ -40,14 +42,14 @@
                       </div>
                     </div>
 					
-					<div class="form-group">
+					<div class="form-group compact-field">
                       <label class="col-sm-2 control-label">Student Name <span class="require">*</span></label>
                       <div class="col-sm-10">
                           <?php echo $this->Form->input('Conventionseasons.student_name', ['id'=>'student_name', 'label'=>false, 'type'=>'text',  'div'=>false, 'class'=>'form-control required', 'placeholder'=>'', 'autocomplete'=>'off']); ?>
                       </div>
                     </div>
 					
-					<div class="form-group">
+					<div class="form-group compact-field">
                       <label class="col-sm-2 control-label">School Name <span class="require">*</span></label>
                       <div class="col-sm-10">
                           <?php echo $this->Form->input('Conventionseasons.school_name', ['label'=>false, 'type'=>'text',  'div'=>false, 'class'=>'form-control required']); ?>

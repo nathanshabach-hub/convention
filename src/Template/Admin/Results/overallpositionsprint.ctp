@@ -7,7 +7,7 @@
             <div class="ersu_message"> <?php echo $this->Flash->render() ?></div>
              
             <div class="m_content" id="listID">
-                <?php echo $this->element("Admin/Results/overallpositions"); ?>
+                <?php echo $this->element("Admin/Results/overallpositions", ['showSearch' => false]); ?>
             </div>
             
         </div>

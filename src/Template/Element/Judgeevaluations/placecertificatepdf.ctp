@@ -8,22 +8,10 @@ $signatureImgPlace 	= HTTP_PATH.'/img/front/certificates/participation_certifica
 if(count($placeCertData)>0)
 {
 
-foreach($placeCertData as $placecert)
+foreach($placeCertData as $placecertIndex => $placecert)
 {
 ?>
-<!DOCTYPE html>
-<html lang="en" class="h-100">
-	<head>
-		<meta charset="utf-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-		<link rel="shortcut icon" type="image/x-icon" href="images/favicon.png">
-		<title>Place Certificate :: <?php echo $arrCertData['convention_name']; ?> - <?php echo $arrCertData['season_year']; ?> For <?php echo $arrCertData['student_name']; ?></title>
-		<!-- Bootstrap -->
-		<link href="https://fonts.googleapis.com/css2?family=Pinyon+Script&display=swap" rel="stylesheet">
-	</head>
-	<body style="padding: 0px; margin:0px;margin-left:1%;margin-right: 1%;font-family:Arial,sans-serif,'Open Sans';font-weight:500;width: 98%; border: 0px solid #25266c;">
+	<div style="padding: 0px; margin:0px;margin-left:1%;margin-right: 1%;font-family:Arial,sans-serif,'Open Sans';font-weight:500;width: 98%; border: 0px solid #25266c;">
 		<div class="container" style="max-width:100%;margin:0px auto;background-color: #fff; padding: 1px; border:1px solid #25266c;">
 			<div class="maincontainer" style="max-width: 100%;background: #fff;margin:0px auto;border:1px solid #25266c;">
 				<div class="header" style="width: 100%;display: block;padding: 0px 0px 0px;">
@@ -95,12 +83,14 @@ foreach($placeCertData as $placecert)
 				</div>
 			</div>
 		</div>
-	</body>
+	</div>
 <?php
+	if($placecertIndex < (count($placeCertData) - 1))
+	{
+		echo '<div class="page-break"></div>';
+	}
 }
 ?>
-
-</html>
 <?php
 }
 ?>

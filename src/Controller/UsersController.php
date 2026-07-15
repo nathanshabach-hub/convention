@@ -391,13 +391,14 @@ class UsersController extends AppController {
                         //echo $messageToSend; exit;
                         
                         $email = new Email();
-                        $email->template('default', 'admintemplate')
-                            ->emailFormat('html')
-                            ->to($emailId)
-                            ->cc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
-                            ->from([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-                            ->subject($subjectToSend)
-                            ->viewVars(['content_for_layout' => $messageToSend])
+                        $email->setTemplate('default')
+                            ->setLayout('admintemplate')
+                            ->setEmailFormat('html')
+                            ->setTo($emailId)
+                            ->setCc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
+                            ->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
+                            ->setSubject($subjectToSend)
+                            ->setViewVars(['content_for_layout' => $messageToSend])
                             ->send();
 
                         $this->Flash->success('We have successfully sent you reset password link. Please click that link and reset your password.');
@@ -1136,13 +1137,14 @@ class UsersController extends AppController {
                     //echo $messageToSend;exit;
                     
                     $email = new Email();
-                    $email->template('default', 'admintemplate')
-                        ->emailFormat('html')
-                        ->to($emailId)
-                        //->cc(HEADERS_CC)
-                        ->from([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-                        ->subject($subjectToSend)
-                        ->viewVars(['content_for_layout' => $messageToSend])
+                    $email->setTemplate('default')
+                            ->setLayout('admintemplate')
+                        ->setEmailFormat('html')
+                        ->setTo($emailId)
+                        //->setCc(HEADERS_CC)
+                        ->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
+                        ->setSubject($subjectToSend)
+                        ->setViewVars(['content_for_layout' => $messageToSend])
                         ->send();
                     
                     
@@ -1291,7 +1293,7 @@ class UsersController extends AppController {
         
         $this->paginate = [
             'contain' => ['Schools'],
-            'limit' => 30,
+            'limit' => 1000,
             'order' => ['Users.first_name' => 'ASC','Users.middle_name' => 'ASC','Users.last_name' => 'ASC']
         ];
         $this->set('users', $this->paginate($query));
@@ -1600,13 +1602,14 @@ class UsersController extends AppController {
                     //echo $messageToSend;exit;
                     
                     $email = new Email();
-                    $email->template('default', 'admintemplate')
-                        ->emailFormat('html')
-                        ->to($emailId)
-                        ->cc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
-                        ->from([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-                        ->subject($subjectToSend)
-                        ->viewVars(['content_for_layout' => $messageToSend])
+                    $email->setTemplate('default')
+                            ->setLayout('admintemplate')
+                        ->setEmailFormat('html')
+                        ->setTo($emailId)
+                        ->setCc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
+                        ->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
+                        ->setSubject($subjectToSend)
+                        ->setViewVars(['content_for_layout' => $messageToSend])
                         ->send();
                     
                     $this->Flash->success('Your account has been successfully created. Please check your email for your activation link. If you do not receive it within a few minutes, please check your spam folder or contact our support team.');
@@ -1645,13 +1648,14 @@ class UsersController extends AppController {
                     //echo $messageToSend;exit;
                     
                     $email = new Email();
-                    $email->template('default', 'admintemplate')
-                        ->emailFormat('html')
-                        ->to(ACCOUNTS_TEAM_ANOTHER_EMAIL)
-                        //->cc(HEADERS_CC)
-                        ->from([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-                        ->subject($subjectToSend)
-                        ->viewVars(['content_for_layout' => $messageToSend])
+                    $email->setTemplate('default')
+                            ->setLayout('admintemplate')
+                        ->setEmailFormat('html')
+                        ->setTo(ACCOUNTS_TEAM_ANOTHER_EMAIL)
+                        //->setCc(HEADERS_CC)
+                        ->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
+                        ->setSubject($subjectToSend)
+                        ->setViewVars(['content_for_layout' => $messageToSend])
                         ->send();
                     
                     
@@ -1755,12 +1759,13 @@ class UsersController extends AppController {
                     //echo $messageToSend;exit;
                     
                     $email = new Email();
-                    $email->template('default', 'admintemplate')
-                        ->emailFormat('html')
-                        ->to(ACCOUNTS_TEAM_ANOTHER_EMAIL)
-                        ->from([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-                        ->subject($subjectToSend)
-                        ->viewVars(['content_for_layout' => $messageToSend])
+                    $email->setTemplate('default')
+                            ->setLayout('admintemplate')
+                        ->setEmailFormat('html')
+                        ->setTo(ACCOUNTS_TEAM_ANOTHER_EMAIL)
+                        ->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
+                        ->setSubject($subjectToSend)
+                        ->setViewVars(['content_for_layout' => $messageToSend])
                         ->send();
                     
                     $this->Flash->success('Your request to apply for judge has been submitted successfully. Please wait while admin review and approve/reject.');

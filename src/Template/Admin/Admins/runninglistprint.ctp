@@ -5,6 +5,7 @@ $this->Crstudentevents = TableRegistry::get('Crstudentevents');
 
 $eventD = $conventionSeasonEvent->Events;
 $qualifyingTime = !empty($conventionSeasonEvent->qualifying_time_score) ? date('i:s', strtotime($conventionSeasonEvent->qualifying_time_score)) : 'N/A';
+$seasonYearForAge = (isset($convSeasonD->season_year) && is_numeric($convSeasonD->season_year)) ? (int)$convSeasonD->season_year : null;
 
 $uniqueRows = [];
 $seenStudents = [];
@@ -118,7 +119,7 @@ body {
             <tr>
                 <th style="width:70px;">Lane</th>
                 <th>Name</th>
-                <th style="width:110px;">Year of Birth</th>
+                <th style="width:110px;">Age</th>
                 <th>School</th>
                 <th style="width:100px;">Time</th>
                 <th style="width:100px;">Place</th>
@@ -126,10 +127,10 @@ body {
         </thead>
         <tbody>
             <?php if ($heatEntries > 0) { ?>
-                <?php foreach ($heatRows as $submission) { ?>
+                <?php foreach ($heatRows as $laneIndex => $submission) { ?>
                     <?php
                     $studentName = 'N/A';
-                    $birthYear = '';
+                    $ageDisplay = '';
                     $schoolName = 'N/A';
 
                     if (!empty($submission->student_id) && !empty($submission->Students)) {
@@ -138,7 +139,14 @@ body {
                             (isset($submission->Students['middle_name']) ? $submission->Students['middle_name'] : '') . ' ' .
                             (isset($submission->Students['last_name']) ? $submission->Students['last_name'] : '')
                         );
-                        $birthYear = isset($submission->Students['birth_year']) ? (string)$submission->Students['birth_year'] : '';
+
+                        $birthYearRaw = isset($submission->Students['birth_year']) ? $submission->Students['birth_year'] : null;
+                        if ($seasonYearForAge !== null && is_numeric($birthYearRaw)) {
+                            $calculatedAge = $seasonYearForAge - (int)$birthYearRaw;
+                            if ($calculatedAge >= 0) {
+                                $ageDisplay = (string)$calculatedAge;
+                            }
+                        }
                     }
 
                     if (!empty($submission->Users)) {
@@ -190,9 +198,9 @@ body {
                     }
                     ?>
                     <tr>
-                        <td><span class="blank-box"></span></td>
+                        <td><?php echo (int)$laneIndex + 1; ?></td>
                         <td><?php echo h($studentName); ?></td>
-                        <td><?php echo h($birthYear); ?></td>
+                        <td><?php echo h($ageDisplay); ?></td>
                         <td><?php echo h($schoolName); ?></td>
                         <td></td>
                         <td></td>

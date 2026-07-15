@@ -118,7 +118,10 @@ function submitBreach() {
 					<th class="sorting_paging">Breach</th>
 					<th class="sorting_paging">Command</th>
 					<th class="sorting_paging">Done</th>
-					<th class="sorting_paging">Score</th>
+					<th class="sorting_paging">Total Score</th>
+					<?php if(!empty($isBiblePlacingEvent)) { ?>
+					<th class="sorting_paging">Place</th>
+					<?php } ?>
 					<th class="sorting_paging">Action</th>
 						</tr>
 					</thead>
@@ -329,15 +332,44 @@ function submitBreach() {
 					?>
 				</td>
 				
-				<td data-title="Score" style="text-align:center;">
+				<td data-title="Total Score" style="text-align:center;">
 				<?php
+				$saveScoreUrl = $this->Url->build(['controller' => 'conventionregistrations', 'action' => 'savejudgetotalscore', $conv_reg_slug, $datarecord->slug]);
+				$totalScore = '';
+
+				if($getScores)
+				{
+					if (isset($getScores->total_marks_obtained) && $getScores->total_marks_obtained !== '' && $getScores->total_marks_obtained !== null)
+					{
+						$totalScore = $getScores->total_marks_obtained;
+					}
+					else if (isset($getScores->all_pos_score) && $getScores->all_pos_score !== '' && $getScores->all_pos_score !== null)
+					{
+						$totalScore = $getScores->all_pos_score;
+					}
+					else if (isset($getScores->spelling_score) && $getScores->spelling_score !== '' && $getScores->spelling_score !== null)
+					{
+						$totalScore = $getScores->spelling_score;
+					}
+					else if (isset($getScores->soccer_kick_best_kick) && $getScores->soccer_kick_best_kick !== '' && $getScores->soccer_kick_best_kick !== null)
+					{
+						$totalScore = $getScores->soccer_kick_best_kick;
+					}
+				}
+
 				if(!$getScores)
 				{
-					echo '<span style="color:#aaa;">—</span>';
+					echo '<form method="post" action="'.$saveScoreUrl.'" class="acp-offline-update-form" data-update-type="total_score" data-submission-slug="'.h($datarecord->slug).'" style="display:flex;gap:6px;align-items:center;justify-content:center;margin:0;">';
+					echo '<input type="number" step="0.01" min="0" name="total_score" value="" style="width:72px;padding:4px 6px;border:1px solid #ccc;border-radius:6px;font-size:12px;" />';
+					echo '<button type="submit" class="btn btn-sm btn-primary" style="font-size:11px;padding:4px 8px;">Save</button>';
+					echo '</form>';
 				}
 				else if($getScores->did_not_attend == 0)
 				{
-					echo '<span class="jee-score-badge">'.$getScores->total_marks_obtained.'/'.$getScores->total_marks_possible.'</span>';
+					echo '<form method="post" action="'.$saveScoreUrl.'" class="acp-offline-update-form" data-update-type="total_score" data-submission-slug="'.h($datarecord->slug).'" style="display:flex;gap:6px;align-items:center;justify-content:center;margin:0;">';
+					echo '<input type="number" step="0.01" min="0" name="total_score" value="'.h((string)$totalScore).'" style="width:72px;padding:4px 6px;border:1px solid #ccc;border-radius:6px;font-size:12px;" />';
+					echo '<button type="submit" class="btn btn-sm btn-primary" style="font-size:11px;padding:4px 8px;">Save</button>';
+					echo '</form>';
 				}
 				else
 				{
@@ -346,10 +378,20 @@ function submitBreach() {
 						?>
 						</td>
 						
-						
+						<?php if(!empty($isBiblePlacingEvent)) {
+							$placeUrl = $this->Url->build(['controller' => 'conventionregistrations', 'action' => 'savebibleplace', $conv_reg_slug, $datarecord->slug]);
+							$currentPlace = isset($existingPlaces[$datarecord->id]) ? $existingPlaces[$datarecord->id] : '';
+						?>
+						<td data-title="Place">
+							<form method="post" action="<?php echo $placeUrl; ?>" class="acp-offline-update-form" data-update-type="place" data-submission-slug="<?php echo h($datarecord->slug); ?>" style="display:flex;gap:6px;align-items:center;margin:0;">
+								<input type="number" name="place" min="1" value="<?php echo h($currentPlace); ?>" placeholder="Place" style="width:64px;padding:4px 6px;border:1px solid #ccc;border-radius:6px;font-size:12px;" />
+								<button type="submit" class="btn btn-sm btn-primary" style="font-size:11px;padding:4px 9px;">Save</button>
+							</form>
+						</td>
+						<?php } ?>
 						
 						<td data-title="Action">
-						<div class="jee-action-group">
+						<div class="jee-action-group" data-submission-slug="<?php echo h($datarecord->slug); ?>">
 						<?php
 						if(empty($hasEvaluationForm))
 						{
@@ -396,6 +438,290 @@ $('#group_events_table').dataTable({
         $('#group_events_table').dataTable.search(this.value).draw();
     }); */
 });
+</script>
+
+<script>
+/* Phase 3d: Show per-submission pending-sync badge from IndexedDB */
+(function () {
+  if (!window.indexedDB) return;
+
+  var openReq = indexedDB.open('acp_offline', 1);
+  openReq.onsuccess = function (ev) {
+    var db = ev.target.result;
+    if (!db.objectStoreNames.contains('pending_evaluations')) { db.close(); return; }
+
+    var tx = db.transaction('pending_evaluations', 'readonly');
+    var all = [];
+    tx.objectStore('pending_evaluations').openCursor().onsuccess = function (e) {
+      var cursor = e.target.result;
+      if (cursor) { all.push(cursor.value); cursor.continue(); }
+      else {
+        db.close();
+        if (all.length === 0) return;
+
+        all.forEach(function (evalRecord) {
+          /* Match the submission slug from the stored URL */
+          var urlMatch = (evalRecord.url || '').match(/\/addnew\/[^/]+\/([^/?#]+)/);
+          if (!urlMatch) return;
+          var slug = urlMatch[1];
+
+          /* Find the action cell with that slug and inject the badge */
+          var actionGroups = document.querySelectorAll('.jee-action-group[data-submission-slug="' + slug + '"]');
+          actionGroups.forEach(function (group) {
+            if (group.querySelector('.acp-pending-badge')) return; /* already added */
+            var badge = document.createElement('span');
+            badge.className = 'acp-pending-badge';
+            badge.title = 'This evaluation is queued and will sync when internet is restored';
+            badge.style.cssText = [
+              'display:inline-flex', 'align-items:center', 'gap:4px',
+              'background:#fff5db', 'color:#8a6400',
+              'border:1px solid #e5c847', 'border-radius:999px',
+              'padding:3px 9px', 'font-size:11px', 'font-weight:700',
+              'margin-left:6px', 'vertical-align:middle', 'cursor:default'
+            ].join(';');
+            badge.innerHTML = '&#8987; Pending sync';
+            group.appendChild(badge);
+          });
+        });
+      }
+    };
+  };
+})();
+</script>
+
+<script>
+/* Phase 3e: Offline queue for score/place updates on event entries */
+(function () {
+	if (!window.indexedDB) return;
+
+	var DB_NAME = 'acp_offline';
+	var DB_VERSION = 2;
+	var STORE_NAME = 'pending_score_updates';
+
+	function openDb(callback) {
+		var req = indexedDB.open(DB_NAME, DB_VERSION);
+		req.onupgradeneeded = function (ev) {
+			var db = ev.target.result;
+			if (!db.objectStoreNames.contains('pending_evaluations')) {
+				var evalStore = db.createObjectStore('pending_evaluations', { keyPath: 'id', autoIncrement: true });
+				evalStore.createIndex('queuedAt', 'queuedAt', { unique: false });
+			}
+			if (!db.objectStoreNames.contains('judge_cache')) {
+				db.createObjectStore('judge_cache', { keyPath: 'key' });
+			}
+			if (!db.objectStoreNames.contains(STORE_NAME)) {
+				var updateStore = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+				updateStore.createIndex('queuedAt', 'queuedAt', { unique: false });
+			}
+		};
+		req.onsuccess = function (ev) { callback(null, ev.target.result); };
+		req.onerror = function () { callback(new Error('Failed to open IndexedDB')); };
+	}
+
+	function queueUpdate(form) {
+		var formData = new FormData(form);
+		var payload = {};
+		formData.forEach(function (value, key) {
+			payload[key] = value;
+		});
+
+		var submitBtn = form.querySelector('button[type="submit"]');
+		var originalLabel = submitBtn ? submitBtn.textContent : '';
+		if (submitBtn) {
+			submitBtn.disabled = true;
+			submitBtn.textContent = 'Queued';
+		}
+
+		openDb(function (err, db) {
+			if (err || !db.objectStoreNames.contains(STORE_NAME)) {
+				if (submitBtn) {
+					submitBtn.disabled = false;
+					submitBtn.textContent = originalLabel;
+				}
+				alert('Offline queue unavailable. Please reconnect and try again.');
+				return;
+			}
+
+			var tx = db.transaction(STORE_NAME, 'readwrite');
+			tx.objectStore(STORE_NAME).add({
+				url: form.getAttribute('action') || window.location.href,
+				method: (form.getAttribute('method') || 'POST').toUpperCase(),
+				payload: payload,
+				updateType: form.getAttribute('data-update-type') || 'unknown',
+				submissionSlug: form.getAttribute('data-submission-slug') || '',
+				queuedAt: new Date().toISOString()
+			});
+
+			tx.oncomplete = function () {
+				db.close();
+				addPendingBadge(form.getAttribute('data-submission-slug') || '');
+				if (submitBtn) {
+					submitBtn.disabled = false;
+					submitBtn.textContent = originalLabel;
+				}
+				notify('Saved offline. This update will sync when internet is restored.');
+			};
+
+			tx.onerror = function () {
+				db.close();
+				if (submitBtn) {
+					submitBtn.disabled = false;
+					submitBtn.textContent = originalLabel;
+				}
+				alert('Could not queue offline update. Please reconnect and try again.');
+			};
+		});
+	}
+
+	function flushQueuedUpdates() {
+		if (!navigator.onLine) return;
+
+		openDb(function (err, db) {
+			if (err || !db.objectStoreNames.contains(STORE_NAME)) return;
+
+			var tx = db.transaction(STORE_NAME, 'readonly');
+			var getAllReq = tx.objectStore(STORE_NAME).getAll();
+			getAllReq.onsuccess = function () {
+				var queued = getAllReq.result || [];
+				db.close();
+				if (queued.length === 0) return;
+
+				var synced = 0;
+				var failed = 0;
+
+				var chain = Promise.resolve();
+				queued.forEach(function (item) {
+					chain = chain.then(function () {
+						var body = new URLSearchParams();
+						Object.keys(item.payload || {}).forEach(function (key) {
+							body.append(key, item.payload[key]);
+						});
+
+						return fetch(item.url, {
+							method: item.method || 'POST',
+							credentials: 'same-origin',
+							headers: {
+								'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+								'X-Requested-With': 'XMLHttpRequest'
+							},
+							body: body.toString()
+						}).then(function (resp) {
+							if (!resp.ok) throw new Error('HTTP ' + resp.status);
+							synced++;
+							removeQueuedUpdate(item.id, item.submissionSlug);
+						}).catch(function () {
+							failed++;
+						});
+					});
+				});
+
+				chain.then(function () {
+					if (synced > 0) notify(synced + ' queued update' + (synced > 1 ? 's' : '') + ' synced.', true);
+					if (failed > 0) notify(failed + ' queued update' + (failed > 1 ? 's' : '') + ' failed and will retry.');
+				});
+			};
+		});
+	}
+
+	function removeQueuedUpdate(id, slug) {
+		openDb(function (err, db) {
+			if (err || !db.objectStoreNames.contains(STORE_NAME)) return;
+			var tx = db.transaction(STORE_NAME, 'readwrite');
+			tx.objectStore(STORE_NAME).delete(id);
+			tx.oncomplete = function () {
+				db.close();
+				refreshPendingBadge(slug || '');
+			};
+		});
+	}
+
+	function refreshPendingBadge(slug) {
+		if (!slug) return;
+		openDb(function (err, db) {
+			if (err || !db.objectStoreNames.contains(STORE_NAME)) return;
+			var tx = db.transaction(STORE_NAME, 'readonly');
+			var req = tx.objectStore(STORE_NAME).getAll();
+			req.onsuccess = function () {
+				var list = req.result || [];
+				var hasPending = list.some(function (entry) { return entry.submissionSlug === slug; });
+				db.close();
+				if (!hasPending) {
+					var group = document.querySelector('.jee-action-group[data-submission-slug="' + slug + '"]');
+					if (!group) return;
+					var badge = group.querySelector('.acp-score-pending-badge');
+					if (badge) badge.remove();
+				}
+			};
+		});
+	}
+
+	function addPendingBadge(slug) {
+		if (!slug) return;
+		var group = document.querySelector('.jee-action-group[data-submission-slug="' + slug + '"]');
+		if (!group) return;
+		if (group.querySelector('.acp-score-pending-badge')) return;
+
+		var badge = document.createElement('span');
+		badge.className = 'acp-score-pending-badge';
+		badge.title = 'Score/place update queued offline';
+		badge.style.cssText = [
+			'display:inline-flex', 'align-items:center', 'gap:4px',
+			'background:#e7f2ff', 'color:#1a4f8a',
+			'border:1px solid #97bdf0', 'border-radius:999px',
+			'padding:3px 9px', 'font-size:11px', 'font-weight:700',
+			'margin-left:6px', 'vertical-align:middle', 'cursor:default'
+		].join(';');
+		badge.innerHTML = '&#8987; Score pending';
+		group.appendChild(badge);
+	}
+
+	function hydratePendingBadges() {
+		openDb(function (err, db) {
+			if (err || !db.objectStoreNames.contains(STORE_NAME)) return;
+			var tx = db.transaction(STORE_NAME, 'readonly');
+			var req = tx.objectStore(STORE_NAME).getAll();
+			req.onsuccess = function () {
+				var list = req.result || [];
+				db.close();
+				list.forEach(function (entry) {
+					if (entry.submissionSlug) addPendingBadge(entry.submissionSlug);
+				});
+			};
+		});
+	}
+
+	function notify(msg, success) {
+		if (typeof window.jQuery !== 'undefined' && window.jQuery.fn && window.jQuery.fn.toast) {
+			// No bootstrap toasts here; fallback to alert-like small hint.
+		}
+		var el = document.createElement('div');
+		el.style.cssText = [
+			'position:fixed', 'bottom:18px', 'left:50%', 'transform:translateX(-50%)',
+			'background:' + (success ? '#2a7a4f' : '#1c2452'), 'color:#fff',
+			'padding:10px 16px', 'border-radius:9px', 'z-index:99999',
+			'font-size:13px', 'font-weight:600', 'box-shadow:0 5px 16px rgba(0,0,0,0.2)'
+		].join(';');
+		el.textContent = msg;
+		document.body.appendChild(el);
+		setTimeout(function () {
+			el.style.opacity = '0';
+			el.style.transition = 'opacity .35s ease';
+			setTimeout(function () { el.remove(); }, 360);
+		}, 2600);
+	}
+
+	document.querySelectorAll('form.acp-offline-update-form').forEach(function (form) {
+		form.addEventListener('submit', function (e) {
+			if (navigator.onLine) return;
+			e.preventDefault();
+			queueUpdate(form);
+		});
+	});
+
+	window.addEventListener('online', flushQueuedUpdates);
+	hydratePendingBadges();
+	if (navigator.onLine) flushQueuedUpdates();
+})();
 </script>
 
 <script type="text/javascript" language="javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>

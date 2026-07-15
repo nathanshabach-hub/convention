@@ -191,14 +191,18 @@ class TransactionsController extends AppController {
 						//echo $messageToSend; exit;
 						
 						$email = new Email();
-						$email->template('default', 'admintemplate')
-							->emailFormat('html')
-							->to($emailId)
-							->cc(HEADERS_CC)
-							->from([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-							->subject($subjectToSend)
-							->viewVars(['content_for_layout' => $messageToSend])
-							->send();
+						try {
+							$email->setEmailFormat('html')
+								->setTo($emailId)
+								->setCc(HEADERS_CC)
+								->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
+								->setSubject($subjectToSend)
+								->setBodyHtml($messageToSend)
+								->send();
+						} catch (\Throwable $exception) {
+							$this->log('Transaction confirmation email failed for slug ' . $slug . ': ' . $exception->getMessage(), 'error');
+							$this->Flash->warning('Payment was confirmed, but the notification email could not be sent. Please retry sending email later.');
+						}
 						
 						$this->Flash->success('Payment transaction status confirmed successfully.');
 					}

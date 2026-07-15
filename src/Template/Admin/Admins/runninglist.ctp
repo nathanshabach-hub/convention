@@ -143,11 +143,11 @@ $this->Eventsubmissions = TableRegistry::get('Eventsubmissions');
                                             <input type="number" class="form-control input-sm running-order-input order-input" value="<?php echo isset($datarecord->order) ? $datarecord->order : ''; ?>" min="1" max="99" title="Running Order">
                                         </td>
                                         <td class="combine-col">
-                                            <input type="text" class="form-control input-sm running-combine-input combine-input" value="" maxlength="20" placeholder="e.g. G001" title="Events with the same group are combined into one race in Print All. Use G001, G002, G003 etc.">
+                                            <input type="text" class="form-control input-sm running-combine-input combine-input" value="" maxlength="20" placeholder="e.g. G1" title="Events with the same group are combined into one race in Print All. Use G1, G2, G3 etc.">
                                         </td>
                                         <td class="action-col">
                                             <div class="running-action-controls">
-                                                <input type="number" class="form-control input-sm heat-size-input" value="<?php echo $event_entries > 0 ? $event_entries : 6; ?>" min="1" max="99" title="Runners per heat">
+                                                <input type="number" class="form-control input-sm heat-size-input" value="<?php echo $event_entries > 0 ? $event_entries : 0; ?>" min="0" max="99" title="Runners per heat">
                                                 <button class="btn btn-xs btn-primary print-sheet-btn"
                                                     data-cse-id="<?php echo (int)$datarecord->id; ?>"
                                                     data-url="<?php echo $this->Url->build(['controller' => 'admins', 'action' => 'runninglistprint', $datarecord->id]); ?>">
@@ -170,11 +170,23 @@ $this->Eventsubmissions = TableRegistry::get('Eventsubmissions');
 
 <script>
 $(document).ready(function() {
+    // Sort Action column using the numeric value from the heat-size input.
+    $.fn.dataTable.ext.order['dom-heat-size'] = function(settings, col) {
+        return this.api().column(col, {order: 'index'}).nodes().map(function(td) {
+            var value = $('input.heat-size-input', td).val();
+            var parsed = parseFloat(value);
+            return isNaN(parsed) ? -1 : parsed;
+        });
+    };
+
     var runningListTable = $('#running_list_table').DataTable({
         "bPaginate": true,
         "bLengthChange": false,
         "pageLength": 100,
         order: [[0, 'desc']],
+        "columnDefs": [
+            { "targets": 6, "orderDataType": 'dom-heat-size' }
+        ],
         "dom": '<"row"<"col-sm-6 print-all-slot"><"col-sm-6"f>>rt<"row"<"col-sm-5"i><"col-sm-7"p>>',
         "initComplete": function() {
             var printAllHtml = '<button id="print_all_btn" class="btn btn-sm btn-success" data-url="<?php echo $this->Url->build(['controller' => 'admins', 'action' => 'runninglistprintall']); ?>">' +

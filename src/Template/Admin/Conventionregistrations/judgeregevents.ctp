@@ -5,6 +5,35 @@
       placeholder: 'Select one or more events',
       width: '100%'
     });
+
+    var initialJudgeEventIds = $('#judges_event_ids').val() || [];
+    initialJudgeEventIds = initialJudgeEventIds.map(function(value) {
+      return value.toString();
+    });
+
+    $('#adminForm').on('submit', function(event) {
+      var currentJudgeEventIds = $('#judges_event_ids').val() || [];
+      currentJudgeEventIds = currentJudgeEventIds.map(function(value) {
+        return value.toString();
+      });
+
+      var removedJudgeEventIds = initialJudgeEventIds.filter(function(value) {
+        return currentJudgeEventIds.indexOf(value) === -1;
+      });
+
+      if (removedJudgeEventIds.length) {
+        var removedEventNames = removedJudgeEventIds.map(function(value) {
+          var optionText = $('#judges_event_ids option[value="' + value + '"]').text();
+          return optionText ? optionText.trim() : value;
+        });
+
+        var message = 'You are removing the following event(s):\n\n- ' + removedEventNames.join('\n- ') + '\n\nRemoving them will also delete all evaluations for those event(s).\n\nDo you want to continue?';
+        if (!window.confirm(message)) {
+          event.preventDefault();
+          return false;
+        }
+      }
+    });
     });
 </script>
 <?php

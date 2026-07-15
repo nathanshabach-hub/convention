@@ -27,6 +27,10 @@ $this->Judgeevaluations = TableRegistry::get('Judgeevaluations');
 
 <div class="admin_loader" id="loaderID"><?php echo $this->Html->image('loader_large_blue.gif');?></div>
 <?php if (!$eventsubmissions->isEmpty()) { ?> 
+    <?php
+    $paginationParams = $this->Paginator->params();
+    $totalEntries = (int)($paginationParams['count'] ?? count($eventsubmissions));
+    ?>
     <div class="panel-body">
         <div class="ersu_message"> <?php echo $this->Flash->render() ?></div>
         <?php echo $this->Form->create(null, ['id'=>'actionFrom', "method" => "Post"]);  ?>
@@ -34,6 +38,7 @@ $this->Judgeevaluations = TableRegistry::get('Judgeevaluations');
             <div class="topn">
                 <div class="topn_left">Command Performance</div>
                 <div class="topn_right ajshort" id="pagingLinks" align="right">
+                    <span style="font-weight:600;margin-right:10px;">Total entries: <?php echo number_format($totalEntries); ?></span>
                     <?php 
                         echo $this->Paginator->counter(['model' => 'Eventsubmissions', 'format' => '{{page}} of {{pages}} &nbsp;']);
                         echo $this->Paginator->prev('« Prev');
@@ -55,6 +60,7 @@ $this->Judgeevaluations = TableRegistry::get('Judgeevaluations');
                             <th class="sorting_paging">Student</th>
                             <th class="sorting_paging">Judge</th>
                             <th class="sorting_paging">Mark Date</th>
+                            <th class="sorting_paging">Submitted Time</th>
                             <th class="sorting_paging">Reason</th>
                             <th class="action_dvv"><i class=" fa fa-gavel"></i> Action</th>
                         </tr>
@@ -63,13 +69,39 @@ $this->Judgeevaluations = TableRegistry::get('Judgeevaluations');
                         <?php foreach ($eventsubmissions as $datarecord) { ?>
                             <tr>
                                 <td data-title="#ID"><?php echo $datarecord->id;?></td>
-                                <td data-title="School"><?php echo $datarecord->Uploadeduser['first_name'].' '.$datarecord->Uploadeduser['last_name'];?></td>
+                                <td data-title="School">
+                                    <?php
+                                    $schoolName = trim((string)($datarecord->Users['first_name'] ?? '') . ' ' . (string)($datarecord->Users['last_name'] ?? ''));
+                                    if ($schoolName === '') {
+                                        $schoolName = trim((string)($datarecord->Uploadeduser['first_name'] ?? '') . ' ' . (string)($datarecord->Uploadeduser['last_name'] ?? ''));
+                                    }
+                                    echo $schoolName !== '' ? h($schoolName) : '-';
+                                    ?>
+                                </td>
                                 <td data-title="Convention"><?php echo $datarecord->Conventions['name'];?></td>
                                 <td data-title="Event"><?php echo $datarecord->event_id_number.' '.$datarecord->Events['event_name'];?></td>
                                 <td data-title="Group"><?php echo !empty($datarecord->group_name) ? "Group ".$datarecord->group_name : '-'; ?></td>
                                 <td data-title="Student"><?php echo ($datarecord->student_id > 0) ? $datarecord->Students['first_name'].' '.$datarecord->Students['middle_name'].' '.$datarecord->Students['last_name'] : '-'; ?></td>
                                 <td data-title="Judge"><?php echo $datarecord->Judgecommand['first_name'].' '.$datarecord->Judgecommand['last_name']; ?></td>
                                 <td data-title="Mark Date"><?php echo $datarecord->modified->format('M d, Y'); ?></td>
+                                <?php
+                                $submittedTs = 0;
+                                $submittedTimeDisplay = '-';
+                                if (!empty($datarecord->modified)) {
+                                    if (is_object($datarecord->modified) && method_exists($datarecord->modified, 'getTimestamp')) {
+                                        $submittedTs = (int)$datarecord->modified->getTimestamp();
+                                        $submittedTimeDisplay = $datarecord->modified->format('h:i:s A');
+                                    } else {
+                                        $submittedTs = strtotime((string)$datarecord->modified);
+                                        if ($submittedTs !== false && $submittedTs > 0) {
+                                            $submittedTimeDisplay = date('h:i:s A', $submittedTs);
+                                        } else {
+                                            $submittedTs = 0;
+                                        }
+                                    }
+                                }
+                                ?>
+                                <td data-title="Submitted Time" data-order="<?php echo $submittedTs; ?>"><?php echo $submittedTimeDisplay; ?></td>
                                 <td data-title="Reason">
                                     <?php
                                     $cmdReason = trim((string)($datarecord->command_performance_reason ?? ''));
@@ -88,6 +120,9 @@ $this->Judgeevaluations = TableRegistry::get('Judgeevaluations');
                         <?php } ?>
                     </tbody>
                 </table>
+            </div>
+            <div style="margin-top:10px;display:flex;justify-content:flex-end;align-items:center;">
+                <span style="font-weight:600;">Total entries: <?php echo number_format($totalEntries); ?></span>
             </div>
         </section>
         <?php echo $this->Form->end(); ?>

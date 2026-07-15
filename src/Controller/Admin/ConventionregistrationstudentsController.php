@@ -52,8 +52,22 @@ class ConventionregistrationstudentsController extends AppController {
 		
 		$condition[] = "(Conventionregistrationstudents.convention_id = '".$convSeasonD->convention_id."' AND Conventionregistrationstudents.season_id = '".$convSeasonD->season_id."' AND Conventionregistrationstudents.season_year = '".$convSeasonD->season_year."')";
 		
-		$conventionregistrationstudents = $this->Conventionregistrationstudents->find()->contain(['Users','Students'])->where($condition)->order(["Conventionregistrationstudents.id" => "DESC"])->all();
-		$this->set('conventionregistrationstudents', $conventionregistrationstudents);
+		$conventionregistrationstudents = $this->Conventionregistrationstudents->find()
+			->contain(['Users','Students'])
+			->where($condition)
+			->order(["Conventionregistrationstudents.id" => "DESC"])
+			->all();
+
+		// Deduplicate: keep only the latest registration per student (highest id comes first)
+		$seen = [];
+		$unique = [];
+		foreach ($conventionregistrationstudents as $record) {
+			if (!in_array($record->student_id, $seen)) {
+				$seen[] = $record->student_id;
+				$unique[] = $record;
+			}
+		}
+		$this->set('conventionregistrationstudents', new \Cake\Collection\Collection($unique));
     }
 	
 	public function studentevents($conv_reg_student_slug = NULL) {

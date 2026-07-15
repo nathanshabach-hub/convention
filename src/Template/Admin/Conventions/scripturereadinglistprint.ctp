@@ -208,6 +208,10 @@ $placeSortWeight = function ($placeLabel) {
     return [999, 0, strtoupper((string)$placeLabel)];
 };
 
+$ROWS_FIRST_PAGE  = 40; // student rows fitting on first page of a place group
+$ROWS_CONT_PAGE   = 41; // student rows fitting on continuation pages
+$SCHOOL_OVERHEAD  = 1;  // "rows" consumed by each school name header (except first on page)
+
 $printPages = [];
 if (!empty($groupedReadingList)) {
     $placeLabels = array_keys($groupedReadingList);
@@ -229,7 +233,7 @@ if (!empty($groupedReadingList)) {
         ksort($schools, SORT_NATURAL | SORT_FLAG_CASE);
 
         $placeHeading = $formatPlaceHeading($placeLabel);
-        $schoolSections = [];
+        $validSchools = [];
         foreach ($schools as $schoolName => $rows) {
             $printableRows = [];
             foreach ((array)$rows as $row) {
@@ -240,20 +244,64 @@ if (!empty($groupedReadingList)) {
                 }
                 $printableRows[] = $row;
             }
-
             if (!empty($printableRows)) {
-                $schoolSections[] = [
-                    'school_name' => $schoolName,
-                    'rows' => $printableRows,
-                ];
+                $validSchools[] = ['school_name' => $schoolName, 'rows' => $printableRows];
             }
         }
 
-        if (!empty($schoolSections)) {
+        if (empty($validSchools)) { continue; }
+
+        // Pre-paginate: split schools/rows into explicit page-sized chunks
+        $placePageChunks = []; // each entry = one printed page for this place
+        $curPageSchools  = []; // schools on the current page
+        $curPageRowCount = 0;
+        $isFirstPlacePage = true;
+        $rowLimit = $ROWS_FIRST_PAGE;
+
+        foreach ($validSchools as $school) {
+            $overhead = empty($curPageSchools) ? 0 : $SCHOOL_OVERHEAD;
+            $schoolRows = $school['rows'];
+            $pendingRows = [];
+
+            foreach ($schoolRows as $row) {
+                // Would adding this row (plus any school overhead) exceed the limit?
+                if ($curPageRowCount + $overhead + 1 > $rowLimit && $curPageRowCount > 0) {
+                    // Flush pending rows for this school so far
+                    if (!empty($pendingRows)) {
+                        $curPageSchools[] = ['school_name' => $school['school_name'], 'rows' => $pendingRows];
+                        $pendingRows = [];
+                    }
+                    // Save current page
+                    $placePageChunks[] = $curPageSchools;
+                    $curPageSchools   = [];
+                    $curPageRowCount  = 0;
+                    $isFirstPlacePage = false;
+                    $rowLimit         = $ROWS_CONT_PAGE;
+                    $overhead         = 0;
+                }
+                $curPageRowCount += $overhead + 1;
+                $overhead = 0; // overhead only counted once per school per page
+                $pendingRows[] = $row;
+            }
+
+            if (!empty($pendingRows)) {
+                $curPageSchools[] = ['school_name' => $school['school_name'], 'rows' => $pendingRows];
+                $pendingRows = [];
+            }
+        }
+
+        if (!empty($curPageSchools)) {
+            $placePageChunks[] = $curPageSchools;
+        }
+
+        $totalPlacePages = count($placePageChunks);
+        foreach ($placePageChunks as $pageIdx => $pageSchools) {
             $printPages[] = [
-                'place_label' => $placeLabel,
-                'place_heading' => $placeHeading,
-                'schools' => $schoolSections,
+                'place_label'        => $placeLabel,
+                'place_heading'      => $placeHeading,
+                'place_page_index'   => $pageIdx + 1,
+                'place_page_total'   => $totalPlacePages,
+                'schools'            => $pageSchools,
             ];
         }
     }
@@ -289,34 +337,46 @@ $pageNum = 1;
         } elseif (preg_match('/(^|\b)2nd(\b|$)/i', $page['place_heading'])) {
             $placeClass = 'place-second';
         }
+        $ph = $page['place_heading'];
+        $totalPlacePages = $page['place_page_total'];
+        $placeDisplay = $totalPlacePages > 1
+            ? $ph . ' (' . $page['place_page_index'] . ' of ' . $totalPlacePages . ')'
+            : $ph;
         ?>
         <div class="page">
-            <h1><?php echo h($conventionD->name.' '.$conventionSD->season_year); ?></h1>
-            <div class="meta">
-                <span class="title">Silver Apple Reader's List</span>
-                <span class="place <?php echo h($placeClass); ?>"><?php echo h($page['place_heading']); ?></span>
-            </div>
-
-            <?php foreach ($page['schools'] as $schoolSection) { ?>
-                <div class="school"><?php echo h($schoolSection['school_name']); ?></div>
-                <table>
+            <?php foreach ($page['schools'] as $schoolIdx => $schoolSection) { ?>
+                <?php
+                $isFirstSchool = $schoolIdx === 0;
+                ?>
+                <table style="width:100%; border-collapse:collapse; margin-bottom: 18px;">
                     <thead>
                         <tr>
-                            <th>Student</th>
-                            <th>Scripture Book</th>
+                            <td colspan="2" style="padding:0 0 4px 0; border-bottom: 1px solid var(--rule-strong);">
+                                <?php if ($isFirstSchool): ?>
+                                <h1 style="margin:0 0 2px 0; font-size:19px; font-family:Georgia,serif; font-weight:600;"><?php echo h($conventionD->name.' '.$conventionSD->season_year); ?></h1>
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <span style="font-size:12px; font-weight:700; letter-spacing:0.6px; text-transform:uppercase; color:#1f1f1f;">Silver Apple Reader's List</span>
+                                    <span class="place <?php echo h($placeClass); ?>"><?php echo h($placeDisplay); ?></span>
+                                </div>
+                                <?php endif; ?>
+                                <div style="font-size:15px; font-weight:700; margin-top:<?php echo $isFirstSchool ? '6' : '0'; ?>px; padding-bottom:3px; border-bottom:1px solid var(--rule);"><?php echo h($schoolSection['school_name']); ?></div>
+                            </td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--rule-strong);">
+                            <th style="font-size:10px; text-transform:uppercase; letter-spacing:0.5px; color:var(--muted); font-weight:700; text-align:left; padding:3px 3px; width:52%;">Student</th>
+                            <th style="font-size:10px; text-transform:uppercase; letter-spacing:0.5px; color:var(--muted); font-weight:700; text-align:left; padding:3px 3px; width:48%;">Scripture Book</th>
                         </tr>
                     </thead>
                     <tbody>
                     <?php foreach ($schoolSection['rows'] as $row) { ?>
-                        <tr>
-                            <td class="student"><?php echo h($formatStudentName($row['student_name'])); ?></td>
-                            <td class="book"><?php echo h($row['book_names']); ?></td>
+                        <tr style="break-inside:avoid; page-break-inside:avoid;">
+                            <td style="font-size:12px; padding:3px 3px; vertical-align:top; font-weight:500; border-top:1px solid #ececec;"><?php echo h($formatStudentName($row['student_name'])); ?></td>
+                            <td style="font-size:12px; padding:3px 3px; vertical-align:top; font-weight:600; border-top:1px solid #ececec;"><?php echo h($row['book_names']); ?></td>
                         </tr>
                     <?php } ?>
                     </tbody>
                 </table>
             <?php } ?>
-
             <div class="footer">Page <?php echo $pageNum; ?> of <?php echo $totalPages; ?></div>
         </div>
         <?php $pageNum++; ?>

@@ -7,6 +7,88 @@ $this->Users = TableRegistry::get('Users');
 <?php //if (!$conventionseasonevents->isEmpty()) { ?> 
     <div class="panel-body">
         <div class="ersu_message"> <?php echo $this->Flash->render() ?></div>
+
+        <?php if (!empty($trophyWinners)): ?>
+        <section class="lstng-section" style="margin-bottom:30px;">
+            <div class="topn"><div class="topn_left">🏆 Divisional Trophy &amp; Certificate Eligibility</div></div>
+            <p style="font-size:12px;color:#555;margin:6px 0 12px;">
+                Requirements: ≥24 points in division · must have a solo/individual entry · highest score wins.<br>
+                Athletics, Sports, Music Vocal &amp; Platform award separate Male/Female trophies.
+                Students who only entered group Tambourine events in Instrumental are ineligible.
+            </p>
+            <div class="tbl-resp-listing">
+                <table class="table table-bordered table-condensed" style="font-size:13px;">
+                    <thead style="background:#1c2452;color:#fff;">
+                        <tr>
+                            <th>Division</th>
+                            <th>Category</th>
+                            <th>Trophy Winner(s)</th>
+                            <th>Points</th>
+                            <th>School</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php
+                    foreach ($trophyWinners as $divId => $winnerData):
+                        $divisionD = $this->Divisions->find()->where(['Divisions.id' => $divId])->first();
+                        $divName   = $divisionD ? $divisionD->name : 'Division '.$divId;
+                        $isGenderSplit = in_array($divId, $genderSplitDivs);
+
+                        if ($isGenderSplit):
+                            foreach (['Male','Female'] as $gender):
+                                if (empty($winnerData[$gender])) continue;
+                                $sids  = $winnerData[$gender]['students'];
+                                $pts   = $winnerData[$gender]['points'];
+                                foreach ($sids as $idx => $sid):
+                                    $studentD = $this->Users->find()->where(['Users.id' => $sid])->contain(['Schools'])->first();
+                                    $name = $studentD ? trim($studentD->first_name.' '.$studentD->middle_name.' '.$studentD->last_name) : '#'.$sid;
+                                    $school = $studentD && $studentD->Schools ? $studentD->Schools['first_name'] : '-';
+                                    $isTied = count($sids) > 1;
+                    ?>
+                        <tr style="background:<?php echo $gender==='Male'?'#eef3fb':'#fdeef8'; ?>">
+                            <?php if ($idx === 0): ?>
+                            <td rowspan="<?php echo count($sids); ?>" style="font-weight:700;vertical-align:middle;"><?php echo h($divName); ?></td>
+                            <td rowspan="<?php echo count($sids); ?>" style="vertical-align:middle;">
+                                <span style="background:<?php echo $gender==='Male'?'#1c2452':'#a4186b'; ?>;color:#fff;padding:2px 8px;border-radius:3px;font-size:11px;"><?php echo $gender; ?></span>
+                            </td>
+                            <?php endif; ?>
+                            <td><?php echo h($name); ?><?php if($isTied): ?> <span style="color:#e67e22;font-size:10px;">★ Tied</span><?php endif; ?></td>
+                            <td style="font-weight:700;color:#1c2452;"><?php echo $pts; ?></td>
+                            <td><?php echo h($school); ?></td>
+                        </tr>
+                    <?php
+                                endforeach;
+                            endforeach;
+                        else:
+                            $sids  = $winnerData['students'];
+                            $pts   = $winnerData['points'];
+                            foreach ($sids as $idx => $sid):
+                                $studentD = $this->Users->find()->where(['Users.id' => $sid])->contain(['Schools'])->first();
+                                $name = $studentD ? trim($studentD->first_name.' '.$studentD->middle_name.' '.$studentD->last_name) : '#'.$sid;
+                                $school = $studentD && $studentD->Schools ? $studentD->Schools['first_name'] : '-';
+                                $isTied = count($sids) > 1;
+                    ?>
+                        <tr style="background:#f0f7f0;">
+                            <?php if ($idx === 0): ?>
+                            <td rowspan="<?php echo count($sids); ?>" style="font-weight:700;vertical-align:middle;"><?php echo h($divName); ?></td>
+                            <td rowspan="<?php echo count($sids); ?>" style="vertical-align:middle;">
+                                <span style="background:#27ae60;color:#fff;padding:2px 8px;border-radius:3px;font-size:11px;">Overall</span>
+                            </td>
+                            <?php endif; ?>
+                            <td><?php echo h($name); ?><?php if($isTied): ?> <span style="color:#e67e22;font-size:10px;">★ Tied</span><?php endif; ?></td>
+                            <td style="font-weight:700;color:#1c2452;"><?php echo $pts; ?></td>
+                            <td><?php echo h($school); ?></td>
+                        </tr>
+                    <?php
+                            endforeach;
+                        endif;
+                    endforeach;
+                    ?>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        <?php endif; ?>
         <?php echo $this->Form->create(NULL, ['id' => 'addresults', 'type' => 'file', 'class' => ' ']); ?>
         <section id="no-more-tables" class="lstng-section">
             <div class="topn">

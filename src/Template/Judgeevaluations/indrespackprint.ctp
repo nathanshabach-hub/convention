@@ -9,16 +9,75 @@ $this->Judgeevaluationmarks = TableRegistry::get('Judgeevaluationmarks');
 $this->Evaluationquestions = TableRegistry::get('Evaluationquestions');
 $this->Eventsubmissions = TableRegistry::get('Eventsubmissions');
 ?>
+<?php if ((int)$this->request->getQuery('autoprint', 1) === 1): ?>
 <script type="text/javascript">
 <!--
 window.print();
 //-->
 </script>
+<?php endif; ?>
 <style>
 @media print {
+	html,
+	body {
+		margin: 0 !important;
+		padding: 0 !important;
+	}
+
 	.page-break {
 		page-break-after: always;
 		break-after: page;
+	}
+
+	.pack-page {
+		clear: both;
+		page-break-after: always;
+		break-after: page;
+		break-inside: avoid-page;
+		page-break-inside: avoid;
+	}
+
+	.pack-page:last-child {
+		page-break-after: auto;
+		break-after: auto;
+	}
+
+	.judge-evaluation-page {
+		clear: both;
+		page-break-before: always;
+		break-before: page;
+		page-break-after: always;
+		break-after: page;
+		page-break-inside: avoid;
+		break-inside: avoid-page;
+	}
+
+	.judge-evaluation-page:last-child {
+		page-break-after: auto;
+		break-after: auto;
+	}
+
+	.table-responsive {
+		overflow: visible !important;
+	}
+
+	table {
+		page-break-inside: auto;
+	}
+
+	tr,
+	td,
+	th,
+	img {
+		page-break-inside: avoid;
+		break-inside: avoid;
+	}
+
+	.spacer-after-break {
+		display: none !important;
+		height: 0 !important;
+		margin: 0 !important;
+		padding: 0 !important;
 	}
 }
 .pinyon-script-regular {
@@ -33,19 +92,25 @@ window.print();
 </style>
 
 <!-- create first page with some details -->
-<?php echo $this->element('Judgeevaluations/firstpage'); ?>
-<div class="page-break spacer-after-break"></br></div>
+<div class="pack-page">
+	<?php echo $this->element('Judgeevaluations/firstpage'); ?>
+</div>
 
-<?php echo $this->element('Judgeevaluations/indrespackprint'); ?>
-<div class="page-break spacer-after-break"></br></div>
+<div class="pack-page">
+	<?php echo $this->element('Judgeevaluations/indrespackprint'); ?>
+</div>
 
-<?php echo $this->element('Judgeevaluations/participationcertificatepdf'); ?>
-<!--<div class="page-break spacer-after-break"></br></div>-->
+<div class="pack-page">
+	<?php echo $this->element('Judgeevaluations/participationcertificatepdf'); ?>
+</div>
 
-<?php echo $this->element('Judgeevaluations/placecertificatepdf'); ?>
-<!--<div class="page-break spacer-after-break"></br></div>-->
+<div class="pack-page">
+	<?php echo $this->element('Judgeevaluations/placecertificatepdf'); ?>
+</div>
 
-<?php echo $this->element('Judgeevaluations/evaluationformpdf'); ?>
+<div class="pack-page">
+	<?php echo $this->element('Judgeevaluations/evaluationformpdf'); ?>
+</div>
 
 
 

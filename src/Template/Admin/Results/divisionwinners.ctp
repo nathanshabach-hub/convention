@@ -1,5 +1,5 @@
 <?php echo $this->Html->script('ajax-pagging.js'); ?>
-<div class="content-wrapper">
+<div class="content-wrapper admin-list-page admin-results-page">
     <section class="content-header">
       <h1>
 			Division Winners - <?php echo $conventionD->name; ?> > <?php echo $conventionSD->season_year; ?>
@@ -13,7 +13,7 @@
     </section>
 
     <section class="content">
-        <div class="box box-info">
+        <div class="box box-info admin-results-card">
             <div class="ersu_message"> <?php echo $this->Flash->render() ?></div>
             <div class="admin_search" style="display:none;">
                 <?php echo $this->Form->create(Null, ['id'=>'adminSearch']); ?>
@@ -31,7 +31,7 @@
                 <?php echo $this->Form->end(); ?>
                 <div class="add_new_record"><?php echo $this->Html->link('<i class="fa fa-plus"></i> Add Convention', ['controller'=>'conventions', 'action'=>'add'], ['escape'=>false, 'class'=>'btn btn-default']);?></div>
             </div>
-            <div class="m_content" id="listID">
+            <div class="m_content admin-results-content" id="listID">
                 <?php echo $this->element("Admin/Results/divisionwinners"); ?>
             </div>
             

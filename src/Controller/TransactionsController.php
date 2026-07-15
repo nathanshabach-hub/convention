@@ -446,13 +446,14 @@ class TransactionsController extends AppController {
 			//echo $messageToSend; exit;
 			
 			$email = new Email();
-			$email->template('default', 'admintemplate')
-				->emailFormat('html')
-				->to($emailId)
-				->cc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
-				->from([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-				->subject($subjectToSend)
-				->viewVars(['content_for_layout' => $messageToSend])
+			$email->setTemplate('default')
+                            ->setLayout('admintemplate')
+				->setEmailFormat('html')
+				->setTo($emailId)
+				->setCc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
+				->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
+				->setSubject($subjectToSend)
+				->setViewVars(['content_for_layout' => $messageToSend])
 				->send();
 			
 			
@@ -520,13 +521,14 @@ class TransactionsController extends AppController {
 		$messageToSend = 'Request data = ' . json_encode($requestData);
 
 		$email = new Email();
-		$email->template('default', 'admintemplate')
-			->emailFormat('html')
-			->to($emailId)
-			->cc(HEADERS_CC)
-			->from([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-			->subject($subjectToSend)
-			->viewVars(['content_for_layout' => $messageToSend])
+		$email->setTemplate('default')
+                            ->setLayout('admintemplate')
+			->setEmailFormat('html')
+			->setTo($emailId)
+			->setCc(HEADERS_CC)
+			->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
+			->setSubject($subjectToSend)
+			->setViewVars(['content_for_layout' => $messageToSend])
 			->send();
 
 		return $this->redirect(['controller'=>'users', 'action' => 'dashboard']);
@@ -553,13 +555,14 @@ class TransactionsController extends AppController {
 		$messageToSend .= '<br><br>Request data = ' . json_encode($requestData);
 
 		$email = new Email();
-		$email->template('default', 'admintemplate')
-			->emailFormat('html')
-			->to($emailId)
-			->cc(HEADERS_CC)
-			->from([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-			->subject($subjectToSend)
-			->viewVars(['content_for_layout' => $messageToSend])
+		$email->setTemplate('default')
+                            ->setLayout('admintemplate')
+			->setEmailFormat('html')
+			->setTo($emailId)
+			->setCc(HEADERS_CC)
+			->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
+			->setSubject($subjectToSend)
+			->setViewVars(['content_for_layout' => $messageToSend])
 			->send();
 
 		$myPost = array();
@@ -621,13 +624,14 @@ class TransactionsController extends AppController {
 		$messageToSend .= '<br><br>tokens = ' . json_encode($tokens);
 
 		$email = new Email();
-		$email->template('default', 'admintemplate')
-			->emailFormat('html')
-			->to($emailId)
-			->cc(HEADERS_CC)
-			->from([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-			->subject($subjectToSend)
-			->viewVars(['content_for_layout' => $messageToSend])
+		$email->setTemplate('default')
+                            ->setLayout('admintemplate')
+			->setEmailFormat('html')
+			->setTo($emailId)
+			->setCc(HEADERS_CC)
+			->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
+			->setSubject($subjectToSend)
+			->setViewVars(['content_for_layout' => $messageToSend])
 			->send();
 
 		if (strcmp($res, 'VERIFIED') == 0) {
@@ -642,13 +646,14 @@ class TransactionsController extends AppController {
 				$messageToSend .= '<br><br>res = ' . json_encode($res);
 
 				$email = new Email();
-				$email->template('default', 'admintemplate')
-					->emailFormat('html')
-					->to($emailId)
-					->cc(HEADERS_CC)
-					->from([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-					->subject($subjectToSend)
-					->viewVars(['content_for_layout' => $messageToSend])
+				$email->setTemplate('default')
+                            ->setLayout('admintemplate')
+					->setEmailFormat('html')
+					->setTo($emailId)
+					->setCc(HEADERS_CC)
+					->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
+					->setSubject($subjectToSend)
+					->setViewVars(['content_for_layout' => $messageToSend])
 					->send();
 
 				$transactionD = $this->Transactions->find()->where(['Transactions.slug' => $transactionSlug])->contain(['Conventions','Users'])->first();
@@ -671,13 +676,14 @@ class TransactionsController extends AppController {
 					$messageToSend = str_replace($toRepArray, $fromRepArray, $emailtemplateMessage['template']);
 
 					$email = new Email();
-					$email->template('default', 'admintemplate')
-						->emailFormat('html')
-						->to($emailId)
-						->cc(HEADERS_CC)
-						->from([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-						->subject($subjectToSend)
-						->viewVars(['content_for_layout' => $messageToSend])
+					$email->setTemplate('default')
+                            ->setLayout('admintemplate')
+						->setEmailFormat('html')
+						->setTo($emailId)
+						->setCc(HEADERS_CC)
+						->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
+						->setSubject($subjectToSend)
+						->setViewVars(['content_for_layout' => $messageToSend])
 						->send();
 
 					$settingsD = $this->Settings->find()->where(['Settings.id' => 1])->first();
@@ -687,13 +693,14 @@ class TransactionsController extends AppController {
 					$messageToSend = str_replace($toRepArray, $fromRepArray, $emailtemplateMessage['template']);
 
 					$email = new Email();
-					$email->template('default', 'admintemplate')
-						->emailFormat('html')
-						->to($emailId)
-						->cc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
-						->from([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-						->subject($subjectToSend)
-						->viewVars(['content_for_layout' => $messageToSend])
+					$email->setTemplate('default')
+                            ->setLayout('admintemplate')
+						->setEmailFormat('html')
+						->setTo($emailId)
+						->setCc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
+						->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
+						->setSubject($subjectToSend)
+						->setViewVars(['content_for_layout' => $messageToSend])
 						->send();
 				}
 			}
@@ -756,13 +763,14 @@ class TransactionsController extends AppController {
 				//echo $messageToSend; exit;
 				
 				$email = new Email();
-				$email->template('default', 'admintemplate')
-					->emailFormat('html')
-					->to($emailId)
-					->cc(HEADERS_CC)
-					->from([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-					->subject($subjectToSend)
-					->viewVars(['content_for_layout' => $messageToSend])
+				$email->setTemplate('default')
+                            ->setLayout('admintemplate')
+					->setEmailFormat('html')
+					->setTo($emailId)
+					->setCc(HEADERS_CC)
+					->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
+					->setSubject($subjectToSend)
+					->setViewVars(['content_for_layout' => $messageToSend])
 					->send();
 					
 				
@@ -782,13 +790,14 @@ class TransactionsController extends AppController {
 				//echo $messageToSend; exit;
 				
 				$email = new Email();
-				$email->template('default', 'admintemplate')
-					->emailFormat('html')
-					->to($emailId)
-					->cc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
-					->from([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-					->subject($subjectToSend)
-					->viewVars(['content_for_layout' => $messageToSend])
+				$email->setTemplate('default')
+                            ->setLayout('admintemplate')
+					->setEmailFormat('html')
+					->setTo($emailId)
+					->setCc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
+					->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
+					->setSubject($subjectToSend)
+					->setViewVars(['content_for_layout' => $messageToSend])
 					->send();
 				
 				/* EMAIL CODE ends */

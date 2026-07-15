@@ -98,6 +98,15 @@ fieldset{
     width: 92px;
 }
 
+#facebox .drt .table.distance-attempts-table tbody tr td,
+#facebox .drt .table.distance-attempts-table tbody tr td:first-child,
+#facebox .drt .table.distance-attempts-table tbody tr td:nth-child(2),
+#facebox .drt .table.distance-attempts-table tbody tr td:nth-child(3),
+#facebox .drt .table.distance-attempts-table tbody tr td:nth-child(4) {
+    text-align: center;
+    width: 25%;
+}
+
 #facebox .drt .table-striped tbody tr:nth-of-type(odd) {
     background-color: #fbfdff;
 }
@@ -749,7 +758,13 @@ fieldset{
 
 .admin-dashboard .small-box {
     --metric-accent: #2c5f89;
-    background: #ffffff !important;
+    --metric-bg: #eef4fb;
+    --metric-title: #11253c;
+    --metric-text: #4f6275;
+    --metric-footer-bg: rgba(28, 78, 129, 0.1);
+    --metric-link: #1f4f79;
+    --metric-icon: rgba(41, 75, 112, 0.23);
+    background: var(--metric-bg) !important;
     border: 1px solid #dbe6f0;
     border-radius: 14px;
     box-shadow: 0 8px 22px rgba(20, 46, 76, 0.08);
@@ -774,14 +789,14 @@ fieldset{
 }
 
 .admin-dashboard .small-box h3 {
-    color: #11253c;
+    color: var(--metric-title);
     font-size: 31px;
     font-weight: 700;
     margin: 0 0 8px;
 }
 
 .admin-dashboard .small-box p {
-    color: #4f6275;
+    color: var(--metric-text);
     font-size: 14px;
     font-weight: 600;
     letter-spacing: 0.25px;
@@ -789,7 +804,7 @@ fieldset{
 }
 
 .admin-dashboard .small-box .icon {
-    color: rgba(41, 75, 112, 0.2);
+    color: var(--metric-icon);
     font-size: 64px;
     right: 14px;
     top: 10px;
@@ -797,9 +812,9 @@ fieldset{
 }
 
 .admin-dashboard .small-box-footer {
-    background: rgba(28, 78, 129, 0.06);
+    background: var(--metric-footer-bg);
     border-top: 1px solid #dbe6f0;
-    color: #21527f !important;
+    color: var(--metric-link) !important;
     font-weight: 600;
     padding: 10px 14px;
     text-align: left;
@@ -814,18 +829,125 @@ fieldset{
     transform: scale(1.06);
 }
 
-.admin-dashboard .small-box.bg-red { --metric-accent: #9b2e32; }
-.admin-dashboard .small-box.bg-yellow { --metric-accent: #a7700c; }
-.admin-dashboard .small-box.bg-aqua { --metric-accent: #167b98; }
-.admin-dashboard .small-box.bg-teal { --metric-accent: #0f6f72; }
-.admin-dashboard .small-box.bg-blue { --metric-accent: #2b4e91; }
-.admin-dashboard .small-box.bg-light-blue { --metric-accent: #1d6594; }
-.admin-dashboard .small-box.bg-green { --metric-accent: #237441; }
-.admin-dashboard .small-box.bg-navy { --metric-accent: #34495e; }
-.admin-dashboard .small-box.bg-olive { --metric-accent: #576b22; }
-.admin-dashboard .small-box.bg-maroon { --metric-accent: #7f3148; }
-.admin-dashboard .small-box.bg-lime { --metric-accent: #4d8a18; }
-.admin-dashboard .small-box.bg-purple { --metric-accent: #5f4a8d; }
+.admin-dashboard .small-box.bg-red {
+    --metric-accent: #9b2e32;
+    --metric-bg: #fbe9ea;
+    --metric-title: #5f1b1e;
+    --metric-text: #844046;
+    --metric-footer-bg: #f6d9dc;
+    --metric-link: #7c2328;
+    --metric-icon: rgba(155, 46, 50, 0.2);
+}
+
+.admin-dashboard .small-box.bg-yellow {
+    --metric-accent: #a7700c;
+    --metric-bg: #fff3de;
+    --metric-title: #6b4504;
+    --metric-text: #896127;
+    --metric-footer-bg: #fbe8c5;
+    --metric-link: #7d5508;
+    --metric-icon: rgba(167, 112, 12, 0.22);
+}
+
+.admin-dashboard .small-box.bg-aqua {
+    --metric-accent: #167b98;
+    --metric-bg: #e5f5fb;
+    --metric-title: #0d4f63;
+    --metric-text: #2d6e81;
+    --metric-footer-bg: #d3edf6;
+    --metric-link: #115f76;
+    --metric-icon: rgba(22, 123, 152, 0.22);
+}
+
+.admin-dashboard .small-box.bg-teal {
+    --metric-accent: #0f6f72;
+    --metric-bg: #def4f3;
+    --metric-title: #0a4a4d;
+    --metric-text: #2d6768;
+    --metric-footer-bg: #ccebea;
+    --metric-link: #0d5d60;
+    --metric-icon: rgba(15, 111, 114, 0.22);
+}
+
+.admin-dashboard .small-box.bg-blue {
+    --metric-accent: #2b4e91;
+    --metric-bg: #e7edfb;
+    --metric-title: #1b3260;
+    --metric-text: #3c5b93;
+    --metric-footer-bg: #d7e2fa;
+    --metric-link: #274a88;
+    --metric-icon: rgba(43, 78, 145, 0.22);
+}
+
+.admin-dashboard .small-box.bg-light-blue {
+    --metric-accent: #1d6594;
+    --metric-bg: #e4f1fa;
+    --metric-title: #134464;
+    --metric-text: #33678b;
+    --metric-footer-bg: #d1e7f7;
+    --metric-link: #1a5a83;
+    --metric-icon: rgba(29, 101, 148, 0.22);
+}
+
+.admin-dashboard .small-box.bg-green {
+    --metric-accent: #237441;
+    --metric-bg: #e6f6eb;
+    --metric-title: #174c2b;
+    --metric-text: #3b6f4d;
+    --metric-footer-bg: #d5efd8;
+    --metric-link: #1f663a;
+    --metric-icon: rgba(35, 116, 65, 0.2);
+}
+
+.admin-dashboard .small-box.bg-navy {
+    --metric-accent: #34495e;
+    --metric-bg: #e8edf2;
+    --metric-title: #212f3e;
+    --metric-text: #455566;
+    --metric-footer-bg: #d9e1e8;
+    --metric-link: #2d4054;
+    --metric-icon: rgba(52, 73, 94, 0.2);
+}
+
+.admin-dashboard .small-box.bg-olive {
+    --metric-accent: #576b22;
+    --metric-bg: #f0f6de;
+    --metric-title: #3a4717;
+    --metric-text: #5f6f33;
+    --metric-footer-bg: #e4edc6;
+    --metric-link: #4e621d;
+    --metric-icon: rgba(87, 107, 34, 0.23);
+}
+
+.admin-dashboard .small-box.bg-maroon {
+    --metric-accent: #7f3148;
+    --metric-bg: #f8e5ec;
+    --metric-title: #542032;
+    --metric-text: #7c4152;
+    --metric-footer-bg: #f0d4de;
+    --metric-link: #6f2b3f;
+    --metric-icon: rgba(127, 49, 72, 0.22);
+}
+
+.admin-dashboard .small-box.bg-lime {
+    --metric-accent: #4d8a18;
+    --metric-bg: #eef8dd;
+    --metric-title: #325b10;
+    --metric-text: #557833;
+    --metric-footer-bg: #e0f0c3;
+    --metric-link: #467d16;
+    --metric-icon: rgba(77, 138, 24, 0.22);
+}
+
+.admin-dashboard .small-box.bg-purple {
+    --metric-accent: #5f4a8d;
+    --metric-bg: #eee8f8;
+    --metric-title: #3f325d;
+    --metric-text: #655584;
+    --metric-footer-bg: #e1d8f3;
+    --metric-link: #55417e;
+    --metric-icon: rgba(95, 74, 141, 0.22);
+}
 
 @media (max-width: 991px) {
     .admin-dashboard .dashboard-hero-card {
@@ -1183,6 +1305,68 @@ fieldset{
     margin: 14px;
     padding: 18px;
     text-align: center;
+}
+
+/* Results pages: points, overall points, division winners */
+.admin-results-page .content-header h1 {
+    font-size: 29px;
+}
+
+.admin-results-page .admin-results-card {
+    border: 1px solid #d6e2ef;
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(19, 42, 67, 0.08);
+    overflow: hidden;
+}
+
+.admin-results-page .admin-results-content {
+    background: #f8fbff;
+}
+
+.admin-results-page .panel-body {
+    padding: 14px;
+}
+
+.admin-results-page .tbl-resp-listing {
+    background: #fff;
+}
+
+.admin-results-page .table tbody td {
+    white-space: normal;
+}
+
+.admin-results-page .table tbody td[data-title="Action"],
+.admin-results-page .table tbody td[data-title="24/7 Certificate"],
+.admin-results-page .table tbody td[data-title="Division Winner Certificate"] {
+    text-align: center;
+    width: 120px;
+}
+
+.admin-results-page .table tbody td[data-title="Action"] a,
+.admin-results-page .table tbody td[data-title="24/7 Certificate"] a,
+.admin-results-page .table tbody td[data-title="Division Winner Certificate"] a {
+    align-items: center;
+    background: #17416d;
+    border-radius: 8px;
+    color: #fff;
+    display: inline-flex;
+    font-size: 13px;
+    height: 28px;
+    justify-content: center;
+    text-decoration: none;
+    width: 30px;
+}
+
+.admin-results-page .table tbody td[data-title="Action"] a:hover,
+.admin-results-page .table tbody td[data-title="24/7 Certificate"] a:hover,
+.admin-results-page .table tbody td[data-title="Division Winner Certificate"] a:hover {
+    background: #0f2d4a;
+}
+
+@media (max-width: 767px) {
+    .admin-results-page .panel-body {
+        padding: 10px;
+    }
 }
 
 .admin-judges-page .admin-data-actions {
@@ -1748,6 +1932,107 @@ fieldset{
     }
 }
 
+/* Overall positions page specific polish */
+.admin-overallpositions-page .overallpositions-toolbar {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: space-between;
+}
+
+.admin-overallpositions-page .overallpositions-toolbar-copy {
+    color: #355577;
+    font-weight: 600;
+}
+
+.admin-overallpositions-page .add_new_record {
+    display: flex;
+    flex-wrap: wrap;
+    float: none;
+    gap: 8px;
+    margin-left: auto;
+    padding-right: 0;
+    position: static;
+    right: auto;
+    top: auto;
+}
+
+.admin-overallpositions-page .add_new_record .btn {
+    border-radius: 10px;
+    font-weight: 700;
+    padding: 8px 12px;
+}
+
+.admin-overallpositions-page .add_new_record .btn-default {
+    background: #184e7a;
+    border: 1px solid #184e7a;
+    color: #fff;
+}
+
+.admin-overallpositions-page .add_new_record .btn-default:hover,
+.admin-overallpositions-page .add_new_record .btn-default:focus {
+    background: #123e61;
+    border-color: #123e61;
+    color: #fff;
+}
+
+.admin-overallpositions-page .overallpositions-search-container {
+    display: flex;
+    justify-content: flex-end;
+    margin: 10px 10px 8px;
+}
+
+.admin-overallpositions-page .overallpositions-search-container #searchInput {
+    max-width: 340px;
+    width: 100%;
+}
+
+.admin-overallpositions-page .overallpositions-table .event-header td {
+    background: #e8f1fb;
+    border-top: 2px solid #d3e2f2;
+    color: #143b63;
+}
+
+.admin-overallpositions-page .overallpositions-event-title {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+}
+
+.admin-overallpositions-page .overallpositions-table td[data-title="Position"] {
+    font-weight: 700;
+    text-align: center;
+}
+
+.admin-overallpositions-page .overallpositions-table td[data-title="Student / Group"] {
+    line-height: 1.5;
+}
+
+@media (max-width: 991px) {
+    .admin-overallpositions-page .overallpositions-toolbar {
+        align-items: stretch;
+    }
+
+    .admin-overallpositions-page .overallpositions-toolbar-copy,
+    .admin-overallpositions-page .add_new_record {
+        flex: 1 1 100%;
+        margin-left: 0;
+    }
+
+    .admin-overallpositions-page .add_new_record .btn {
+        width: 100%;
+    }
+
+    .admin-overallpositions-page .overallpositions-search-container {
+        justify-content: stretch;
+    }
+
+    .admin-overallpositions-page .overallpositions-search-container #searchInput {
+        max-width: none;
+    }
+}
+
 /* Room events page specific polish */
 .admin-roomevents-page .roomevents-toolbar {
     align-items: center;
@@ -1985,6 +2270,228 @@ fieldset{
     }
 
     .admin-addroomevents-page .box-footer .btn {
+        margin-bottom: 8px;
+        width: 100%;
+    }
+}
+
+/* Generate certificate form page polish */
+.admin-certificates-page .box-header.with-border {
+    background: linear-gradient(90deg, #f6f9fd 0%, #eef4fb 100%);
+    border-bottom: 1px solid #dbe5f0;
+    padding: 12px 16px;
+}
+
+.admin-certificates-page .box-header .box-title {
+    color: #1d3a58;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.admin-certificates-page .box-body {
+    padding: 16px 16px 8px;
+}
+
+.admin-certificates-page .admin-form-note {
+    background: #f3f8ff;
+    border: 1px solid #d4e3f4;
+    border-radius: 10px;
+    color: #335574;
+    margin-bottom: 12px;
+    padding: 10px 12px;
+}
+
+.admin-certificates-page .form-horizontal .form-group {
+    border-bottom: 1px solid #edf2f7;
+    margin-left: 0;
+    margin-right: 0;
+    padding: 10px 0;
+}
+
+.admin-certificates-page .form-horizontal .form-group:last-of-type {
+    border-bottom: 0;
+}
+
+.admin-certificates-page .form-horizontal .control-label {
+    color: #2e4c69;
+    font-size: 13px;
+    font-weight: 700;
+    padding-top: 9px;
+    text-align: left;
+}
+
+.admin-certificates-page .form-horizontal .form-control {
+    border: 1px solid #c9d8e8;
+    border-radius: 10px;
+    box-shadow: none;
+    min-height: 40px;
+}
+
+.admin-certificates-page .select2-container .select2-selection--single,
+.admin-certificates-page .select2-container .select2-selection--multiple {
+    border: 1px solid #c9d8e8;
+    border-radius: 10px;
+    min-height: 40px;
+}
+
+.admin-certificates-page .select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 38px;
+}
+
+.admin-certificates-page .box-footer {
+    background: #f7fbff;
+    border-top: 1px solid #dbe5f0;
+    margin: 6px 0 0;
+    padding: 14px 16px;
+}
+
+.admin-certificates-page .box-footer .btn {
+    border-radius: 10px;
+    font-weight: 600;
+    margin-right: 8px;
+    min-width: 108px;
+    padding: 8px 16px;
+}
+
+.admin-certificates-page .box-footer .btn-info {
+    background: #1f5f8f;
+    border-color: #1f5f8f;
+}
+
+.admin-certificates-page .box-footer .btn-default {
+    background: #fff;
+    border: 1px solid #c8d6e6;
+    color: #35577a;
+}
+
+@media (max-width: 991px) {
+    .admin-certificates-page .box-header.with-border,
+    .admin-certificates-page .box-body,
+    .admin-certificates-page .box-footer {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .admin-certificates-page .form-horizontal .form-group {
+        padding: 8px 0;
+    }
+
+    .admin-certificates-page .box-footer .control-label {
+        display: none;
+    }
+
+    .admin-certificates-page .box-footer .btn {
+        margin-bottom: 8px;
+        width: 100%;
+    }
+}
+
+/* Broken record certificate form page polish */
+.admin-brokenrecordcertificate-page .box-header.with-border {
+    background: linear-gradient(90deg, #f6f9fd 0%, #eef4fb 100%);
+    border-bottom: 1px solid #dbe5f0;
+    padding: 12px 16px;
+}
+
+.admin-brokenrecordcertificate-page .box-header .box-title {
+    color: #1d3a58;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.admin-brokenrecordcertificate-page .box-body {
+    padding: 16px 16px 8px;
+}
+
+.admin-brokenrecordcertificate-page .admin-form-note {
+    background: #f3f8ff;
+    border: 1px solid #d4e3f4;
+    border-radius: 10px;
+    color: #335574;
+    margin-bottom: 12px;
+    padding: 10px 12px;
+}
+
+.admin-brokenrecordcertificate-page .form-horizontal .form-group {
+    border-bottom: 1px solid #edf2f7;
+    margin-left: 0;
+    margin-right: 0;
+    padding: 10px 0;
+}
+
+.admin-brokenrecordcertificate-page .form-horizontal .form-group:last-of-type {
+    border-bottom: 0;
+}
+
+.admin-brokenrecordcertificate-page .form-horizontal .control-label {
+    color: #2e4c69;
+    font-size: 13px;
+    font-weight: 700;
+    padding-top: 9px;
+    text-align: left;
+}
+
+.admin-brokenrecordcertificate-page .form-horizontal .form-control {
+    border: 1px solid #c9d8e8;
+    border-radius: 10px;
+    box-shadow: none;
+    min-height: 40px;
+}
+
+.admin-brokenrecordcertificate-page .select2-container .select2-selection--single,
+.admin-brokenrecordcertificate-page .select2-container .select2-selection--multiple {
+    border: 1px solid #c9d8e8;
+    border-radius: 10px;
+    min-height: 40px;
+}
+
+.admin-brokenrecordcertificate-page .select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 38px;
+}
+
+.admin-brokenrecordcertificate-page .box-footer {
+    background: #f7fbff;
+    border-top: 1px solid #dbe5f0;
+    margin: 6px 0 0;
+    padding: 14px 16px;
+}
+
+.admin-brokenrecordcertificate-page .box-footer .btn {
+    border-radius: 10px;
+    font-weight: 600;
+    margin-right: 8px;
+    min-width: 108px;
+    padding: 8px 16px;
+}
+
+.admin-brokenrecordcertificate-page .box-footer .btn-info {
+    background: #1f5f8f;
+    border-color: #1f5f8f;
+}
+
+.admin-brokenrecordcertificate-page .box-footer .btn-default {
+    background: #fff;
+    border: 1px solid #c8d6e6;
+    color: #35577a;
+}
+
+@media (max-width: 991px) {
+    .admin-brokenrecordcertificate-page .box-header.with-border,
+    .admin-brokenrecordcertificate-page .box-body,
+    .admin-brokenrecordcertificate-page .box-footer {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .admin-brokenrecordcertificate-page .form-horizontal .form-group {
+        padding: 8px 0;
+    }
+
+    .admin-brokenrecordcertificate-page .box-footer .control-label {
+        display: none;
+    }
+
+    .admin-brokenrecordcertificate-page .box-footer .btn {
         margin-bottom: 8px;
         width: 100%;
     }

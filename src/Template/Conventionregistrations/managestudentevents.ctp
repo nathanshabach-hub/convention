@@ -363,7 +363,7 @@ if ($isSmallConvention) {
 	--ui-text: #172235;
 	--ui-accent: #1b5fa7;
 	--ui-accent-soft: #e6f1ff;
-	--ui-selected: #fff8dd;
+	--ui-selected: #e8f7ec;
 }
 
 .pdf-form-shell {
@@ -585,7 +585,17 @@ if ($isSmallConvention) {
 .event-entry.is-selected td.col-name {
 	background: var(--ui-selected) !important;
 	font-weight: 700;
-	box-shadow: inset 3px 0 0 #d6b23c;
+	box-shadow: inset 3px 0 0 #51a66e;
+}
+
+.event-entry.is-selected td.col-select {
+	background: var(--ui-selected) !important;
+}
+
+.event-entry.is-selected .tick-circle {
+	border-color: #51a66e;
+	background: #f3fff7;
+	box-shadow: 0 0 0 2px rgba(81, 166, 110, 0.18);
 }
 
 .event-entry td {
@@ -643,10 +653,10 @@ if ($isSmallConvention) {
 }
 
 .tick-circle {
-	width: 16px;
-	height: 16px;
+	width: 18px;
+	height: 18px;
 	border: 2px solid #335b8d;
-	border-radius: 50%;
+	border-radius: 4px;
 	background: #fff;
 	position: relative;
 }
@@ -654,12 +664,13 @@ if ($isSmallConvention) {
 .tick-wrap input[type="checkbox"]:checked + .tick-circle::after {
 	content: '';
 	position: absolute;
-	top: 3px;
-	left: 3px;
-	width: 6px;
-	height: 6px;
-	border-radius: 50%;
-	background: #113f70;
+	top: 1px;
+	left: 5px;
+	width: 5px;
+	height: 10px;
+	border: solid #2f7f4d;
+	border-width: 0 2px 2px 0;
+	transform: rotate(45deg);
 }
 
 @media (max-width: 1200px) {

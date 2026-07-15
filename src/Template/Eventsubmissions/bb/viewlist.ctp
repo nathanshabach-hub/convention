@@ -9,7 +9,6 @@
 			</div>
 			<div class="teachers-top-heading">
 				<span>View/Edit Event Submissions</span>
-				<?php echo $this->Html->link(' + Submit New Event', ['controller' => 'eventsubmissions', 'action' => 'submitnewevent'], ['escape' => false, 'class' => 'btn btn-primary']); ?>
 			</div>
 			<!-- dashboard-section-2 start-->
 

@@ -15,6 +15,20 @@
             border-color: #a6afbd !important;
         }
 
+        .btn-json-download {
+            color: #ffffff !important;
+            background: linear-gradient(180deg, #2f6ea4 0%, #1f5a8b 100%) !important;
+            border-color: #184b77 !important;
+            text-shadow: 0 1px 0 rgba(0, 0, 0, 0.15);
+        }
+        .btn-json-download:hover,
+        .btn-json-download:focus,
+        .btn-json-download:active {
+            color: #ffffff !important;
+            background: linear-gradient(180deg, #2a6497 0%, #1a4c74 100%) !important;
+            border-color: #143f62 !important;
+        }
+
         .btn-golden-print {
             color: #4d3a06 !important;
             background: linear-gradient(180deg, #fff4c4 0%, #e7c65a 100%) !important;
@@ -24,6 +38,19 @@
         .btn-golden-print:hover,
         .btn-golden-print:focus,
         .btn-golden-print:active {
+            color: #3f2e05 !important;
+            background: linear-gradient(180deg, #ffeeb0 0%, #d9b64d 100%) !important;
+            border-color: #b99636 !important;
+        }
+        .btn-golden-download {
+            color: #4d3a06 !important;
+            background: linear-gradient(180deg, #fff9e6 0%, #f0d97a 100%) !important;
+            border-color: #c8a800 !important;
+            text-shadow: none !important;
+        }
+        .btn-golden-download:hover,
+        .btn-golden-download:focus,
+        .btn-golden-download:active {
             color: #3f2e05 !important;
             background: linear-gradient(180deg, #ffeeb0 0%, #d9b64d 100%) !important;
             border-color: #b99636 !important;
@@ -45,9 +72,19 @@
     <section class="content">
         <div class="box box-info">
             <div class="box-body">
-                <div style="margin-bottom: 12px;">
-                    <?php echo $this->Html->link('<i class="fa fa-print"></i> Print Silver Apple List', ['controller' => 'conventions', 'action' => 'scripturereadinglistprint', $slug_convention_season, $slug_convention], ['escape' => false, 'class' => 'btn btn-default btn-silver-print', 'target' => '_blank']); ?>
-                    <?php echo $this->Html->link('<i class="fa fa-print"></i> Print Golden Awards List', ['controller' => 'conventions', 'action' => 'goldenawardslistprint', $slug_convention_season, $slug_convention], ['escape' => false, 'class' => 'btn btn-default btn-golden-print', 'target' => '_blank', 'style' => 'margin-left: 8px;']); ?>
+                <div style="margin-bottom: 12px; display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-start;">
+                    <div style="display:flex; flex-direction:column; gap:4px;">
+                        <?php echo $this->Html->link('<i class="fa fa-print"></i> Print Silver Apple U16 List', ['controller' => 'conventions', 'action' => 'scripturereadinglistprint', $slug_convention_season, $slug_convention, '?' => ['division' => 'u16']], ['escape' => false, 'class' => 'btn btn-default btn-silver-print', 'target' => '_blank']); ?>
+                        <?php echo $this->Html->link('<i class="fa fa-download"></i> Download Silver Apple U16 JSON', ['controller' => 'conventions', 'action' => 'scripturereadinglistjson', $slug_convention_season, $slug_convention, '?' => ['division' => 'u16']], ['escape' => false, 'class' => 'btn btn-default btn-json-download btn-sm']); ?>
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:4px;">
+                        <?php echo $this->Html->link('<i class="fa fa-print"></i> Print Silver Apple OPEN List', ['controller' => 'conventions', 'action' => 'scripturereadinglistprint', $slug_convention_season, $slug_convention, '?' => ['division' => 'open']], ['escape' => false, 'class' => 'btn btn-default btn-silver-print', 'target' => '_blank']); ?>
+                        <?php echo $this->Html->link('<i class="fa fa-download"></i> Download Silver Apple OPEN JSON', ['controller' => 'conventions', 'action' => 'scripturereadinglistjson', $slug_convention_season, $slug_convention, '?' => ['division' => 'open']], ['escape' => false, 'class' => 'btn btn-default btn-json-download btn-sm']); ?>
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:4px;">
+                        <?php echo $this->Html->link('<i class="fa fa-print"></i> Print Golden Awards List', ['controller' => 'conventions', 'action' => 'goldenawardslistprint', $slug_convention_season, $slug_convention], ['escape' => false, 'class' => 'btn btn-default btn-golden-print', 'target' => '_blank']); ?>
+                        <?php echo $this->Html->link('<i class="fa fa-download"></i> Download Golden Awards JSON', ['controller' => 'conventions', 'action' => 'scripturereadinglistjson', $slug_convention_season, $slug_convention, '?' => ['division' => 'golden']], ['escape' => false, 'class' => 'btn btn-default btn-golden-download btn-sm']); ?>
+                    </div>
                 </div>
                 <?php if (!empty($readingListRows)) { ?>
                     <div class="table-responsive">

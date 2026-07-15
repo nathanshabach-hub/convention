@@ -256,13 +256,14 @@ class HomesController extends AppController {
                         //echo $messageToSend;exit;
                         
                         $email = new Email();
-                        $email->template('default', 'admintemplate')
-                            ->emailFormat('html')
-                            ->to($emailId)
-                            ->cc(HEADERS_CC)
-                            ->from([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-                            ->subject($subjectToSend)
-                            ->viewVars(['content_for_layout' => $messageToSend])
+                        $email->setTemplate('default')
+                            ->setLayout('admintemplate')
+                            ->setEmailFormat('html')
+                            ->setTo($emailId)
+                            ->setCc(HEADERS_CC)
+                            ->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
+                            ->setSubject($subjectToSend)
+                            ->setViewVars(['content_for_layout' => $messageToSend])
                             ->send();
                             
                         $this->Flash->success('Registration link sent successfully.');
@@ -343,13 +344,14 @@ class HomesController extends AppController {
                 //echo $messageToSend;exit;
                 
                 $email = new Email();
-                $email->template('default', 'admintemplate')
-                    ->emailFormat('html')
-                    ->to($emailId)
-                    //->cc(HEADERS_CC)
-                    ->from([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-                    ->subject($subjectToSend)
-                    ->viewVars(['content_for_layout' => $messageToSend])
+                $email->setTemplate('default')
+                            ->setLayout('admintemplate')
+                    ->setEmailFormat('html')
+                    ->setTo($emailId)
+                    //->setCc(HEADERS_CC)
+                    ->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
+                    ->setSubject($subjectToSend)
+                    ->setViewVars(['content_for_layout' => $messageToSend])
                     ->send();
                 
                 // confirm school account

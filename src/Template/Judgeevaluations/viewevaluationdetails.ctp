@@ -110,7 +110,7 @@ $this->Crstudentevents = TableRegistry::get('Crstudentevents');
 			if($evaluationD->Events['event_judging_type'] == 'distances')
 			{
 			?>
-			<table class="table table-bordered table-striped table-condensed cf">
+			<table class="table table-bordered table-striped table-condensed cf distance-attempts-table">
 			<tr>
 				<td>1st Attempt</td>
 				<td>2nd Attempt</td>

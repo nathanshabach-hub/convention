@@ -1,14 +1,55 @@
 <?php
-$instructionalVideos = [
-	['title' => 'ACP 1: Introduction and Registration', 'url' => 'https://www.youtube.com/embed/r398Y2db2nc?list=PL4xufnmI4bVnF63e3fYwzF-gGUO6incFX'],
-	['title' => 'ACP 2: Global List Information', 'url' => 'https://www.youtube.com/embed/dcBTlI2_w20?list=PL4xufnmI4bVnF63e3fYwzF-gGUO6incFX'],
-	['title' => 'ACP 3: Price Structure, Supervisor and Student Registration', 'url' => 'https://www.youtube.com/embed/Zk2dhRuNsDo?list=PL4xufnmI4bVnF63e3fYwzF-gGUO6incFX'],
-	['title' => 'ACP 4: Student Event Registration', 'url' => 'https://www.youtube.com/embed/Cyn9-uJKeuY?list=PL4xufnmI4bVnF63e3fYwzF-gGUO6incFX'],
-	['title' => 'ACP 5: Events of the Heart', 'url' => 'https://www.youtube.com/embed/6G-03VkSMdY?list=PL4xufnmI4bVnF63e3fYwzF-gGUO6incFX'],
-	['title' => 'ACP 6: Judges Portal Tutorial', 'url' => 'https://www.youtube.com/embed/G4vxpK0kzPQ?list=PL4xufnmI4bVnF63e3fYwzF-gGUO6incFX'],
-	['title' => 'ACP 7: How To Register As A Judge', 'url' => 'https://www.youtube.com/embed/mYBJPgexNmk'],
-	['title' => 'ACP 8: Results List and Judges Forms', 'url' => 'https://www.youtube.com/embed/uysBVmzqGXU?list=PL4xufnmI4bVnF63e3fYwzF-gGUO6incFX'],
-];
+if (!function_exists('buildInstructionalVideoEmbedUrl')) {
+	function buildInstructionalVideoEmbedUrl($videoLink)
+	{
+		$videoLink = trim((string)$videoLink);
+		if ($videoLink === '') {
+			return '';
+		}
+
+		if (preg_match('/youtu\.be\/([A-Za-z0-9_-]{6,})/i', $videoLink, $matches)) {
+			return 'https://www.youtube.com/embed/' . $matches[1];
+		}
+
+		if (preg_match('/(?:v=|embed\/)([A-Za-z0-9_-]{6,})/i', $videoLink, $matches)) {
+			return 'https://www.youtube.com/embed/' . $matches[1];
+		}
+
+		if (preg_match('/^[A-Za-z0-9_-]{6,}$/', $videoLink)) {
+			return 'https://www.youtube.com/embed/' . $videoLink;
+		}
+
+		return $videoLink;
+	}
+}
+
+$instructionalVideos = [];
+if (!empty($settingsD)) {
+	$videoLinks = [];
+	if (!empty($settingsD->video_links_json)) {
+		$decodedVideoLinks = json_decode((string)$settingsD->video_links_json, true);
+		if (is_array($decodedVideoLinks)) {
+			$videoLinks = $decodedVideoLinks;
+		}
+	}
+
+	if (empty($videoLinks)) {
+		for ($i = 1; $i <= 9; $i++) {
+			$fieldName = 'video_link_' . $i;
+			if (!empty($settingsD->{$fieldName})) {
+				$videoLinks[] = $settingsD->{$fieldName};
+			}
+		}
+	}
+
+	foreach (array_values(array_filter(array_map('trim', (array)$videoLinks))) as $index => $videoLink) {
+		$instructionalVideos[] = [
+			'title' => 'Video ' . ($index + 1),
+			'url' => buildInstructionalVideoEmbedUrl($videoLink),
+		];
+	}
+}
+
 $dashboardUser = (object) ['first_name' => '', 'email_address' => '', 'user_type' => ''];
 if (isset($userDetails) && is_object($userDetails)) {
 	$dashboardUser = $userDetails;
@@ -84,16 +125,20 @@ if (isset($userDetails) && is_object($userDetails)) {
 						<div class="instructional-videos-section">
 							<h3>Instructional Videos</h3>
 							<p class="instructional-videos-intro">Please see the instructional videos below for navigation of the Convention Portal. For any other questions, please contact the events team.</p>
-							<div class="instructional-videos-grid">
-								<?php foreach ($instructionalVideos as $video) { ?>
-									<div class="instructional-video-card">
-										<div class="instructional-video-title"><?php echo h($video['title']); ?></div>
-										<div class="instructional-video-frame">
-											<iframe src="<?php echo h($video['url']); ?>" title="<?php echo h($video['title']); ?>" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+							<?php if (!empty($instructionalVideos)) { ?>
+								<div class="instructional-videos-grid">
+									<?php foreach ($instructionalVideos as $video) { ?>
+										<div class="instructional-video-card">
+											<div class="instructional-video-title"><?php echo h($video['title']); ?></div>
+											<div class="instructional-video-frame">
+												<iframe src="<?php echo h($video['url']); ?>" title="<?php echo h($video['title']); ?>" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+											</div>
 										</div>
-									</div>
-								<?php } ?>
-							</div>
+									<?php } ?>
+								</div>
+							<?php } else { ?>
+								<p class="instructional-videos-intro">No instructional videos are configured yet.</p>
+							<?php } ?>
 						</div>
 					</div>
 				</div>
@@ -116,17 +161,21 @@ if (isset($userDetails) && is_object($userDetails)) {
 						}
 						?>
 						
-						<p class="instructional-videos-intro">Please see the instructional videos below for navigation of the Convention Portal. For any other questions, please contact the events team.</p>
-						<div class="instructional-videos-grid">
-							<?php foreach ($instructionalVideos as $video) { ?>
-								<div class="instructional-video-card">
-									<div class="instructional-video-title"><?php echo h($video['title']); ?></div>
-									<div class="instructional-video-frame">
-										<iframe src="<?php echo h($video['url']); ?>" title="<?php echo h($video['title']); ?>" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+						<?php if (!empty($instructionalVideos)) { ?>
+							<p class="instructional-videos-intro">Please see the instructional videos below for navigation of the Convention Portal. For any other questions, please contact the events team.</p>
+							<div class="instructional-videos-grid">
+								<?php foreach ($instructionalVideos as $video) { ?>
+									<div class="instructional-video-card">
+										<div class="instructional-video-title"><?php echo h($video['title']); ?></div>
+										<div class="instructional-video-frame">
+											<iframe src="<?php echo h($video['url']); ?>" title="<?php echo h($video['title']); ?>" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+										</div>
 									</div>
-								</div>
-							<?php } ?>
-						</div>
+								<?php } ?>
+							</div>
+						<?php } else { ?>
+							<p class="instructional-videos-intro">No instructional videos are configured yet.</p>
+						<?php } ?>
 						
 						<p>&nbsp;</p>
 						<p>&nbsp;</p>

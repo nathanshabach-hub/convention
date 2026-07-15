@@ -17,6 +17,7 @@ namespace App\Controller;
 use Cake\Controller\Controller;
 use Cake\Event\EventInterface;
 use Cake\Utility\Inflector;
+use Cake\Utility\Text;
 use Cake\Mailer\Email;
 use Cake\Controller\Component\FlashComponent;
 use Cake\Datasource\ConnectionManager;
@@ -1105,7 +1106,7 @@ class AppController extends Controller{
 	}
     
     public function getSlug($str, $table='Admins'){
-        $slug = Inflector::slug($str);
+        $slug = Text::slug($str);
         $slug = strtolower($slug);
         //$slug = 'dinesh-dhaker';
         $isRecord =  $this->$table->find()->where([$table . '.slug like' => $slug . '%'])->order([$table.'.id'=>'DESC'])->first();

@@ -4,33 +4,8 @@ $this->Events = TableRegistry::get('Events');
 $this->Users = TableRegistry::get('Users');
 $this->Resultpositions = TableRegistry::get('Resultpositions');
 $this->Crstudentevents = TableRegistry::get('Crstudentevents');
+$showSearch = isset($showSearch) ? (bool)$showSearch : true;
 ?>
-<style>
-    .search-container {
-      position: relative;
-      width: 181px;
-	  height:34px;
-      margin-bottom: 10px;
-	  text-align: right;
-	  display: flex;
-	  margin-left: auto; /* Push to right */
-		position: relative;
-    }
-    #searchInput {
-      width: 100%;
-      padding: 8px 30px 8px 8px;
-    }
-    /* .clear-icon {
-      position: absolute;
-      right: 8px;
-      top: 8px;
-      cursor: pointer;
-      display: none;
-      font-weight: bold;
-      font-size: 16px;
-      color: #666;
-    } */
-  </style>
 <script>
   $(document).ready(function () {
     $('#searchInput').on('keyup', function () {
@@ -71,16 +46,18 @@ $this->Crstudentevents = TableRegistry::get('Crstudentevents');
         <?php echo $this->Form->create(NULL, ['id' => 'addresults', 'type' => 'file', 'class' => ' ']); ?>
         <section id="no-more-tables" class="lstng-section">
             <div class="topn">
-                <div class="topn_left"> View Overall Positions - <?php echo $conventionD->name; ?> <?php echo $conventionSD->season_year; ?></div>  
+                <div class="topn_left">Overall Winners - <?php echo $conventionD->name; ?> <?php echo $conventionSD->season_year; ?></div>
             </div>   
 
             <div class="tbl-resp-listing">
-                <div class="search-container">
-				  <input type="text" id="searchInput" placeholder="Search...">
-				  <!--<span class="clear-icon" id="clearSearch">&times;</span>-->
-				</div>
+				<?php if ($showSearch) { ?>
+        <div class="search-container overallpositions-search-container">
+          <input type="text" id="searchInput" class="form-control" placeholder="Search event, student/group or school...">
+          <!--<span class="clear-icon" id="clearSearch">&times;</span>-->
+        </div>
+				<?php } ?>
 				
-				<table id="results_table_view" class="table table-bordered table-condensed cf">
+        <table id="results_table_view" class="table table-bordered table-condensed cf overallpositions-table">
                      
 					
 					<?php
@@ -91,10 +68,11 @@ $this->Crstudentevents = TableRegistry::get('Crstudentevents');
 						$condEvents = array();
 						$condEvents[] = "(Events.id IN ($arrConvSeasonEventImplode) )";
             $eventOrderSeedVal = isset($eventOrderSeed) ? (int)$eventOrderSeed : 0;
+              $choirEventId = 871;
             if ($eventOrderSeedVal > 0) {
-              $events = $this->Events->find()->where($condEvents)->order('RAND('.$eventOrderSeedVal.')')->all();
+                $events = $this->Events->find()->where($condEvents)->order('CASE WHEN Events.id = '.$choirEventId.' THEN 1 ELSE 0 END ASC, RAND('.$eventOrderSeedVal.')')->all();
             } else {
-              $events = $this->Events->find()->where($condEvents)->order('rand()')->all();
+                $events = $this->Events->find()->where($condEvents)->order('CASE WHEN Events.id = '.$choirEventId.' THEN 1 ELSE 0 END ASC, rand()')->all();
             }
 					?>
 					
@@ -103,11 +81,11 @@ $this->Crstudentevents = TableRegistry::get('Crstudentevents');
 						foreach($events as $event)
 						{
 							// to check position
-							$countpositions = $this->Resultpositions->find()->where(["Resultpositions.conventionseason_id" => $conventionSD->id,"Resultpositions.event_id" => $event->id,"Resultpositions.position >" => 0,"Resultpositions.position <=" => 3])->order(["Resultpositions.position" => "ASC"])->count();
+              $countpositions = $this->Resultpositions->find()->where(["Resultpositions.conventionseason_id" => $conventionSD->id,"Resultpositions.event_id" => $event->id,"Resultpositions.position >" => 0,"Resultpositions.position <=" => 3])->order(["Resultpositions.position" => "ASC"])->count();
 							//print_r($overallpositions[0]->id>0);
-							if($countpositions>0)
+              if($countpositions>0)
 							{
-                echo '<tr class="event-header" data-event-key="'.$event->id.'" data-search="'.h(strtolower($event->event_name.' '.$event->event_id_number)).'"><td colspan="3" style="font-size:16px;font-weight:bold;">'.$event->event_name.' ('.$event->event_id_number.')</td></tr>';
+          echo '<tr class="event-header" data-event-key="'.$event->id.'" data-search="'.h(strtolower($event->event_name.' '.$event->event_id_number)).'"><td colspan="3" class="overallpositions-event-title">'.$event->event_name.' ('.$event->event_id_number.')</td></tr>';
 								
                 $overallpositions = $this->Resultpositions->find()->where(["Resultpositions.conventionseason_id" => $conventionSD->id,"Resultpositions.event_id" => $event->id,"Resultpositions.position >" => 0,"Resultpositions.position <=" => 3])->order(["Resultpositions.position" => "DESC"])->contain(['Users'])->all();
 								

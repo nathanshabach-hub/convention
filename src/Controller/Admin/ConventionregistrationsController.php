@@ -450,15 +450,18 @@ class ConventionregistrationsController extends AppController {
 			
 			try {
 				$email = new Email();
-				$email->setTemplate('default')
-					->setLayout('admintemplate')
-					->setEmailFormat('html')
+				$email->setEmailFormat('html')
 					->setTo($emailId)
 					->setCc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
 					->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-					->setSubject($subjectToSend)
-					->setViewVars(['content_for_layout' => $messageToSend])
-					->send();
+					->setSubject($subjectToSend);
+
+				$email->viewBuilder()
+					->setTemplate('default')
+					->setLayout('admintemplate')
+					->setVar('content_for_layout', $messageToSend);
+
+				$email->send();
 			} catch (\Exception $e) {
 				// Keep admin action successful even if email transport fails.
 			}
@@ -495,15 +498,18 @@ class ConventionregistrationsController extends AppController {
 			
 			try {
 				$email = new Email();
-				$email->setTemplate('default')
-					->setLayout('admintemplate')
-					->setEmailFormat('html')
+				$email->setEmailFormat('html')
 					->setTo($emailId)
 					->setCc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
 					->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-					->setSubject($subjectToSend)
-					->setViewVars(['content_for_layout' => $messageToSend])
-					->send();
+					->setSubject($subjectToSend);
+
+				$email->viewBuilder()
+					->setTemplate('default')
+					->setLayout('admintemplate')
+					->setVar('content_for_layout', $messageToSend);
+
+				$email->send();
 			} catch (\Exception $e) {
 				// Keep admin action successful even if email transport fails.
 			}
@@ -580,15 +586,50 @@ class ConventionregistrationsController extends AppController {
 			{	
 				//$this->prx($this->request->getData());
 				
-				$send_email_notification = $this->request->getData()['send_email_notification'];
+				$send_email_notification = (int)$this->request->getData('send_email_notification', 0);
+
+				$oldJudgeEventIds = array();
+				if (!empty($CRDetails->judges_event_ids)) {
+					$oldJudgeEventIds = array_values(array_unique(array_filter(array_map('intval', explode(',', (string)$CRDetails->judges_event_ids)))));
+				}
 				
-				if(count($this->request->getData()['Conventionregistrations']['judges_event_ids']))
+				$selectedJudgeEvents = $this->request->getData('Conventionregistrations.judges_event_ids');
+				$newJudgeEventIdsArr = array();
+				if (is_array($selectedJudgeEvents)) {
+					$newJudgeEventIdsArr = array_values(array_unique(array_filter(array_map('intval', $selectedJudgeEvents))));
+				} else if (!empty($selectedJudgeEvents)) {
+					$newJudgeEventIdsArr = array_values(array_unique(array_filter(array_map('intval', explode(',', (string)$selectedJudgeEvents)))));
+				}
+
+				if (is_array($selectedJudgeEvents) && count($selectedJudgeEvents) > 0)
 				{
-					$judges_event_ids 			= implode(",",$this->request->getData()['Conventionregistrations']['judges_event_ids']);
+					$judges_event_ids 			= implode(",", $selectedJudgeEvents);
+				}
+				else if (!is_array($selectedJudgeEvents) && !empty($selectedJudgeEvents))
+				{
+					$judges_event_ids 			= (string)$selectedJudgeEvents;
 				}
 				else
 				{
 					$judges_event_ids 			= '';
+				}
+
+				$removedJudgeEventIds = array_values(array_diff($oldJudgeEventIds, $newJudgeEventIdsArr));
+				$removedEvaluationsCount = 0;
+				if (!empty($removedJudgeEventIds)) {
+					$this->loadModel('Judgeevaluations');
+					$deleteCond = [
+						'Judgeevaluations.uploaded_by_user_id' => $CRDetails->user_id,
+						'Judgeevaluations.event_id IN' => $removedJudgeEventIds,
+						'Judgeevaluations.conventionseason_id' => $CRDetails->conventionseason_id,
+						'Judgeevaluations.convention_id' => $CRDetails->convention_id,
+						'Judgeevaluations.season_id' => $CRDetails->season_id,
+						'Judgeevaluations.season_year' => $CRDetails->season_year,
+					];
+					$removedEvaluationsCount = $this->Judgeevaluations->find()->where($deleteCond)->count();
+					if ($removedEvaluationsCount > 0) {
+						$this->Judgeevaluations->deleteAll($deleteCond);
+					}
 				}
 				
 				$this->Conventionregistrations->updateAll(['judges_event_ids' => $judges_event_ids, 'modified' => date("Y-m-d H:i:s")], ["slug" => $slug]);
@@ -629,7 +670,12 @@ class ConventionregistrationsController extends AppController {
 				}
 				
 				
-				$this->Flash->success('Events list updated successfully.'.$msgNot);
+				$msgDelete = '';
+				if ($removedEvaluationsCount > 0) {
+					$msgDelete = ' Removed '.$removedEvaluationsCount.' evaluation'.($removedEvaluationsCount == 1 ? '' : 's').' for unassigned event'.($removedEvaluationsCount == 1 ? '' : 's').'.';
+				}
+
+				$this->Flash->success('Events list updated successfully.'.$msgDelete.$msgNot);
 				$this->redirect(['controller'=>'conventionregistrations', 'action' => 'index']);
 				 
 			}
@@ -1072,7 +1118,10 @@ class ConventionregistrationsController extends AppController {
         $this->set('dashboard', '1');
 		
 		$sess_admin_header_season_id = $this->request->session()->read("sess_admin_header_season_id");
-		$convSeasonD = $this->Conventionseasons->find()->where(['Conventionseasons.id' => $sess_admin_header_season_id])->first();
+		$convSeasonD = null;
+		if (!empty($sess_admin_header_season_id)) {
+			$convSeasonD = $this->Conventionseasons->find()->where(['Conventionseasons.id' => $sess_admin_header_season_id])->first();
+		}
 		
 		$this->set('convSeasonD', $convSeasonD);
 		
@@ -1082,7 +1131,17 @@ class ConventionregistrationsController extends AppController {
 		
 		
 		$conventionregistrations = $this->Conventionregistrations->find()->contain(['Users'])->where($condition)->order(["Conventionregistrations.id" => "DESC"])->all();
-		$this->set('conventionregistrations', $conventionregistrations);
+
+		// Deduplicate: keep only the latest registration per school (highest id comes first)
+		$seen = [];
+		$unique = [];
+		foreach ($conventionregistrations as $record) {
+			if (!in_array($record->user_id, $seen)) {
+				$seen[] = $record->user_id;
+				$unique[] = $record;
+			}
+		}
+		$this->set('conventionregistrations', new \Cake\Collection\Collection($unique));
     }
 
 	public function deleteschoolregistration($conv_reg_slug = null) {
@@ -1165,12 +1224,30 @@ class ConventionregistrationsController extends AppController {
         //$this->set('registrationsList', '1');
 		
 		$sess_admin_header_season_id = $this->request->session()->read("sess_admin_header_season_id");
-		$convSeasonD = $this->Conventionseasons->find()->where(['Conventionseasons.id' => $sess_admin_header_season_id])->first();
-		
-		$condition[] = "(Conventionregistrations.convention_id = '".$convSeasonD->convention_id."' AND Conventionregistrations.season_id = '".$convSeasonD->season_id."' AND Conventionregistrations.season_year = '".$convSeasonD->season_year."')";
+		$convSeasonD = null;
+		if (!empty($sess_admin_header_season_id)) {
+			$convSeasonD = $this->Conventionseasons->find()->where(['Conventionseasons.id' => $sess_admin_header_season_id])->first();
+		}
+
+		$condition = [];
+		if (!empty($convSeasonD)) {
+			$condition[] = "(Conventionregistrations.convention_id = '".$convSeasonD->convention_id."' AND Conventionregistrations.season_id = '".$convSeasonD->season_id."' AND Conventionregistrations.season_year = '".$convSeasonD->season_year."')";
+		} else {
+			$condition[] = "(Conventionregistrations.id IN (0))";
+		}
 		
 		$conventionregistrations = $this->Conventionregistrations->find()->contain(['Users'])->where($condition)->order(["Conventionregistrations.id" => "DESC"])->all();
-		$this->set('conventionregistrations', $conventionregistrations);
+
+		// Deduplicate: keep only the latest registration per judge (highest id comes first)
+		$seen = [];
+		$unique = [];
+		foreach ($conventionregistrations as $record) {
+			if (!in_array($record->user_id, $seen)) {
+				$seen[] = $record->user_id;
+				$unique[] = $record;
+			}
+		}
+		$this->set('conventionregistrations', new \Cake\Collection\Collection($unique));
     }
 
 	public function participationcertificatepdf($resultpositions_slug = null) {

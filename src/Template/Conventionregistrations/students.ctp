@@ -9,7 +9,12 @@
 			</div>
 			<div class="teachers-top-heading cr-students-header">
 				<span class="cr-students-title">Student Registration</span>
-				<?php echo $this->Html->link(' + Add Student', ['controller' => 'conventionregistrations', 'action' => 'addstudent'], ['escape' => false, 'class' => 'btn btn-primary']); ?>
+				<div style="display:flex; gap:8px; float:right;">
+					<?php echo $this->Html->link(' + Add Student', ['controller' => 'conventionregistrations', 'action' => 'addstudent'], ['escape' => false, 'class' => 'btn btn-primary']); ?>
+					<?php if (!empty($resultsReleased)): ?>
+					<?php echo $this->Html->link('<i class="fa fa-download"></i> Download All Results', ['controller' => 'conventionregistrations', 'action' => 'downloadallresults'], ['escape' => false, 'class' => 'btn btn-success', 'target' => '_blank', 'rel' => 'noopener']); ?>
+					<?php endif; ?>
+				</div>
 			</div>
 			<!-- dashboard-section-2 start-->
 

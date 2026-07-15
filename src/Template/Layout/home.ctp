@@ -4,6 +4,9 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#1c2452">
+	<link rel="manifest" href="/manifest.json">
+	<link rel="apple-touch-icon" href="/img/pwa-icon-192.png">
 	<link rel="shortcut icon" type="image/x-icon" href="<?php echo HTTP_PATH; ?>/img/favicon.ico" />
 	<title>
 		<?php echo isset($title_for_layout) ? $title_for_layout : SITE_TITLE; ?>
@@ -133,6 +136,16 @@
 </script>
 <a href="#" id="goTop" title="Go to top">↑ Top</a>
 
+<!-- PWA: offline status bar -->
+<div id="acp-offline-bar" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#1c2452;color:#fff;padding:10px 18px;font-size:14px;font-weight:600;align-items:center;justify-content:space-between;gap:12px;">
+  <span>📡 You are offline — evaluations will sync when you reconnect.</span>
+  <span id="acp-sync-badge" style="display:none;background:#d6b23c;color:#1c2452;border-radius:999px;padding:3px 12px;font-size:12px;font-weight:700;"></span>
+</div>
+
+<!-- PWA: install button (shown by JS when available) -->
+<button id="acp-install-btn" style="display:none;position:fixed;bottom:56px;right:18px;z-index:9999;background:#1c2452;color:#fff;border:none;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,0.22);">📲 Install App</button>
+
+<script src="/js/acp-pwa.js"></script>
 </body>
 
 </html>

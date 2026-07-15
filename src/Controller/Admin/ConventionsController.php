@@ -1015,13 +1015,23 @@ class ConventionsController extends AppController {
 		$this->set(compact('conventionSD', 'conventionD', 'slug_convention_season', 'slug_convention'));
 
 		$certTypes = [
-			'participation' => 'Participation Certificate',
-			'achievement'   => 'Achievement Certificate',
-			'excellence'    => 'Excellence Certificate',
-			'appreciation'  => 'Appreciation Certificate',
-			'custom'        => 'Custom Certificate',
+			'participation'   => 'Participation Certificate',
+			'achievement'     => 'Achievement Certificate',
+			'excellence'      => 'Excellence Certificate',
+			'appreciation'    => 'Appreciation Certificate',
+			'silver_apple'    => 'Silver Apple',
+			'golden_apple'    => 'Golden Apple',
+			'golden_lamb'     => 'Golden Lamb',
+			'golden_harp'     => 'Golden Harp',
+			'christian_worker'=> 'Christian Worker',
+			'christian_soilder'=> 'Christian Soldier',
+			'custom'          => 'Custom Certificate',
 		];
-		$this->set('certTypes', $certTypes);
+		$recipientTypes = [
+			'student' => 'Student',
+			'staff' => 'Staff',
+		];
+		$this->set(compact('certTypes', 'recipientTypes'));
 	}
 
 	public function certificatespdf($slug_convention_season = null, $slug_convention = null) {
@@ -1038,17 +1048,29 @@ class ConventionsController extends AppController {
 			return $this->redirect(['controller' => 'conventions', 'action' => 'index']);
 		}
 
-		$cert_type   = $this->request->getData()('Certificates.cert_type');
-		$name        = trim((string)$this->request->getData()('Certificates.name'));
-		$description = trim((string)$this->request->getData()('Certificates.description'));
+		$cert_type      = (string)$this->request->getData('Certificates.cert_type');
+		$name           = trim((string)$this->request->getData('Certificates.name'));
+		$description    = trim((string)$this->request->getData('Certificates.description'));
+		$school_name    = trim((string)$this->request->getData('Certificates.school_name'));
+		$recipient_type = (string)$this->request->getData('Certificates.recipient_type');
 
 		$certTypes = [
-			'participation' => 'Participation Certificate',
-			'achievement'   => 'Achievement Certificate',
-			'excellence'    => 'Excellence Certificate',
-			'appreciation'  => 'Appreciation Certificate',
-			'custom'        => 'Custom Certificate',
+			'participation'   => 'Participation Certificate',
+			'achievement'     => 'Achievement Certificate',
+			'excellence'      => 'Excellence Certificate',
+			'appreciation'    => 'Appreciation Certificate',
+			'silver_apple'    => 'Silver Apple',
+			'golden_apple'    => 'Golden Apple',
+			'golden_lamb'     => 'Golden Lamb',
+			'golden_harp'     => 'Golden Harp',
+			'christian_worker'=> 'Christian Worker',
+			'christian_soilder'=> 'Christian Soilder',
+			'custom'          => 'Custom Certificate',
 		];
+
+		if (!in_array($recipient_type, ['student', 'staff'], true)) {
+			$recipient_type = 'student';
+		}
 		$cert_type_label = isset($certTypes[$cert_type]) ? $certTypes[$cert_type] : 'Certificate';
 
 		$arrCertData = [
@@ -1056,6 +1078,8 @@ class ConventionsController extends AppController {
 			'season_year'     => $conventionSD->season_year,
 			'name'            => $name,
 			'description'     => $description,
+			'school_name'     => $school_name,
+			'recipient_type'  => $recipient_type,
 			'cert_type'       => $cert_type,
 			'cert_type_label' => $cert_type_label,
 		];
@@ -1063,6 +1087,62 @@ class ConventionsController extends AppController {
 		$this->set(compact('arrCertData', 'conventionSD', 'conventionD', 'slug_convention_season', 'slug_convention'));
 	}
 	
+	public function certificatesbatchpdf($slug_convention_season = null, $slug_convention = null) {
+		$this->viewBuilder()->disableAutoLayout();
+
+		if (!$slug_convention_season || !$slug_convention) {
+			return $this->redirect(['controller' => 'conventions', 'action' => 'index']);
+		}
+
+		$conventionSD = $this->Conventionseasons->find()->where(['Conventionseasons.slug' => $slug_convention_season])->first();
+		$conventionD  = $this->Conventions->find()->where(['Conventions.slug' => $slug_convention])->first();
+
+		if (!$conventionSD || !$conventionD) {
+			return $this->redirect(['controller' => 'conventions', 'action' => 'index']);
+		}
+
+		$certTypes = [
+			'participation'    => 'Participation Certificate',
+			'achievement'      => 'Achievement Certificate',
+			'excellence'       => 'Excellence Certificate',
+			'appreciation'     => 'Appreciation Certificate',
+			'silver_apple'     => 'Silver Apple',
+			'golden_apple'     => 'Golden Apple',
+			'golden_lamb'      => 'Golden Lamb',
+			'golden_harp'      => 'Golden Harp',
+			'christian_worker' => 'Christian Worker',
+			'christian_soilder'=> 'Christian Soilder',
+			'custom'           => 'Custom Certificate',
+		];
+
+		$rawQueue = (string)$this->request->getData('queue_data');
+		$queue = json_decode($rawQueue, true);
+		if (!is_array($queue)) { $queue = []; }
+
+		$certificates = [];
+		foreach ($queue as $item) {
+			$cert_type      = isset($item['cert_type']) ? (string)$item['cert_type'] : '';
+			$name           = isset($item['name']) ? trim((string)$item['name']) : '';
+			$school_name    = isset($item['school_name']) ? trim((string)$item['school_name']) : '';
+			$description    = isset($item['description']) ? trim((string)$item['description']) : '';
+			$recipient_type = isset($item['recipient_type']) ? (string)$item['recipient_type'] : 'student';
+			if (!in_array($recipient_type, ['student', 'staff'], true)) { $recipient_type = 'student'; }
+			$cert_type_label = isset($certTypes[$cert_type]) ? $certTypes[$cert_type] : 'Certificate';
+			$certificates[] = [
+				'convention_name' => $conventionD->name,
+				'season_year'     => $conventionSD->season_year,
+				'name'            => $name,
+				'description'     => $description,
+				'school_name'     => $school_name,
+				'recipient_type'  => $recipient_type,
+				'cert_type'       => $cert_type,
+				'cert_type_label' => $cert_type_label,
+			];
+		}
+
+		$this->set(compact('certificates', 'conventionSD', 'conventionD', 'slug_convention_season', 'slug_convention'));
+	}
+
 	public function importeventsfromprevyear($slug_convention_season = null,$slug_convention = null) {
 		
 		$this->redirect(['controller' => 'conventions', 'action' => 'events',$slug_convention_season,$slug_convention]);
@@ -1764,6 +1844,8 @@ class ConventionsController extends AppController {
 		
 		$finalSchoolsList 		= array();
 		$finalSchoolsEventsList = array();
+		$finalCertCount         = array();
+		$finalEventStudentCount = array(); // [school_id][event_id] => count
 		
 		
 		// to get all schools registered for this convention season
@@ -1793,6 +1875,18 @@ class ConventionsController extends AppController {
 								// add school to list
 								$finalSchoolsEventsList[$convreg->user_id][] = $steventid;
 							}
+
+							// count each individual student-event certificate
+							if (!isset($finalCertCount[$convreg->user_id])) {
+								$finalCertCount[$convreg->user_id] = 0;
+							}
+							$finalCertCount[$convreg->user_id]++;
+
+							// count students per school per event
+							if (!isset($finalEventStudentCount[$convreg->user_id][$steventid])) {
+								$finalEventStudentCount[$convreg->user_id][$steventid] = 0;
+							}
+							$finalEventStudentCount[$convreg->user_id][$steventid]++;
 						}
 					}
 				}
@@ -1809,6 +1903,8 @@ class ConventionsController extends AppController {
 		
 		$this->set('finalSchoolsList', $finalSchoolsList);
 		$this->set('finalSchoolsEventsList', $finalSchoolsEventsList);
+		$this->set('finalCertCount', $finalCertCount);
+		$this->set('finalEventStudentCount', $finalEventStudentCount);
 		
     }
 
@@ -1888,10 +1984,128 @@ class ConventionsController extends AppController {
 		}
 
 		$readingListRows = $this->buildScriptureReadingListRows($conventionSD);
+		$goldenAwardEventNumbers = $this->getGoldenAwardEventNumbers();
+		if (!empty($goldenAwardEventNumbers)) {
+			$readingListRows = array_values(array_filter($readingListRows, function ($row) use ($goldenAwardEventNumbers) {
+				$eventCode = isset($row['event_ids']) ? trim((string)$row['event_ids']) : '';
+				return !in_array($eventCode, $goldenAwardEventNumbers, true);
+			}));
+		}
+
+		// filter by division if requested
+		$divisionFilter = (string)$this->request->getQuery('division');
+		if ($divisionFilter === 'u16') {
+			$readingListRows = array_values(array_filter($readingListRows, function ($row) {
+				$eventCode = isset($row['event_ids']) ? trim((string)$row['event_ids']) : '';
+				return $eventCode === '1005';
+			}));
+		} elseif ($divisionFilter === 'open') {
+			$readingListRows = array_values(array_filter($readingListRows, function ($row) {
+				$eventCode = isset($row['event_ids']) ? trim((string)$row['event_ids']) : '';
+				return $eventCode === '1055';
+			}));
+		}
+
 		$groupedReadingList = $this->groupReadingListRowsByPlaceAndSchool($readingListRows);
 
 		$this->set('readingListRows', $readingListRows);
 		$this->set('groupedReadingList', $groupedReadingList);
+	}
+
+	// download scripture reading list as JSON
+	public function scripturereadinglistjson($slug_convention_season = null,$slug_convention = null) {
+
+		if (empty($slug_convention_season) || empty($slug_convention)) {
+			return $this->response->withStatus(400)->withType('application/json')->withStringBody(json_encode([
+				'error' => 'Missing required parameters.',
+			], JSON_PRETTY_PRINT));
+		}
+
+		$conventionSD = $this->Conventionseasons->find()->where(['Conventionseasons.slug' => $slug_convention_season])->first();
+		if (!$conventionSD) {
+			return $this->response->withStatus(404)->withType('application/json')->withStringBody(json_encode([
+				'error' => 'Convention season not found.',
+			], JSON_PRETTY_PRINT));
+		}
+
+		$conventionD = $this->Conventions->find()->where(['Conventions.slug' => $slug_convention])->first();
+		if (!$conventionD) {
+			return $this->response->withStatus(404)->withType('application/json')->withStringBody(json_encode([
+				'error' => 'Convention not found.',
+			], JSON_PRETTY_PRINT));
+		}
+
+		$readingListRows = $this->buildScriptureReadingListRows($conventionSD);
+		$goldenAwardEventNumbers = $this->getGoldenAwardEventNumbers();
+
+		$divisionFilter = (string)$this->request->getQuery('division');
+
+		if ($divisionFilter === 'u16') {
+			$readingListRows = array_values(array_filter($readingListRows, function ($row) {
+				$eventCode = isset($row['event_ids']) ? trim((string)$row['event_ids']) : '';
+				return $eventCode === '1005';
+			}));
+		} elseif ($divisionFilter === 'open') {
+			$readingListRows = array_values(array_filter($readingListRows, function ($row) {
+				$eventCode = isset($row['event_ids']) ? trim((string)$row['event_ids']) : '';
+				return $eventCode === '1055';
+			}));
+		} elseif ($divisionFilter === 'golden') {
+			if (!empty($goldenAwardEventNumbers)) {
+				$readingListRows = array_values(array_filter($readingListRows, function ($row) use ($goldenAwardEventNumbers) {
+					$eventCode = isset($row['event_ids']) ? trim((string)$row['event_ids']) : '';
+					return in_array($eventCode, $goldenAwardEventNumbers, true);
+				}));
+			} else {
+				$readingListRows = [];
+			}
+		} else {
+			// Default: exclude golden awards (Silver Apple only)
+			if (!empty($goldenAwardEventNumbers)) {
+				$readingListRows = array_values(array_filter($readingListRows, function ($row) use ($goldenAwardEventNumbers) {
+					$eventCode = isset($row['event_ids']) ? trim((string)$row['event_ids']) : '';
+					return !in_array($eventCode, $goldenAwardEventNumbers, true);
+				}));
+			}
+		}
+
+		$divisionSuffix = $divisionFilter ? '-' . $divisionFilter : '';
+
+		$payload = [];
+		foreach ($readingListRows as $row) {
+			$eventCode = isset($row['event_ids']) ? trim((string)$row['event_ids']) : '';
+			$position = isset($row['place']) ? trim((string)$row['place']) : '';
+			$books = isset($row['book_names']) ? trim((string)$row['book_names']) : '';
+
+			$category = 'Silver Apple';
+			if ($eventCode === '1005') {
+				$category = 'Silver Apple U16';
+			} elseif ($eventCode === '1055') {
+				$category = 'Silver Apple OPEN';
+			}
+
+			$payload[] = [
+				'category' => $category,
+				'position' => ($position !== '' ? $position : '-'),
+				'name' => isset($row['student_name']) ? (string)$row['student_name'] : '',
+				'school' => isset($row['school_name']) ? (string)$row['school_name'] : '',
+				'books' => $books,
+				'book_names' => $books,
+				'event_id' => $eventCode,
+			];
+		}
+
+		$filenameBase = strtolower((string)$conventionD->name . '-' . (string)$conventionSD->season_year . '-scripture-reading-list' . $divisionSuffix);
+		$filenameBase = preg_replace('/[^a-z0-9\-]+/', '-', $filenameBase);
+		$filenameBase = trim($filenameBase, '-');
+		if ($filenameBase === '') {
+			$filenameBase = 'scripture-reading-list';
+		}
+
+		return $this->response
+			->withType('application/json')
+			->withDownload($filenameBase . '.json')
+			->withStringBody(json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 	}
 
 	// to show printable golden awards criteria list
@@ -2516,13 +2730,14 @@ class ConventionsController extends AppController {
 				//echo $messageToSend; exit;
 				
 				$email = new Email();
-				$email->template('default', 'admintemplate')
-					->emailFormat('html')
-					->to($emailId)
-					->cc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
-					->from([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-					->subject($subjectToSend)
-					->viewVars(['content_for_layout' => $messageToSend])
+				$email->setTemplate('default')
+                            ->setLayout('admintemplate')
+					->setEmailFormat('html')
+					->setTo($emailId)
+					->setCc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
+					->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
+					->setSubject($subjectToSend)
+					->setViewVars(['content_for_layout' => $messageToSend])
 					->send();
 					
 				$this->Flash->success('Reminder notification sent successfully to judge..');

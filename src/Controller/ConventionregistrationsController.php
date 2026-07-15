@@ -6,6 +6,7 @@ use Cake\Datasource\ConnectionManager;
 use App\Controller\AppController;
 use Cake\Core\Configure;
 use Cake\Core\Configure\Engine\PhpConfig;
+use Cake\Utility\Security;
 use Cake\Mailer\Email;
 use Cake\I18n\I18n;
 
@@ -38,6 +39,7 @@ class ConventionregistrationsController extends AppController {
 		$this->loadModel("Results");
 		$this->loadModel("Resultpositions");
 		$this->loadModel("Books");
+		$this->loadModel("Judgeevaluations");
     }
 	
 	public function myregistrations() {
@@ -51,26 +53,47 @@ class ConventionregistrationsController extends AppController {
 		$this->set('active_convention_registrations','active');
 		
 		$user_id = $this->request->session()->read("user_id");
+		if (empty($user_id)) {
+			$this->Flash->error('Please login first.');
+			return $this->redirect(['controller' => 'users', 'action' => 'login']);
+		}
 		$userDetails = null;
 		if (!empty($user_id)) {
 			$userDetails = $this->Users->find()->where(['Users.id' => $user_id])->first();
 		}
         $this->set('userDetails', $userDetails);
+		$isJudgeView = (!empty($userDetails) && $userDetails->user_type == 'Judge') || $this->request->session()->read("current_session_profile_type") == 'Judge';
 		
 		// first to get season_id for current year
 		$season_id = $this->getCurrentSeason();
 		$seasonD = $this->Seasons->find()->where(['Seasons.id' => $season_id])->first();
 		$this->set('seasonD',$seasonD);
 		
-        $conditionCurrentSeason = array();
-		$conditionCurrentSeason[] = "(Conventionregistrations.user_id = '".$user_id."')";
-		$conditionCurrentSeason[] = "(Conventionregistrations.season_id = '".$season_id."')";
-		$conditionCurrentSeason[] = "(Conventionregistrations.season_year = '".$seasonD->season_year."')";
-		$conventionregistrations = $this->Conventionregistrations->find()->where($conditionCurrentSeason)->order(['Conventionregistrations.id' => 'DESC'])->contain(['Conventions'])->all();
+		$conditionMyRegistrations = [
+			'Conventionregistrations.user_id' => $user_id
+		];
+
+		if (!$isJudgeView) {
+			$conditionMyRegistrations['Conventionregistrations.season_id'] = $season_id;
+			$conditionMyRegistrations['Conventionregistrations.season_year'] = $seasonD->season_year;
+		}
+
+		$conventionregistrations = $this->Conventionregistrations->find()
+			->where($conditionMyRegistrations)
+			->order(['Conventionregistrations.id' => 'DESC'])
+			->contain(['Conventions'])
+			->all();
 		$this->set('conventionregistrations', $conventionregistrations);
+
+		$conditionCurrentSeason = [
+			'Conventionregistrations.user_id' => $user_id,
+			'Conventionregistrations.season_id' => $season_id,
+			'Conventionregistrations.season_year' => $seasonD->season_year,
+		];
+		$currentSeasonRegistrations = $this->Conventionregistrations->find()->where($conditionCurrentSeason)->all();
 		
 		$myRegConvArr = array();
-		foreach($conventionregistrations as $myconvreg)
+		foreach($currentSeasonRegistrations as $myconvreg)
 		{
 			$myRegConvArr[] = $myconvreg->convention_id;
 		}
@@ -434,6 +457,17 @@ class ConventionregistrationsController extends AppController {
 		// to check if price structure chosen for this convention registration or not
 		$checkPriceStructure = $this->Conventionregistrations->find()->where(['Conventionregistrations.id' => $this->request->session()->read("sess_selected_convention_registration_id")])->first();
 		$this->set('checkPriceStructure', $checkPriceStructure);
+
+		// Results PDF availability on students list is controlled by admin season release toggle.
+		$resultsReleased = false;
+		$conventionRegForResults = $this->Conventionregistrations->find()
+			->where(['Conventionregistrations.id' => $this->request->session()->read("sess_selected_convention_registration_id")])
+			->contain(['Conventionseasons'])
+			->first();
+		if (!empty($conventionRegForResults) && !empty($conventionRegForResults->Conventionseasons)) {
+			$resultsReleased = ((int)$conventionRegForResults->Conventionseasons['results_release'] === 1);
+		}
+		$this->set('resultsReleased', $resultsReleased);
 		
 		// to get list of events in which certificate print is allowed
 		$arrEventCP = array();
@@ -508,6 +542,335 @@ class ConventionregistrationsController extends AppController {
         }
     }
 	
+	public function downloadallresults() {
+		$helperServerPid = 0;
+		try {
+
+		$this->userLoginCheck();
+		$this->schoolAdminLoginCheck();
+
+		$sess_selected_convention_registration_id = $this->request->session()->read("sess_selected_convention_registration_id");
+		if (empty($sess_selected_convention_registration_id)) {
+			return $this->response->withStatus(403)->withStringBody('No convention registration selected.');
+		}
+
+		// Only allow download when results are released
+		$conventionReg = $this->Conventionregistrations->find()
+			->where(['Conventionregistrations.id' => $sess_selected_convention_registration_id])
+			->contain(['Conventionseasons', 'Conventions'])
+			->first();
+
+		if (empty($conventionReg) || empty($conventionReg->Conventionseasons) || (int)$conventionReg->Conventionseasons['results_release'] !== 1) {
+			return $this->response->withStatus(403)->withStringBody('Results have not been released yet.');
+		}
+
+		$students = $this->Conventionregistrationstudents->find()
+			->where(['Conventionregistrationstudents.conventionregistration_id' => $sess_selected_convention_registration_id])
+			->contain(['Students'])
+			->order(['Students.first_name' => 'ASC', 'Students.last_name' => 'ASC'])
+			->all();
+		$totalStudents = (int)$students->count();
+
+		if ($totalStudents === 0) {
+			return $this->response->withStatus(404)->withStringBody('No students found for this convention registration.');
+		}
+
+		$this->viewBuilder()->disableAutoLayout();
+		$this->autoRender = false;
+		@ini_set('zlib.output_compression', '0');
+		@ini_set('output_buffering', 'off');
+		while (ob_get_level() > 0) {
+			@ob_end_flush();
+		}
+		header('Content-Type: text/html; charset=utf-8');
+		header('Cache-Control: no-cache, no-store, must-revalidate');
+		header('Pragma: no-cache');
+		header('Expires: 0');
+
+		echo '<!doctype html><html><head><meta charset="utf-8"><title>Generating Student Results ZIP</title>';
+		echo '<style>body{font-family:Arial,sans-serif;background:#f5f7fb;margin:0;padding:24px;color:#1d2736}.card{max-width:760px;margin:0 auto;background:#fff;border:1px solid #d8e0ec;border-radius:10px;padding:20px;box-shadow:0 2px 8px rgba(8,24,49,.06)}h2{margin:0 0 10px 0;font-size:22px}.muted{color:#5b6b83;font-size:14px}.bar{height:14px;background:#e8eef7;border-radius:999px;overflow:hidden;margin:16px 0}.bar > div{height:100%;width:0;background:linear-gradient(90deg,#0f6c96,#0b8f59)}.log{border:1px solid #e2e8f2;border-radius:8px;background:#fbfdff;padding:10px;height:280px;overflow:auto;font-size:13px;line-height:1.4}.ok{color:#0b8f59}.warn{color:#c7860e}.err{color:#c23131}.done{margin-top:14px;padding:10px 12px;border-radius:8px;background:#edf8ef;border:1px solid #bfe2c5}</style>';
+		echo '</head><body><div class="card">';
+		echo '<h2>Generating Student Results ZIP</h2>';
+		echo '<div class="muted" id="statusText">Starting... (0/' . (int)$totalStudents . ')</div>';
+		echo '<div class="bar"><div id="progressBar"></div></div>';
+		echo '<div class="log" id="progressLog"></div>';
+		echo '<div id="doneArea"></div>';
+		echo '</div>';
+		echo '<script>function esc(v){return String(v).replace(/[&<>"]/g,function(c){return ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"})[c];});}function updateProgress(done,total,msg,cls){var pct=total>0?Math.max(0,Math.min(100,Math.round((done/total)*100))):0;document.getElementById("statusText").textContent="Generating PDFs... ("+done+"/"+total+")";document.getElementById("progressBar").style.width=pct+"%";var log=document.getElementById("progressLog");var line=document.createElement("div");if(cls){line.className=cls;}line.innerHTML=esc(msg);log.appendChild(line);log.scrollTop=log.scrollHeight;}function markDone(html){document.getElementById("doneArea").innerHTML=html;}</script>';
+		@ob_flush();
+		flush();
+
+		$tmpRoot = rtrim(TMP, DS) . DS . 'student-result-pack-' . $sess_selected_convention_registration_id . '-' . time();
+		if (!is_dir($tmpRoot) && !@mkdir($tmpRoot, 0775, true) && !is_dir($tmpRoot)) {
+			echo '<script>markDone("<div class="err">Could not create temporary directory for ZIP generation.</div>");</script></body></html>';
+			return $this->response;
+		}
+
+		$cleanupDir = null;
+		$cleanupDir = function ($dir) use (&$cleanupDir) {
+			if (!is_dir($dir)) {
+				return;
+			}
+			$items = array_diff(scandir($dir), ['.', '..']);
+			foreach ($items as $item) {
+				$path = $dir . DS . $item;
+				if (is_dir($path)) {
+					$cleanupDir($path);
+				} else {
+					@unlink($path);
+				}
+			}
+			@rmdir($dir);
+		};
+
+		$chromeBinary = '';
+		$browserCandidates = ['google-chrome', 'google-chrome-stable', 'chromium-browser', 'chromium'];
+		foreach ($browserCandidates as $browserCandidate) {
+			$resolvedBinary = trim((string)@shell_exec('command -v ' . escapeshellarg($browserCandidate)));
+			if ($resolvedBinary !== '') {
+				$chromeBinary = $resolvedBinary;
+				break;
+			}
+		}
+
+		if ($chromeBinary === '') {
+			$cleanupDir($tmpRoot);
+			echo '<script>markDone("<div class="err">PDF renderer is not available on server (Chrome/Chromium not found).</div>");</script></body></html>';
+			return $this->response;
+		}
+
+		$baseUrl = rtrim((string)HTTP_PATH, '/');
+		if (PHP_SAPI === 'cli-server') {
+			$helperHost = '127.0.0.1';
+			$helperPort = null;
+
+			for ($attempt = 0; $attempt < 10; $attempt++) {
+				$candidatePort = random_int(20000, 45000);
+				$socket = @fsockopen($helperHost, $candidatePort, $errno, $errstr, 0.2);
+				if ($socket === false) {
+					$helperPort = $candidatePort;
+					break;
+				}
+				@fclose($socket);
+			}
+
+			if ($helperPort === null) {
+				$cleanupDir($tmpRoot);
+				echo '<script>markDone("<div class="err">Could not allocate a helper localhost port for PDF generation.</div>");</script></body></html>';
+				return $this->response;
+			}
+
+			$docRoot = ROOT . DS . 'webroot';
+			$routerScript = $docRoot . DS . 'index.php';
+			$helperCmd = escapeshellarg((string)PHP_BINARY)
+				. ' -S ' . $helperHost . ':' . (int)$helperPort
+				. ' -t ' . escapeshellarg($docRoot)
+				. ' ' . escapeshellarg($routerScript)
+				. ' >/dev/null 2>&1 & echo $!';
+
+			$helperServerPid = (int)trim((string)@shell_exec($helperCmd));
+			if ($helperServerPid <= 0) {
+				$cleanupDir($tmpRoot);
+				echo '<script>markDone("<div class="err">Could not start helper localhost server for PDF generation.</div>");</script></body></html>';
+				return $this->response;
+			}
+
+			usleep(400000);
+			$baseUrl = 'http://' . $helperHost . ':' . (int)$helperPort;
+		}
+
+		$exp = time() + 900;
+		$generatedPdfPaths = [];
+		$usedNames = [];
+		$timeoutBinary = trim((string)@shell_exec('command -v timeout'));
+		$processedCount = 0;
+
+		foreach ($students as $student) {
+			$studentSlug = (string)$student->slug;
+			if ($studentSlug === '') {
+				$processedCount++;
+				echo '<script>updateProgress(' . (int)$processedCount . ',' . (int)$totalStudents . ',"Skipped student with empty slug","warn");</script>';
+				@ob_flush();
+				flush();
+				continue;
+			}
+
+			$studentName = trim((string)$student->Students['first_name'] . ' ' . (string)$student->Students['last_name']);
+			$safeName = preg_replace('/[^a-z0-9\-]+/i', '-', strtolower($studentName));
+			$safeName = trim((string)$safeName, '-');
+			if ($safeName === '') {
+				$safeName = 'student-' . (int)$student->student_id;
+			}
+			if (isset($usedNames[$safeName])) {
+				$usedNames[$safeName]++;
+				$safeName .= '-' . $usedNames[$safeName];
+			} else {
+				$usedNames[$safeName] = 1;
+			}
+
+			$tokenPayload = $studentSlug . '|' . $exp . '|' . $sess_selected_convention_registration_id;
+			$sig = hash_hmac('sha256', $tokenPayload, Security::getSalt());
+
+			$pdfPath = $tmpRoot . DS . $safeName . '.pdf';
+			$printUrl = $baseUrl . '/judgeevaluations/indrespackprint/' . rawurlencode($studentSlug) . '?exp=' . $exp . '&sig=' . urlencode($sig) . '&autoprint=0';
+
+			$cmdCore = escapeshellarg($chromeBinary)
+				. ' --headless --disable-gpu --no-sandbox --virtual-time-budget=10000'
+				. ' --print-to-pdf=' . escapeshellarg($pdfPath)
+				. ' ' . escapeshellarg($printUrl) . ' 2>&1';
+
+			$cmd = $timeoutBinary !== ''
+				? escapeshellarg($timeoutBinary) . ' 30s ' . $cmdCore
+				: $cmdCore;
+
+			@exec($cmd, $commandOutput, $exitCode);
+			if ($exitCode === 0 && file_exists($pdfPath) && filesize($pdfPath) > 0) {
+				$generatedPdfPaths[] = $pdfPath;
+				$processedCount++;
+				echo '<script>updateProgress(' . (int)$processedCount . ',' . (int)$totalStudents . ',"Generated: ' . addslashes($studentName) . '","ok");</script>';
+				@ob_flush();
+				flush();
+			} else {
+				$processedCount++;
+				echo '<script>updateProgress(' . (int)$processedCount . ',' . (int)$totalStudents . ',"Failed: ' . addslashes($studentName) . '","err");</script>';
+				@ob_flush();
+				flush();
+			}
+		}
+
+		if (empty($generatedPdfPaths)) {
+			$cleanupDir($tmpRoot);
+			echo '<script>markDone("<div class="err">Could not generate student result PDFs.</div>");</script></body></html>';
+			return $this->response;
+		}
+
+		$conventionName = preg_replace('/[^a-z0-9\-]+/', '-', strtolower($conventionReg->Conventions['name'] ?? 'results'));
+		$seasonYear = (string)($conventionReg->Conventionseasons['season_year'] ?? date('Y'));
+		$zipFilename = $conventionName . '-' . $seasonYear . '-student-results.zip';
+		$zipPath = $tmpRoot . DS . $zipFilename;
+
+		$zip = new \ZipArchive();
+		if ($zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
+			$cleanupDir($tmpRoot);
+			echo '<script>markDone("<div class="err">Could not create ZIP file.</div>");</script></body></html>';
+			return $this->response;
+		}
+
+		foreach ($generatedPdfPaths as $generatedPdfPath) {
+			$zip->addFile($generatedPdfPath, basename($generatedPdfPath));
+		}
+		$zip->close();
+
+		if (!file_exists($zipPath) || filesize($zipPath) <= 0) {
+			$cleanupDir($tmpRoot);
+			echo '<script>markDone("<div class="err">Generated ZIP is empty.</div>");</script></body></html>';
+			return $this->response;
+		}
+
+		$downloadToken = Security::hash(uniqid('zipdl', true), 'sha1', true);
+		$sessionTokens = (array)$this->request->session()->read('downloadallresults_tokens');
+		$sessionTokens[$downloadToken] = [
+			'zip_path' => $zipPath,
+			'zip_name' => $zipFilename,
+			'tmp_root' => $tmpRoot,
+			'expires' => time() + 3600,
+			'registration_id' => (int)$sess_selected_convention_registration_id,
+		];
+
+		foreach ($sessionTokens as $tokenKey => $tokenMeta) {
+			if (empty($tokenMeta['expires']) || (int)$tokenMeta['expires'] < time()) {
+				if (!empty($tokenMeta['tmp_root']) && is_dir((string)$tokenMeta['tmp_root'])) {
+					$cleanupDir((string)$tokenMeta['tmp_root']);
+				}
+				unset($sessionTokens[$tokenKey]);
+			}
+		}
+
+		$this->request->session()->write('downloadallresults_tokens', $sessionTokens);
+
+		$downloadUrl = $this->request->getAttribute('webroot') . 'conventionregistrations/downloadallresultsfile/' . rawurlencode($downloadToken);
+		echo '<script>markDone("<div class=\"done\"><strong>ZIP ready.</strong><br><a href=\"' . addslashes($downloadUrl) . '\">Click here if download does not start automatically</a></div>");window.location.href=' . json_encode($downloadUrl) . ';</script>';
+		echo '</body></html>';
+		return $this->response;
+		} catch (\Throwable $e) {
+			if (!headers_sent()) {
+				header('Content-Type: text/html; charset=utf-8');
+			}
+			echo '<script>markDone("<div class="err">Failed to generate ZIP: ' . addslashes($e->getMessage()) . '</div>");</script></body></html>';
+			return $this->response;
+		} finally {
+			if ($helperServerPid > 0) {
+				@exec('kill ' . (int)$helperServerPid . ' >/dev/null 2>&1');
+			}
+		}
+	}
+
+	public function downloadallresultsfile($downloadToken = null)
+	{
+		$this->userLoginCheck();
+		$this->schoolAdminLoginCheck();
+
+		$token = (string)$downloadToken;
+		if ($token === '') {
+			return $this->response->withStatus(400)->withStringBody('Missing download token.');
+		}
+
+		$sessionTokens = (array)$this->request->session()->read('downloadallresults_tokens');
+		if (empty($sessionTokens[$token])) {
+			return $this->response->withStatus(404)->withStringBody('Download token not found or expired.');
+		}
+
+		$tokenMeta = (array)$sessionTokens[$token];
+		if ((int)($tokenMeta['expires'] ?? 0) < time()) {
+			unset($sessionTokens[$token]);
+			$this->request->session()->write('downloadallresults_tokens', $sessionTokens);
+			return $this->response->withStatus(410)->withStringBody('Download token expired. Please generate again.');
+		}
+
+		$zipPath = (string)($tokenMeta['zip_path'] ?? '');
+		$zipName = (string)($tokenMeta['zip_name'] ?? 'student-results.zip');
+		$tmpRoot = (string)($tokenMeta['tmp_root'] ?? '');
+
+		if ($zipPath === '' || !file_exists($zipPath)) {
+			unset($sessionTokens[$token]);
+			$this->request->session()->write('downloadallresults_tokens', $sessionTokens);
+			return $this->response->withStatus(404)->withStringBody('ZIP file no longer available.');
+		}
+
+		$zipBody = (string)@file_get_contents($zipPath);
+		if ($zipBody === '') {
+			return $this->response->withStatus(500)->withStringBody('ZIP file is empty.');
+		}
+
+		if ($tmpRoot !== '' && is_dir($tmpRoot)) {
+			$cleanupDir = null;
+			$cleanupDir = function ($dir) use (&$cleanupDir) {
+				if (!is_dir($dir)) {
+					return;
+				}
+				$items = array_diff(scandir($dir), ['.', '..']);
+				foreach ($items as $item) {
+					$path = $dir . DS . $item;
+					if (is_dir($path)) {
+						$cleanupDir($path);
+					} else {
+						@unlink($path);
+					}
+				}
+				@rmdir($dir);
+			};
+			$cleanupDir($tmpRoot);
+		}
+
+		unset($sessionTokens[$token]);
+		$this->request->session()->write('downloadallresults_tokens', $sessionTokens);
+
+		return $this->response
+			->withType('application/zip')
+			->withDownload($zipName)
+			->withStringBody($zipBody);
+	}
+
 	public function addstudent() {
 
 		$this->userLoginCheck();
@@ -2038,7 +2401,117 @@ class ConventionregistrationsController extends AppController {
 			$this->Flash->error('Invalid information.');
 		}
 	}
-	
+
+	/**
+	 * PWA: returns judge's assigned event + submission data as JSON for offline pre-caching.
+	 * Called by acp-pwa.js on login/page load when the judge is online.
+	 */
+	public function precachejudgedata($conv_reg_slug = null) {
+		$this->userLoginCheck();
+		$this->multiLoginCheck(['Teacher_Parent', 'Judge']);
+
+		$this->viewBuilder()->setLayout(null);
+		$this->response = $this->response->withType('application/json');
+
+		$user_id = $this->request->session()->read('user_id');
+
+		if (!$conv_reg_slug && $this->request->session()->read('sess_selected_convention_registration_id') > 0) {
+			$convReg = $this->Conventionregistrations->find()
+				->where(['Conventionregistrations.id' => $this->request->session()->read('sess_selected_convention_registration_id')])
+				->contain(['Conventions'])
+				->first();
+		} elseif ($conv_reg_slug) {
+			$convReg = $this->Conventionregistrations->find()
+				->where(['Conventionregistrations.slug' => $conv_reg_slug])
+				->contain(['Conventions'])
+				->first();
+		}
+
+		if (empty($convReg)) {
+			echo json_encode(['ok' => false, 'error' => 'No convention registration found']);
+			return $this->response;
+		}
+
+		// Build events list
+		$events = [];
+		$eventIds = '0';
+		if (!empty($convReg->judges_event_ids)) {
+			$eventIds = $convReg->judges_event_ids;
+			$eventList = $this->Events->find()
+				->where(["Events.id IN ($eventIds)", "Events.status = '1'"])
+				->order(['Events.event_id_number' => 'ASC'])
+				->all();
+			foreach ($eventList as $ev) {
+				$events[] = [
+					'id'              => $ev->id,
+					'slug'            => $ev->slug,
+					'event_name'      => $ev->event_name,
+					'event_id_number' => $ev->event_id_number,
+					'group_event'     => $ev->group_event_yes_no,
+				];
+			}
+		}
+
+		// Build submissions list for each event
+		$submissions = [];
+		if (!empty($events)) {
+			$eventIdsArr = array_map(function ($e) { return $e['id']; }, $events);
+			$submissionList = $this->Eventsubmissions->find()
+				->where([
+					'Eventsubmissions.conventionregistration_id' => $convReg->id,
+					'Eventsubmissions.event_id IN'               => $eventIdsArr,
+					'Eventsubmissions.guideline_breach'          => '0',
+				])
+				->contain(['Students'])
+				->order(['Eventsubmissions.id' => 'ASC'])
+				->all();
+
+			foreach ($submissionList as $sub) {
+				$studentName = '';
+				if (!empty($sub->student_id) && isset($sub->Students)) {
+					$studentName = trim(($sub->Students['first_name'] ?? '') . ' ' . ($sub->Students['last_name'] ?? ''));
+				} elseif (!empty($sub->group_name)) {
+					$studentName = $sub->group_name;
+				}
+
+				// Check if already evaluated by this judge
+				$alreadyEvaluated = false;
+				if (!empty($user_id)) {
+					$alreadyEvaluated = $this->Judgeevaluations->find()
+						->where([
+							'Judgeevaluations.eventsubmission_id'    => $sub->id,
+							'Judgeevaluations.uploaded_by_user_id'   => $user_id,
+						])
+						->count() > 0;
+				}
+
+				$submissions[] = [
+					'id'                  => $sub->id,
+					'slug'                => $sub->slug,
+					'event_id'            => $sub->event_id,
+					'student_name'        => $studentName,
+					'event_id_number'     => $sub->event_id_number,
+					'group_name'          => $sub->group_name,
+					'already_evaluated'   => $alreadyEvaluated,
+				];
+			}
+		}
+
+		$payload = [
+			'ok'           => true,
+			'conv_reg_slug' => $convReg->slug,
+			'convention'   => $convReg->Conventions['name'] ?? '',
+			'season_year'  => $convReg->season_year,
+			'events'       => $events,
+			'submissions'  => $submissions,
+			'eval_forms'   => $this->_buildEvalFormsCache($events),
+			'cached_at'    => date('c'),
+		];
+
+		echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+		return $this->response;
+	}
+
 	public function judgeevents($conv_reg_slug=null) {
 
         $this->userLoginCheck();
@@ -2182,6 +2655,25 @@ class ConventionregistrationsController extends AppController {
 		$eventEvaluationForm = $this->Evaluationforms->find()->where(['OR' => $condEvalForm])->order(["Evaluationforms.id" => "DESC"])->first();
 		$this->set('hasEvaluationForm', (bool)$eventEvaluationForm);
 
+		// Bible Memory OPEN (1056) uses manual place entry instead of an evaluation form
+		$isBiblePlacingEvent = ($eventD->event_id_number == '1056');
+		$this->set('isBiblePlacingEvent', $isBiblePlacingEvent);
+
+		// Load existing places saved by this judge for this event (keyed by eventsubmission_id)
+		$existingPlaces = array();
+		if($isBiblePlacingEvent && !empty($user_id))
+		{
+			$placeEvals = $this->Judgeevaluations->find()->where([
+				'Judgeevaluations.event_id' => $eventD->id,
+				'Judgeevaluations.uploaded_by_user_id' => $user_id,
+			])->all();
+			foreach($placeEvals as $pe)
+			{
+				$existingPlaces[$pe->eventsubmission_id] = $pe->place;
+			}
+		}
+		$this->set('existingPlaces', $existingPlaces);
+
 		$baseCondition = array();
 		$baseCondition[] = "(Eventsubmissions.convention_id = '".$conventionRegD->convention_id."')";
 		$baseCondition[] = "(Eventsubmissions.event_id = '".$eventD->id."')";
@@ -2216,6 +2708,233 @@ class ConventionregistrationsController extends AppController {
 		//$this->prx($convBackBtn);
 		$this->set('convBackBtn',$convBackBtn);
     }
+
+	public function savejudgetotalscore($conv_reg_slug=null, $eventsubmission_slug=null) {
+
+		$this->userLoginCheck();
+		$this->multiLoginCheck(['Teacher_Parent','Judge']);
+
+		$user_id = $this->request->session()->read("user_id");
+
+		$conventionRegD = $this->Conventionregistrations->find()->where(['Conventionregistrations.slug' => $conv_reg_slug])->first();
+		$submissionD = $this->Eventsubmissions->find()->where(['Eventsubmissions.slug' => $eventsubmission_slug])->contain(['Students'])->first();
+
+		if(empty($conventionRegD) || empty($submissionD))
+		{
+			$this->Flash->error('Invalid entry.');
+			return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'judgeevents', $conv_reg_slug]);
+		}
+
+		$eventD = $this->Events->find()->where(['Events.id' => $submissionD->event_id])->first();
+		if(empty($eventD))
+		{
+			$this->Flash->error('Invalid event.');
+			return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'judgeevents', $conv_reg_slug]);
+		}
+
+		if($this->request->is(['post','put']))
+		{
+			$scoreRaw = trim((string)$this->request->getData('total_score'));
+			if($scoreRaw === '' || !is_numeric($scoreRaw))
+			{
+				$this->Flash->error('Please enter a valid total score.');
+				return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'judgeevententries', $conv_reg_slug, $eventD->slug]);
+			}
+
+			$totalScore = (float)$scoreRaw;
+			if($totalScore < 0)
+			{
+				$this->Flash->error('Total score cannot be negative.');
+				return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'judgeevententries', $conv_reg_slug, $eventD->slug]);
+			}
+
+			$je = $this->Judgeevaluations->find()->where([
+				'Judgeevaluations.eventsubmission_id' => $submissionD->id,
+				'Judgeevaluations.uploaded_by_user_id' => $user_id,
+			])->first();
+
+			if(empty($je))
+			{
+				$je = $this->Judgeevaluations->newEntity([]);
+				$je->slug = 'judge-event-score-'.$submissionD->id.'-'.time().'-'.rand(100,1000000);
+				$je->eventsubmission_id = $submissionD->id;
+				$je->conventionregistration_id = $submissionD->conventionregistration_id;
+				$je->conventionseason_id = $submissionD->conventionseason_id;
+				$je->convention_id = $submissionD->convention_id;
+				$je->season_id = $submissionD->season_id;
+				$je->season_year = $submissionD->season_year;
+				$je->event_id = $submissionD->event_id;
+				$je->event_id_number = $eventD->event_id_number;
+				$je->student_id = $submissionD->student_id;
+				$je->group_name = $submissionD->group_name;
+				$je->user_id = $submissionD->user_id;
+				$je->uploaded_by_user_id = $user_id;
+				$je->created = date('Y-m-d H:i:s');
+			}
+
+			$existingPossible = isset($je->total_marks_possible) && $je->total_marks_possible !== null ? (float)$je->total_marks_possible : 0;
+			$je->total_marks_possible = $existingPossible;
+			$je->total_marks_obtained = $totalScore;
+			$je->did_not_attend = 0;
+			$je->modified = date('Y-m-d H:i:s');
+
+			if($this->Judgeevaluations->save($je))
+			{
+				$this->Flash->success('Total score saved successfully.');
+			}
+			else
+			{
+				$this->Flash->error('Unable to save total score.');
+			}
+		}
+
+		return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'judgeevententries', $conv_reg_slug, $eventD->slug]);
+	}
+	
+	public function savebibleplace($conv_reg_slug=null, $eventsubmission_slug=null) {
+
+		$this->userLoginCheck();
+		$this->multiLoginCheck(['Teacher_Parent','Judge']);
+
+		$user_id = $this->request->session()->read("user_id");
+
+		$conventionRegD = $this->Conventionregistrations->find()->where(['Conventionregistrations.slug' => $conv_reg_slug])->first();
+		$submissionD = $this->Eventsubmissions->find()->where(['Eventsubmissions.slug' => $eventsubmission_slug])->contain(['Students'])->first();
+
+		if(empty($conventionRegD) || empty($submissionD))
+		{
+			$this->Flash->error('Invalid entry.');
+			return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'judgeevents', $conv_reg_slug]);
+		}
+
+		$eventD = $this->Events->find()->where(['Events.id' => $submissionD->event_id])->first();
+
+		// Only Bible Memory OPEN (1056) supports manual place entry
+		if(empty($eventD) || $eventD->event_id_number != '1056')
+		{
+			$this->Flash->error('Placing is not enabled for this event.');
+			return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'judgeevents', $conv_reg_slug]);
+		}
+
+		if($this->request->is(['post','put']))
+		{
+			$place = (int)$this->request->getData('place');
+			$pointsMap = [1 => 12, 2 => 10, 3 => 8];
+			$points = isset($pointsMap[$place]) ? $pointsMap[$place] : 0;
+
+			// find existing judge evaluation for this submission by this judge
+			$je = $this->Judgeevaluations->find()->where([
+				'Judgeevaluations.eventsubmission_id' => $submissionD->id,
+				'Judgeevaluations.uploaded_by_user_id' => $user_id,
+			])->first();
+
+			if($place < 1)
+			{
+				// clearing the place removes the evaluation and result position
+				if($je)
+				{
+					$this->Judgeevaluations->deleteAll(['id' => $je->id]);
+				}
+				$existingResult = $this->Results->find()->where([
+					'Results.conventionseason_id' => $submissionD->conventionseason_id,
+					'Results.convention_id' => $submissionD->convention_id,
+					'Results.season_id' => $submissionD->season_id,
+					'Results.season_year' => $submissionD->season_year,
+					'Results.event_id' => $eventD->id,
+				])->first();
+				if($existingResult)
+				{
+					$this->Resultpositions->deleteAll([
+						'result_id' => $existingResult->id,
+						'eventsubmission_id' => $submissionD->id,
+					]);
+				}
+				$this->Flash->success('Place cleared for '.($submissionD->Students['first_name'] ?? 'entry').'.');
+				return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'judgeevententries', $conv_reg_slug, $eventD->slug]);
+			}
+
+			if(empty($je))
+			{
+				$je = $this->Judgeevaluations->newEntity([]);
+				$je->slug = 'judge-event-evaluation-'.$submissionD->id.'-'.time().'-'.rand(100,1000000);
+				$je->eventsubmission_id = $submissionD->id;
+				$je->conventionregistration_id = $submissionD->conventionregistration_id;
+				$je->conventionseason_id = $submissionD->conventionseason_id;
+				$je->convention_id = $submissionD->convention_id;
+				$je->season_id = $submissionD->season_id;
+				$je->season_year = $submissionD->season_year;
+				$je->event_id = $submissionD->event_id;
+				$je->event_id_number = $eventD->event_id_number;
+				$je->student_id = $submissionD->student_id;
+				$je->user_id = $submissionD->user_id;
+				$je->uploaded_by_user_id = $user_id;
+				$je->created = date('Y-m-d H:i:s');
+			}
+			$je->place = $place;
+			$je->total_marks_possible = 12;
+			$je->total_marks_obtained = $points;
+			$je->did_not_attend = 0;
+			$je->modified = date('Y-m-d H:i:s');
+			$this->Judgeevaluations->save($je);
+
+			// upsert result position so it appears on admin results
+			$result = $this->Results->find()->where([
+				'Results.conventionseason_id' => $submissionD->conventionseason_id,
+				'Results.convention_id' => $submissionD->convention_id,
+				'Results.season_id' => $submissionD->season_id,
+				'Results.season_year' => $submissionD->season_year,
+				'Results.event_id' => $eventD->id,
+			])->first();
+			if(empty($result))
+			{
+				$result = $this->Results->newEntity([]);
+				$result->slug = 'result-event-'.$eventD->id.'-'.$submissionD->conventionseason_id.'-'.time().'-'.rand(100,1000000);
+				$result->conventionseason_id = $submissionD->conventionseason_id;
+				$result->convention_id = $submissionD->convention_id;
+				$result->season_id = $submissionD->season_id;
+				$result->season_year = $submissionD->season_year;
+				$result->event_id = $eventD->id;
+				$result->event_id_number = $eventD->event_id_number;
+				$result->division_id = $eventD->division_id;
+				$result->created = date('Y-m-d H:i:s');
+				$result = $this->Results->save($result);
+			}
+
+			$rp = $this->Resultpositions->find()->where([
+				'Resultpositions.result_id' => $result->id,
+				'Resultpositions.eventsubmission_id' => $submissionD->id,
+			])->first();
+			if(empty($rp))
+			{
+				$rp = $this->Resultpositions->newEntity([]);
+				$rp->slug = 'result-positions-'.$result->id.'-'.$submissionD->conventionseason_id.'-'.time().'-'.rand(100,1000000);
+				$rp->result_id = $result->id;
+				$rp->eventsubmission_id = $submissionD->id;
+				$rp->conventionregistration_id = $submissionD->conventionregistration_id;
+				$rp->conventionseason_id = $submissionD->conventionseason_id;
+				$rp->convention_id = $submissionD->convention_id;
+				$rp->user_id = $submissionD->user_id;
+				$rp->season_id = $submissionD->season_id;
+				$rp->season_year = $submissionD->season_year;
+				$rp->event_id = $eventD->id;
+				$rp->event_id_number = $eventD->event_id_number;
+				$rp->division_id = $eventD->division_id;
+				$rp->group_name = $submissionD->group_name;
+				$rp->student_id = $submissionD->student_id;
+				$rp->gender = $submissionD->Students['gender'] ?? null;
+				$rp->created = date('Y-m-d H:i:s');
+			}
+			$rp->position = $place;
+			$rp->avg_marks = null;
+			$rp->points_obtained = $points;
+			$rp->modified = date('Y-m-d H:i:s');
+			$this->Resultpositions->save($rp);
+
+			$this->Flash->success('Place '.$place.' saved for '.($submissionD->Students['first_name'] ?? 'entry').' ('.$points.' points).');
+		}
+
+		return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'judgeevententries', $conv_reg_slug, $eventD->slug]);
+	}
 	
 	public function packageregistration() {
 
@@ -2749,6 +3468,49 @@ class ConventionregistrationsController extends AppController {
         set_time_limit(0);
 		
 	}
+
+	/**
+	 * Build evaluation form + questions cache for all events (used by precachejudgedata).
+	 */
+	protected function _buildEvalFormsCache(array $events): array {
+		$cache = [];
+		$seenFormIds = [];
+		foreach ($events as $ev) {
+			$eventIdNum = str_pad((string)$ev['event_id_number'], 3, '0', STR_PAD_LEFT);
+			$cond = [
+				"(Evaluationforms.event_id_numbers LIKE '{$eventIdNum}'" .
+				" OR Evaluationforms.event_id_numbers LIKE '{$eventIdNum},%'" .
+				" OR Evaluationforms.event_id_numbers LIKE '%,{$eventIdNum},%'" .
+				" OR Evaluationforms.event_id_numbers LIKE '%,{$eventIdNum}')"
+			];
+			$form = $this->Evaluationforms->find()->where($cond)->order(['Evaluationforms.id' => 'DESC'])->first();
+			if (!$form || in_array($form->id, $seenFormIds, true)) continue;
+			$seenFormIds[] = $form->id;
+
+			$questions = $this->Evaluationquestions->find()
+				->where(['Evaluationquestions.evaluationcategory_id IN' => explode(',', (string)($form->tag_ids ?? ''))])
+				->where(['Evaluationquestions.status' => 1])
+				->order(['Evaluationquestions.id' => 'ASC'])
+				->all();
+
+			$questionsArr = [];
+			foreach ($questions as $q) {
+				$questionsArr[] = [
+					'id'         => $q->id,
+					'question'   => $q->question,
+					'max_points' => $q->max_points,
+				];
+			}
+
+			$cache[] = [
+				'form_id'          => $form->id,
+				'event_id_numbers' => $form->event_id_numbers,
+				'questions'        => $questionsArr,
+			];
+		}
+		return $cache;
+	}
+
 
 }
 
