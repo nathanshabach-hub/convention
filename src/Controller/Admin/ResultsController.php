@@ -948,10 +948,18 @@ class ResultsController extends AppController {
 			$failedSubmissionIds = [];
 			foreach($eventSubmissionsCS as $datarecord)
 			{
+				$existingPositionRecord = $existingPositionsBySubmission[(int)$datarecord->id] ?? null;
 				$positionSubRaw = $postData['result_position_'.$datarecord->id] ?? null;
 				$avgMarksSubRaw = $postData['result_avg_marks_'.$datarecord->id] ?? null;
 				$positionSub = ($positionSubRaw !== null && $positionSubRaw !== '' && is_numeric($positionSubRaw)) ? (int)$positionSubRaw : null;
 				$avgMarksSub = ($avgMarksSubRaw !== null && $avgMarksSubRaw !== '' && is_numeric($avgMarksSubRaw)) ? (float)$avgMarksSubRaw : null;
+
+				if ($positionSub === null && $existingPositionRecord && $existingPositionRecord->position !== null) {
+					$positionSub = (int)$existingPositionRecord->position;
+				}
+				if ($avgMarksSub === null && $existingPositionRecord && $existingPositionRecord->avg_marks !== null) {
+					$avgMarksSub = (float)$existingPositionRecord->avg_marks;
+				}
 
 				if($positionSub !== null && $positionSub>=1 && $positionSub<=6)
 				{
@@ -962,8 +970,8 @@ class ResultsController extends AppController {
 					$points_obtained = 0;
 				}
 
-				if (isset($existingPositionsBySubmission[(int)$datarecord->id])) {
-					$dataRP = $existingPositionsBySubmission[(int)$datarecord->id];
+				if ($existingPositionRecord) {
+					$dataRP = $existingPositionRecord;
 				} else {
 					$resultpositions = $this->Resultpositions->newEntity([]);
 					$dataRP = $this->Resultpositions->patchEntity($resultpositions, array());
@@ -1005,7 +1013,13 @@ class ResultsController extends AppController {
 			$this->Results->updateAll(['modified' => date('Y-m-d H:i:s')], ["id" => $result_id]);
 
 			$this->Flash->success('Results saved sucessfully.');
-			$this->redirect(['controller' => 'conventions', 'action' => 'events',$slug_convention_season,$slug_convention]);
+			return $this->redirect([
+				'controller' => 'results',
+				'action' => 'index',
+				$slug_convention_season,
+				$slug_convention,
+				$slug_event,
+			]);
 			
 		}
     }

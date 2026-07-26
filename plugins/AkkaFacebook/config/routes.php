@@ -1,6 +1,6 @@
 <?php
-use Cake\Routing\Router;
+use Cake\Routing\RouteBuilder;
 
-Router::plugin('AkkaFacebook', function ($routes) {
+return static function (RouteBuilder $routes): void {
     $routes->fallbacks();
-});
+};

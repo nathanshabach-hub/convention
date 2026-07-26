@@ -59,7 +59,48 @@ private $scheduleWindowWarningShown = false;
 		$this->set('convention_slug', $conventionSD->Conventions['slug']);
 		
 		// to list all schedulings
-		$schedulingTimingsList = $this->Schedulingtimings->find()->where(['Schedulingtimings.conventionseasons_id' => $conventionSD->id,'Schedulingtimings.convention_id' => $conventionSD->convention_id,'Schedulingtimings.season_id' => $conventionSD->season_id,'Schedulingtimings.season_year' => $conventionSD->season_year,'Schedulingtimings.schedule_category' => $scheduling_category])->contain(["Events","Users","Conventionrooms","Opponentuser"])->order(["Schedulingtimings.id" => "ASC"])->all();
+		$baseConditions = [
+			'Schedulingtimings.conventionseasons_id' => $conventionSD->id,
+			'Schedulingtimings.convention_id' => $conventionSD->convention_id,
+			'Schedulingtimings.season_id' => $conventionSD->season_id,
+			'Schedulingtimings.season_year' => $conventionSD->season_year,
+			'Schedulingtimings.schedule_category' => $scheduling_category,
+		];
+
+		$scheduledConditions = $baseConditions + [
+			'Schedulingtimings.day IS NOT' => null,
+			'Schedulingtimings.start_time IS NOT' => null,
+			'Schedulingtimings.finish_time IS NOT' => null,
+			'Schedulingtimings.sch_date_time IS NOT' => null,
+			'Schedulingtimings.day !=' => '',
+			'Schedulingtimings.start_time !=' => '',
+			'Schedulingtimings.finish_time !=' => '',
+		];
+
+		$schedulingTimingsList = $this->Schedulingtimings->find()
+			->where($scheduledConditions)
+			->contain(["Events","Users","Conventionrooms","Opponentuser"])
+			->order(["Schedulingtimings.sch_date_time" => "ASC", "Schedulingtimings.room_id" => "ASC", "Schedulingtimings.start_time" => "ASC", "Schedulingtimings.id" => "ASC"])
+			->all();
+
+		$unscheduledCount = $this->Schedulingtimings->find()
+			->where($baseConditions)
+			->andWhere(function ($exp) {
+				return $exp->or_([
+					['Schedulingtimings.day IS' => null],
+					['Schedulingtimings.start_time IS' => null],
+					['Schedulingtimings.finish_time IS' => null],
+					['Schedulingtimings.sch_date_time IS' => null],
+					['Schedulingtimings.day' => ''],
+					['Schedulingtimings.start_time' => ''],
+					['Schedulingtimings.finish_time' => ''],
+				]);
+			})
+			->count();
+
+		if ($unscheduledCount > 0) {
+			$this->Flash->warning('There are '.$unscheduledCount.' unscheduled row(s) in this category that are hidden from this view because day/start/finish are empty. Increase scheduling capacity or adjust tweaks, then rerun Start Scheduling to place them.');
+		}
 		$this->set('schedulingTimingsList', $schedulingTimingsList);
 		$this->set('pendingEventsToRoomsList', []);
     }
@@ -77,7 +118,7 @@ private $scheduleWindowWarningShown = false;
 		$conventionSD = $this->getConventionSeasonBySlug($convention_season_slug);
 		
 		// to get details of schedule timings
-		$schedulingsD = $this->Schedulings->find()->where(["Schedulings.conventionseasons_id" => $conventionSD->id, "Schedulings.convention_id" => $conventionSD->convention_id, "Schedulings.season_id" => $conventionSD->season_id, "Schedulings.season_year" => $conventionSD->season_year])->first();
+		$schedulingsD = $this->resolveSchedulingWizardRecord($conventionSD);
 		if ($redirect = $this->ensureSchedulingWindowIsValid($schedulingsD, $convention_season_slug)) {
 			return $redirect;
 		}
@@ -338,10 +379,20 @@ private $scheduleWindowWarningShown = false;
 								continue;
 							}
 
-							$stData = explode("==", array_shift($pendingRows));
+							$rowPayload = array_shift($pendingRows);
+							$stData = explode("==", (string)$rowPayload);
 							$slotStartDate = $validSlot['schStartDate'];
 							$slotStartTime = $validSlot['start_time'];
 							$slotFinishTime = $validSlot['finish_time'];
+							$userOverlapCursorTime = $this->getUserOverlapCursorTime($conventionSD, (int)$stData[7], $slotStartDate, $slotStartTime, $slotFinishTime);
+							if ($userOverlapCursorTime !== null) {
+								array_unshift($pendingRows, $rowPayload);
+								$roomCursors[$roomID] = $userOverlapCursorTime;
+								if (strtotime($roomCursors[$roomID]) >= strtotime($eventBandC1['end'])) {
+									unset($roomCursors[$roomID]);
+								}
+								continue;
+							}
 
 							$fetchUserType = $this->fetchUserType($stData[7]);
 
@@ -448,7 +499,7 @@ private $scheduleWindowWarningShown = false;
 		//$this->prx($conventionSD);
 		
 		// to get details of schedule timings
-		$schedulingsD = $this->Schedulings->find()->where(["Schedulings.conventionseasons_id" => $conventionSD->id, "Schedulings.convention_id" => $conventionSD->convention_id, "Schedulings.season_id" => $conventionSD->season_id, "Schedulings.season_year" => $conventionSD->season_year])->first();
+		$schedulingsD = $this->resolveSchedulingWizardRecord($conventionSD);
 		if ($redirect = $this->ensureSchedulingWindowIsValid($schedulingsD, $convention_season_slug)) {
 			return $redirect;
 		}
@@ -930,6 +981,15 @@ private $scheduleWindowWarningShown = false;
 						$slotStartDate = $validSlot['schStartDate'];
 						$slotStartTime = $validSlot['start_time'];
 						$slotFinishTime = $validSlot['finish_time'];
+						$roomOverlapCursorTime = $this->getRoomOverlapCursorTime($conventionSD, $roomID, $slotStartDate, $slotStartTime, $slotFinishTime);
+						if ($roomOverlapCursorTime !== null) {
+							array_unshift($pendingRows, $schdata);
+							$roomCursors[$roomID] = $roomOverlapCursorTime;
+							if (strtotime($roomCursors[$roomID]) >= strtotime($eventBandC2['end'])) {
+								unset($roomCursors[$roomID]);
+							}
+							continue;
+						}
 
 						$this->Schedulingtimings->updateAll(
 						[
@@ -972,9 +1032,28 @@ private $scheduleWindowWarningShown = false;
 					$pendingRows = $fallbackResultC2['pendingRows'];
 				}
 
+				if (count($pendingRows) > 0) {
+					$overflowResultC2 = $this->placePendingRowsInOverflowWindow(
+						$conventionSD,
+						$schedulingsD,
+						$roomArrCSEvent,
+						$eventSetupRoundJudTime,
+						$lunch_time_start,
+						$lunch_time_end,
+						$pendingRows
+					);
+
+					if (!empty($overflowResultC2['assignedCount'])) {
+						$this->Flash->warning('Category 2 overflow placed '.$overflowResultC2['assignedCount'].' remaining match(es) for event '.$eventD->event_id_number.' on days after the configured window.');
+					}
+
+					$pendingRows = $overflowResultC2['pendingRows'];
+				}
+
 				if (count($pendingRows) > 0 && !$windowExceeded) {
 					$windowExceeded = true;
 					$this->flashConventionWindowExceeded($schedulingsD);
+					$this->Flash->warning('Category 2 still has '.count($pendingRows).' unscheduled match(es) for event '.$eventD->event_id_number.'. Please increase rooms/time window and rerun scheduling.');
 				}
 
 				if ($windowExceeded) {
@@ -1003,7 +1082,7 @@ private $scheduleWindowWarningShown = false;
 		//$this->prx($conventionSD);
 		
 		// to get details of schedule timings
-		$schedulingsD = $this->Schedulings->find()->where(["Schedulings.conventionseasons_id" => $conventionSD->id, "Schedulings.convention_id" => $conventionSD->convention_id, "Schedulings.season_id" => $conventionSD->season_id, "Schedulings.season_year" => $conventionSD->season_year])->first();
+		$schedulingsD = $this->resolveSchedulingWizardRecord($conventionSD);
 		if ($redirect = $this->ensureSchedulingWindowIsValid($schedulingsD, $convention_season_slug)) {
 			return $redirect;
 		}
@@ -1493,6 +1572,15 @@ private $scheduleWindowWarningShown = false;
 						$slotStartDate = $validSlot['schStartDate'];
 						$slotStartTime = $validSlot['start_time'];
 						$slotFinishTime = $validSlot['finish_time'];
+						$roomOverlapCursorTime = $this->getRoomOverlapCursorTime($conventionSD, $roomID, $slotStartDate, $slotStartTime, $slotFinishTime);
+						if ($roomOverlapCursorTime !== null) {
+							array_unshift($pendingRows, $schdata);
+							$roomCursors[$roomID] = $roomOverlapCursorTime;
+							if (strtotime($roomCursors[$roomID]) >= strtotime($eventBandC3['end'])) {
+								unset($roomCursors[$roomID]);
+							}
+							continue;
+						}
 
 						$this->Schedulingtimings->updateAll(
 						[
@@ -1579,7 +1667,7 @@ private $scheduleWindowWarningShown = false;
 		//$this->prx($conventionSD);
 		
 		// to get details of schedule timings
-		$schedulingsD = $this->Schedulings->find()->where(["Schedulings.conventionseasons_id" => $conventionSD->id, "Schedulings.convention_id" => $conventionSD->convention_id, "Schedulings.season_id" => $conventionSD->season_id, "Schedulings.season_year" => $conventionSD->season_year])->first();
+		$schedulingsD = $this->resolveSchedulingWizardRecord($conventionSD);
 		if ($redirect = $this->ensureSchedulingWindowIsValid($schedulingsD, $convention_season_slug)) {
 			return $redirect;
 		}
@@ -2151,6 +2239,11 @@ private $scheduleWindowWarningShown = false;
 
 	private function ensureSchedulingWindowIsValid($schedulingsD, $convention_season_slug)
 	{
+		if (empty($schedulingsD) || empty($schedulingsD->id)) {
+			$this->Flash->error('Scheduling wizard configuration is missing. Please save the wizard settings before generating schedules.');
+			return $this->redirect(['controller' => 'schedulings', 'action' => 'wizard', $convention_season_slug]);
+		}
+
 		$startDate = !empty($schedulingsD->start_date) ? date('Y-m-d', strtotime($schedulingsD->start_date)) : null;
 		$actualFirstDay = $this->getWeekDayFromDate($startDate);
 		$configuredFirstDay = (string)($schedulingsD->first_day ?? '');
@@ -2209,6 +2302,42 @@ private $scheduleWindowWarningShown = false;
 		}
 
 		return null;
+	}
+
+	private function resolveSchedulingWizardRecord($conventionSD)
+	{
+		if (empty($conventionSD) || empty($conventionSD->id)) {
+			return null;
+		}
+
+		$records = $this->Schedulings->find()
+			->where([
+				'Schedulings.conventionseasons_id' => $conventionSD->id,
+				'Schedulings.convention_id' => $conventionSD->convention_id,
+				'Schedulings.season_id' => $conventionSD->season_id,
+				'Schedulings.season_year' => $conventionSD->season_year,
+			])
+			->order(['Schedulings.modified' => 'DESC', 'Schedulings.id' => 'DESC'])
+			->all();
+
+		$fallback = null;
+		foreach ($records as $record) {
+			if ($fallback === null) {
+				$fallback = $record;
+			}
+
+			$hasCoreWindow =
+				!empty($this->normalizeWizardTime($record->normal_starting_time ?? null)) &&
+				!empty($this->normalizeWizardTime($record->normal_finish_time ?? null)) &&
+				!empty($this->normalizeWizardTime($record->lunch_time_start ?? null)) &&
+				!empty($this->normalizeWizardTime($record->lunch_time_end ?? null));
+
+			if ($hasCoreWindow) {
+				return $record;
+			}
+		}
+
+		return $fallback;
 	}
 
 	private function normalizeWizardTime($timeValue)
@@ -2517,6 +2646,52 @@ private $scheduleWindowWarningShown = false;
 		return $bandStart;
 	}
 
+	private function getRoomOverlapCursorTime($conventionSD, int $roomId, string $slotDate, string $startTime, string $finishTime): ?string
+	{
+		$condRoomConflict = [];
+		$condRoomConflict[] = "(Schedulingtimings.conventionseasons_id = '".$conventionSD->id."' AND Schedulingtimings.convention_id = '".$conventionSD->convention_id."' AND Schedulingtimings.season_id = '".$conventionSD->season_id."' AND Schedulingtimings.season_year = '".$conventionSD->season_year."')";
+		$condRoomConflict[] = "(Schedulingtimings.room_id = '".$roomId."' AND Schedulingtimings.start_time IS NOT NULL AND Schedulingtimings.finish_time IS NOT NULL)";
+		$condRoomConflict[] = "(DATE(Schedulingtimings.sch_date_time) = '".$slotDate."')";
+		$condRoomConflict[] = "(Schedulingtimings.start_time < '".$finishTime."' AND Schedulingtimings.finish_time > '".$startTime."')";
+
+		$conflictRow = $this->Schedulingtimings->find()
+			->select(['finish_time'])
+			->where($condRoomConflict)
+			->order(["Schedulingtimings.finish_time" => "DESC", "Schedulingtimings.id" => "DESC"])
+			->first();
+
+		if (!$conflictRow || empty($conflictRow->finish_time)) {
+			return null;
+		}
+
+		return date('H:i:s', strtotime((string)$conflictRow->finish_time));
+	}
+
+	private function getUserOverlapCursorTime($conventionSD, int $userId, string $slotDate, string $startTime, string $finishTime): ?string
+	{
+		if ($userId <= 0) {
+			return null;
+		}
+
+		$condUserConflict = [];
+		$condUserConflict[] = "(Schedulingtimings.conventionseasons_id = '".$conventionSD->id."' AND Schedulingtimings.convention_id = '".$conventionSD->convention_id."' AND Schedulingtimings.season_id = '".$conventionSD->season_id."' AND Schedulingtimings.season_year = '".$conventionSD->season_year."')";
+		$condUserConflict[] = "(Schedulingtimings.user_id = '".$userId."' AND Schedulingtimings.start_time IS NOT NULL AND Schedulingtimings.finish_time IS NOT NULL)";
+		$condUserConflict[] = "(DATE(Schedulingtimings.sch_date_time) = '".$slotDate."')";
+		$condUserConflict[] = "(Schedulingtimings.start_time < '".$finishTime."' AND Schedulingtimings.finish_time > '".$startTime."')";
+
+		$conflictRow = $this->Schedulingtimings->find()
+			->select(['finish_time'])
+			->where($condUserConflict)
+			->order(["Schedulingtimings.finish_time" => "DESC", "Schedulingtimings.id" => "DESC"])
+			->first();
+
+		if (!$conflictRow || empty($conflictRow->finish_time)) {
+			return null;
+		}
+
+		return date('H:i:s', strtotime((string)$conflictRow->finish_time));
+	}
+
 	private function isValidSlotInsideBand(array $band, array $validSlot): bool
 	{
 		if (($validSlot['schStartDate'] ?? '') !== $band['date']) {
@@ -2600,6 +2775,14 @@ private $scheduleWindowWarningShown = false;
 				}
 
 				$bandDayNumber = $this->getConventionDayNumber($startDate, $eventBand['date']);
+				$roomOverlapCursor = $this->getRoomOverlapCursorTime($conventionSD, $roomId, $eventBand['date'], $cursorStart, $cursorFinish);
+				if ($roomOverlapCursor !== null && strtotime($roomOverlapCursor) > strtotime($cursorStart)) {
+					$roomCursors[$roomId] = $roomOverlapCursor;
+					if (strtotime($roomCursors[$roomId]) >= strtotime($eventBand['end'])) {
+						unset($roomCursors[$roomId]);
+					}
+					continue;
+				}
 				$validSlot = $this->findValidSlot($cursorStart, $cursorFinish, $eventBand['day'], $eventBand['date'], $bandDayNumber, $eventBand['start'], $eventBand['end'], $eventDurationMinutes, $schedulingsD, $lunchStart, $lunchEnd, $roomId, $eventId);
 
 				if (!empty($validSlot['window_exhausted'])) {
@@ -2656,6 +2839,114 @@ private $scheduleWindowWarningShown = false;
 			'assignedCount' => $assignedCount,
 			'window_exhausted' => $windowExhausted,
 		];
+	}
+
+	private function placePendingRowsInOverflowWindow($conventionSD, $schedulingsD, array $roomIds, int $eventDurationMinutes, $lunchStart, $lunchEnd, array $pendingRows): array
+	{
+		$assignedCount = 0;
+		if (count($pendingRows) === 0 || count($roomIds) === 0) {
+			return [
+				'pendingRows' => $pendingRows,
+				'assignedCount' => 0,
+			];
+		}
+
+		$normalStart = $this->normalizeWizardTime($schedulingsD->normal_starting_time ?? null) ?: '09:00:00';
+		$normalFinish = $this->normalizeWizardTime($schedulingsD->normal_finish_time ?? null) ?: '17:00:00';
+		$lunchStartNorm = $this->normalizeWizardTime($lunchStart ?? null);
+		$lunchEndNorm = $this->normalizeWizardTime($lunchEnd ?? null);
+
+		$windowDays = max(1, (int)($schedulingsD->number_of_days ?? 1));
+		$baseStartDate = !empty($schedulingsD->start_date) ? date('Y-m-d', strtotime((string)$schedulingsD->start_date)) : date('Y-m-d');
+		$overflowDate = date('Y-m-d', strtotime($baseStartDate.' +'.$windowDays.' days'));
+
+		$dayGuard = 0;
+		while (count($pendingRows) > 0) {
+			$dayGuard++;
+			if ($dayGuard > 365) {
+				break;
+			}
+
+			$roomCursors = [];
+			foreach ($roomIds as $roomIdRaw) {
+				$roomId = (int)$roomIdRaw;
+				if ($roomId > 0) {
+					$roomCursors[$roomId] = $normalStart;
+				}
+			}
+
+			$slotGuard = 0;
+			while (count($pendingRows) > 0 && count($roomCursors) > 0) {
+				$slotGuard++;
+				if ($slotGuard > 20000) {
+					break;
+				}
+
+				asort($roomCursors);
+				$roomId = (int)array_key_first($roomCursors);
+				$cursorStart = $roomCursors[$roomId];
+				$cursorFinish = date('H:i:s', strtotime('+ '.$eventDurationMinutes.' minutes', strtotime($cursorStart)));
+
+				if (strtotime($cursorFinish) > strtotime($normalFinish)) {
+					unset($roomCursors[$roomId]);
+					continue;
+				}
+
+				if ($this->slotOverlapsRange($cursorStart, $cursorFinish, $lunchStartNorm, $lunchEndNorm)) {
+					if ($lunchEndNorm === null || strtotime($lunchEndNorm) >= strtotime($normalFinish)) {
+						unset($roomCursors[$roomId]);
+						continue;
+					}
+					$roomCursors[$roomId] = $lunchEndNorm;
+					continue;
+				}
+
+				$roomOverlapCursorTime = $this->getRoomOverlapCursorTime($conventionSD, $roomId, $overflowDate, $cursorStart, $cursorFinish);
+				if ($roomOverlapCursorTime !== null && strtotime($roomOverlapCursorTime) > strtotime($cursorStart)) {
+					$roomCursors[$roomId] = $roomOverlapCursorTime;
+					if (strtotime($roomCursors[$roomId]) >= strtotime($normalFinish)) {
+						unset($roomCursors[$roomId]);
+					}
+					continue;
+				}
+
+				$schdata = array_shift($pendingRows);
+				$this->Schedulingtimings->updateAll(
+				[
+					'room_id' => $roomId,
+					'day' => date('l', strtotime($overflowDate)),
+					'start_time' => $cursorStart,
+					'finish_time' => $cursorFinish,
+					'sch_date_time' => $overflowDate.' '.date('H:i:s', strtotime($cursorStart)),
+					'modified' => date('Y-m-d H:i:s'),
+				],
+				['id' => $schdata->id]
+				);
+
+				$assignedCount++;
+				$roomCursors[$roomId] = $cursorFinish;
+				if (strtotime($roomCursors[$roomId]) >= strtotime($normalFinish)) {
+					unset($roomCursors[$roomId]);
+				}
+			}
+
+			$overflowDate = date('Y-m-d', strtotime($overflowDate.' +1 day'));
+		}
+
+		return [
+			'pendingRows' => $pendingRows,
+			'assignedCount' => $assignedCount,
+		];
+	}
+
+	private function slotOverlapsRange($slotStart, $slotFinish, $rangeStart, $rangeEnd): bool
+	{
+		if (empty($slotStart) || empty($slotFinish) || empty($rangeStart) || empty($rangeEnd)) {
+			return false;
+		}
+
+		return strtotime((string)$slotStart) < strtotime((string)$rangeEnd)
+			&& strtotime((string)$slotFinish) > strtotime((string)$rangeStart);
 	}
 	
 	

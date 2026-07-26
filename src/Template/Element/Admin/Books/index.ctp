@@ -32,7 +32,7 @@
                             <tr>
                                 <td data-title="#ID"><?php echo $datarecord->id;?></td>
                                 <td data-title="Book Name"><?php echo $datarecord->book_name;?></td>
-                                <td data-title="Created"><?php echo date('M d, Y', strtotime($datarecord->created)); ?></td>
+                                <td data-title="Created"><?php echo (($__ts = strtotime((string)$datarecord->created)) !== false && $__ts > 0 ? date('M d, Y', $__ts) : 'N/A'); ?></td>
                                 
                             </tr>
                         <?php } ?>

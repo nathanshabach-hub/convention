@@ -50,6 +50,74 @@ class SchedulingtweaksController extends AppController {
         $this->Schedulingtimings           = $this->loadModel('Schedulingtimings');
     }
 
+    private function normalizeTimeInput($value, &$isInvalid = false) {
+        $isInvalid = false;
+
+        if ($value === null) {
+            return null;
+        }
+
+        if (is_array($value)) {
+            $filtered = [];
+            foreach ($value as $key => $part) {
+                if ($part === null) {
+                    continue;
+                }
+                $part = trim((string)$part);
+                if ($part !== '') {
+                    $filtered[$key] = $part;
+                }
+            }
+
+            if (empty($filtered)) {
+                return null;
+            }
+
+            if (!empty($filtered['hour']) && !empty($filtered['minute'])) {
+                $hour = (int)$filtered['hour'];
+                $minute = (int)$filtered['minute'];
+                $second = !empty($filtered['second']) ? (int)$filtered['second'] : 0;
+                $meridian = strtolower((string)($filtered['meridian'] ?? ''));
+
+                if ($meridian === 'pm' && $hour < 12) {
+                    $hour += 12;
+                } elseif ($meridian === 'am' && $hour === 12) {
+                    $hour = 0;
+                }
+
+                if ($hour < 0 || $hour > 23 || $minute < 0 || $minute > 59 || $second < 0 || $second > 59) {
+                    $isInvalid = true;
+                    return null;
+                }
+
+                return sprintf('%02d:%02d:%02d', $hour, $minute, $second);
+            }
+
+            if (!empty($filtered['time'])) {
+                $value = $filtered['time'];
+            } else {
+                $value = implode(' ', $filtered);
+            }
+        }
+
+        $value = trim((string)$value);
+        if ($value === '') {
+            return null;
+        }
+
+        if (preg_match('/^\d{2}:\d{2}(:\d{2})?$/', $value)) {
+            return strlen($value) === 5 ? $value . ':00' : $value;
+        }
+
+        $timestamp = strtotime($value);
+        if ($timestamp === false) {
+            $isInvalid = true;
+            return null;
+        }
+
+        return date('H:i:s', $timestamp);
+    }
+
     /* ------------------------------------------------------------------ */
     /*  INDEX – list all events for this convention season with tweak controls */
     /* ------------------------------------------------------------------ */
@@ -151,33 +219,33 @@ class SchedulingtweaksController extends AppController {
         $tweak->pinned_day = !empty($postData['pinned_day']) ? trim($postData['pinned_day']) : null;
 
         /* C: pinned start time */
-        $rawTime = trim($postData['pinned_start_time'] ?? '');
-        if ($rawTime !== '' && strtotime($rawTime) !== false) {
-            $tweak->pinned_start_time = date('H:i:s', strtotime($rawTime));
-        } else {
-            $tweak->pinned_start_time = null;
+        $rawTime = $postData['pinned_start_time'] ?? null;
+        $invalidTime = false;
+        $normalizedPinnedStart = $this->normalizeTimeInput($rawTime, $invalidTime);
+        if ($invalidTime) {
+            $this->Flash->error('Invalid pinned start time format.');
+            return $this->redirect(['action' => 'index', $convention_season_slug]);
         }
+        $tweak->pinned_start_time = $normalizedPinnedStart;
 
         /* D: event availability window */
-        $rawAvailableFrom = trim($postData['available_from_time'] ?? '');
-        $rawAvailableTo = trim($postData['available_to_time'] ?? '');
+        $rawAvailableFrom = $postData['available_from_time'] ?? null;
+        $rawAvailableTo = $postData['available_to_time'] ?? null;
 
         $availableFrom = null;
         $availableTo = null;
-        if ($rawAvailableFrom !== '') {
-            if (strtotime($rawAvailableFrom) === false) {
-                $this->Flash->error('Invalid Available From time format.');
-                return $this->redirect(['action' => 'index', $convention_season_slug]);
-            }
-            $availableFrom = date('H:i:s', strtotime($rawAvailableFrom));
+        $invalidAvailableFrom = false;
+        $availableFrom = $this->normalizeTimeInput($rawAvailableFrom, $invalidAvailableFrom);
+        if ($invalidAvailableFrom) {
+            $this->Flash->error('Invalid Available From time format.');
+            return $this->redirect(['action' => 'index', $convention_season_slug]);
         }
 
-        if ($rawAvailableTo !== '') {
-            if (strtotime($rawAvailableTo) === false) {
-                $this->Flash->error('Invalid Available To time format.');
-                return $this->redirect(['action' => 'index', $convention_season_slug]);
-            }
-            $availableTo = date('H:i:s', strtotime($rawAvailableTo));
+        $invalidAvailableTo = false;
+        $availableTo = $this->normalizeTimeInput($rawAvailableTo, $invalidAvailableTo);
+        if ($invalidAvailableTo) {
+            $this->Flash->error('Invalid Available To time format.');
+            return $this->redirect(['action' => 'index', $convention_season_slug]);
         }
 
         if ($availableFrom !== null && $availableTo !== null && strtotime($availableFrom) >= strtotime($availableTo)) {
@@ -259,34 +327,33 @@ class SchedulingtweaksController extends AppController {
 
         $pinnedStart = null;
         if ($applyPinnedStart) {
-            $rawPinnedStart = trim((string) ($postData['pinned_start_time'] ?? ''));
-            if ($rawPinnedStart !== '' && strtotime($rawPinnedStart) === false) {
+            $rawPinnedStart = $postData['pinned_start_time'] ?? null;
+            $invalidPinnedStart = false;
+            $pinnedStart = $this->normalizeTimeInput($rawPinnedStart, $invalidPinnedStart);
+            if ($invalidPinnedStart) {
                 $this->Flash->error('Invalid pinned start time format.');
                 return $this->redirect(['action' => 'index', $convention_season_slug]);
             }
-            $pinnedStart = ($rawPinnedStart !== '') ? date('H:i:s', strtotime($rawPinnedStart)) : null;
         }
 
         $availableFrom = null;
         $availableTo = null;
         if ($applyWindow) {
-            $rawAvailableFrom = trim((string) ($postData['available_from_time'] ?? ''));
-            $rawAvailableTo = trim((string) ($postData['available_to_time'] ?? ''));
+            $rawAvailableFrom = $postData['available_from_time'] ?? null;
+            $rawAvailableTo = $postData['available_to_time'] ?? null;
 
-            if ($rawAvailableFrom !== '') {
-                if (strtotime($rawAvailableFrom) === false) {
-                    $this->Flash->error('Invalid Available From time format.');
-                    return $this->redirect(['action' => 'index', $convention_season_slug]);
-                }
-                $availableFrom = date('H:i:s', strtotime($rawAvailableFrom));
+            $invalidAvailableFrom = false;
+            $availableFrom = $this->normalizeTimeInput($rawAvailableFrom, $invalidAvailableFrom);
+            if ($invalidAvailableFrom) {
+                $this->Flash->error('Invalid Available From time format.');
+                return $this->redirect(['action' => 'index', $convention_season_slug]);
             }
 
-            if ($rawAvailableTo !== '') {
-                if (strtotime($rawAvailableTo) === false) {
-                    $this->Flash->error('Invalid Available To time format.');
-                    return $this->redirect(['action' => 'index', $convention_season_slug]);
-                }
-                $availableTo = date('H:i:s', strtotime($rawAvailableTo));
+            $invalidAvailableTo = false;
+            $availableTo = $this->normalizeTimeInput($rawAvailableTo, $invalidAvailableTo);
+            if ($invalidAvailableTo) {
+                $this->Flash->error('Invalid Available To time format.');
+                return $this->redirect(['action' => 'index', $convention_season_slug]);
             }
 
             if ($availableFrom !== null && $availableTo !== null && strtotime($availableFrom) >= strtotime($availableTo)) {
@@ -389,13 +456,22 @@ class SchedulingtweaksController extends AppController {
         if ($this->request->is(['post'])) {
             $postData = (array) $this->request->getData();
             foreach ($rooms as $room) {
-                $fromRaw = trim($postData['available_from'][$room->id] ?? '');
-                $toRaw   = trim($postData['available_to'][$room->id] ?? '');
+                $fromRaw = $postData['available_from'][$room->id] ?? null;
+                $toRaw   = $postData['available_to'][$room->id] ?? null;
 
-                $availFrom = ($fromRaw !== '' && strtotime($fromRaw) !== false)
-                    ? date('H:i:s', strtotime($fromRaw)) : null;
-                $availTo   = ($toRaw !== '' && strtotime($toRaw) !== false)
-                    ? date('H:i:s', strtotime($toRaw)) : null;
+                $invalidFrom = false;
+                $availFrom = $this->normalizeTimeInput($fromRaw, $invalidFrom);
+                if ($invalidFrom) {
+                    $this->Flash->error('Invalid Available From time format for room ' . $room->room_name . '.');
+                    return $this->redirect(['action' => 'roomavailability', $convention_season_slug]);
+                }
+
+                $invalidTo = false;
+                $availTo = $this->normalizeTimeInput($toRaw, $invalidTo);
+                if ($invalidTo) {
+                    $this->Flash->error('Invalid Available To time format for room ' . $room->room_name . '.');
+                    return $this->redirect(['action' => 'roomavailability', $convention_season_slug]);
+                }
 
                 $this->Conventionrooms->updateAll(
                     ['available_from' => $availFrom, 'available_to' => $availTo, 'modified' => date('Y-m-d H:i:s')],

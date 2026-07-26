@@ -99,7 +99,7 @@ $('#convention_events').dataTable({
     //"bInfo": false,
     "bLengthChange": false,
 	"pageLength": 100,
-	order: [[0, 'asc']],
+	order: [],
     //"bFilter": true,
     //"bInfo": false,
     //"bAutoWidth": false

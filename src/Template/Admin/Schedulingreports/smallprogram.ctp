@@ -25,15 +25,47 @@
             </div>
             </div>
 
+            <?php echo $this->Form->create(null, ['id' => 'small-program-form', 'url' => ['controller'=>'schedulingreports', 'action'=>'smallprogram', $convention_season_slug], 'class' => 'form-horizontal']); ?>
+
             <div class="m_content" id="listID">
                 <?php echo $this->element("Admin/Schedulingreports/smallprogram_booklet"); ?>
+            </div>
+
+            <div class="box box-default" style="margin:20px 20px 0;">
+                <div class="box-body" style="padding:10px 15px;">
+                    <strong>Inline Card Editing Enabled:</strong> click <strong>Edit</strong> on any room card, change event lines, click <strong>Apply</strong>, then click <strong>Save Card Changes</strong>.
+                    <div style="margin-top:8px;">
+                        <?php echo $this->Form->button('Save Card Changes', ['type'=>'submit', 'class' => 'btn btn-success']); ?>
+                    </div>
+                    <div id="sp-inline-overrides" style="display:none;">
+                        <?php
+                        $existingOverrideRows = isset($smallProgramNotes['event_overrides']) && is_array($smallProgramNotes['event_overrides']) ? $smallProgramNotes['event_overrides'] : array();
+                        foreach ($existingOverrideRows as $row) {
+                            $rowDay = trim((string)($row['day'] ?? ''));
+                            $rowSession = strtolower(trim((string)($row['session'] ?? '')));
+                            $rowRoom = trim((string)($row['room'] ?? ''));
+                            $rowEvents = $row['events'] ?? array();
+                            if (!is_array($rowEvents)) {
+                                $rowEvents = preg_split('/\r\n|\r|\n/', (string)$rowEvents);
+                            }
+                            $rowEventsText = implode("\n", array_filter(array_map('trim', $rowEvents), function($v){ return $v !== ''; }));
+                            $rowKey = strtolower($rowDay.'|'.$rowSession.'|'.$rowRoom);
+                        ?>
+                        <div class="sp-inline-override-row" data-key="<?php echo h($rowKey); ?>" data-day="<?php echo h($rowDay); ?>" data-session="<?php echo h($rowSession); ?>" data-room="<?php echo h($rowRoom); ?>">
+                            <input type="hidden" name="Smallprogramnotes[override_day][]" value="<?php echo h($rowDay); ?>" />
+                            <input type="hidden" name="Smallprogramnotes[override_session][]" value="<?php echo h($rowSession); ?>" />
+                            <input type="hidden" name="Smallprogramnotes[override_room][]" value="<?php echo h($rowRoom); ?>" />
+                            <textarea name="Smallprogramnotes[override_events][]" style="display:none;"><?php echo h($rowEventsText); ?></textarea>
+                        </div>
+                        <?php } ?>
+                    </div>
+                </div>
             </div>
 
             <div class="box box-default" style="margin:20px;">
                 <div class="box-header with-border">
                     <h3 class="box-title">Edit Small Program Notes</h3>
                 </div>
-                <?php echo $this->Form->create(null, ['url' => ['controller'=>'schedulingreports', 'action'=>'smallprogram', $convention_season_slug], 'class' => 'form-horizontal']); ?>
                 <div class="box-body">
 
                     <div class="form-group">
@@ -364,11 +396,155 @@
                             <?php echo $this->Form->text('Smallprogramnotes.athletics_offsite_note', ['label'=>false, 'div'=>false, 'class'=>'form-control', 'value'=>$smallProgramNotes['athletics_offsite_note'] ?? '', 'placeholder'=>'e.g. * To be confirmed']); ?>
                         </div>
                     </div>
+
+                    <hr>
+                    <h4 style="margin-left:15px;"><i class="fa fa-edit"></i> Room Event Editing</h4>
+                    <p class="col-sm-offset-2 col-sm-10 text-muted" style="margin-bottom:10px;">Room event editing now happens directly on each room card above. Click <strong>Edit</strong> on a card, then <strong>Apply</strong>, then save.</p>
                 </div>
                 <div class="box-footer">
                     <label class="col-sm-2 control-label">&nbsp;</label>
                     <?php echo $this->Form->button('Save Notes', ['type'=>'submit', 'class' => 'btn btn-primary']); ?>
                 </div>
+                <script>
+                (function(){
+                    var form = document.getElementById('small-program-form');
+                    var overridesContainer = document.getElementById('sp-inline-overrides');
+                    if (!form || !overridesContainer) {
+                        return;
+                    }
+
+                    function normalizeSession(value) {
+                        value = (value || '').toString().trim().toLowerCase();
+                        return value === '' ? 'day' : value;
+                    }
+
+                    function makeKey(day, session, room) {
+                        return [(day || '').toString().trim().toLowerCase(), normalizeSession(session), (room || '').toString().trim().toLowerCase()].join('|');
+                    }
+
+                    function eventsFromList(listEl) {
+                        return Array.prototype.map.call(listEl.querySelectorAll('li'), function(li){
+                            if (li.classList.contains('sp-empty-event')) {
+                                return '';
+                            }
+                            return (li.textContent || '').trim();
+                        }).filter(function(v){ return v !== ''; });
+                    }
+
+                    function renderList(listEl, events) {
+                        listEl.innerHTML = '';
+                        if (!events.length) {
+                            var emptyLi = document.createElement('li');
+                            emptyLi.className = 'sp-empty-event';
+                            emptyLi.textContent = '(No events)';
+                            emptyLi.style.fontStyle = 'italic';
+                            emptyLi.style.color = '#666';
+                            listEl.appendChild(emptyLi);
+                            return;
+                        }
+                        events.forEach(function(line){
+                            var li = document.createElement('li');
+                            li.textContent = line;
+                            listEl.appendChild(li);
+                        });
+                    }
+
+                    function upsertOverride(day, session, room, events) {
+                        var key = makeKey(day, session, room);
+                        var existing = null;
+                        Array.prototype.forEach.call(overridesContainer.querySelectorAll('.sp-inline-override-row'), function(row){
+                            if (existing) {
+                                return;
+                            }
+                            if ((row.getAttribute('data-key') || '') === key) {
+                                existing = row;
+                            }
+                        });
+                        if (existing) {
+                            existing.parentNode.removeChild(existing);
+                        }
+
+                        var row = document.createElement('div');
+                        row.className = 'sp-inline-override-row';
+                        row.setAttribute('data-key', key);
+                        row.setAttribute('data-day', day);
+                        row.setAttribute('data-session', normalizeSession(session));
+                        row.setAttribute('data-room', room);
+
+                        var dayInput = document.createElement('input');
+                        dayInput.type = 'hidden';
+                        dayInput.name = 'Smallprogramnotes[override_day][]';
+                        dayInput.value = day;
+                        row.appendChild(dayInput);
+
+                        var sessionInput = document.createElement('input');
+                        sessionInput.type = 'hidden';
+                        sessionInput.name = 'Smallprogramnotes[override_session][]';
+                        sessionInput.value = normalizeSession(session);
+                        row.appendChild(sessionInput);
+
+                        var roomInput = document.createElement('input');
+                        roomInput.type = 'hidden';
+                        roomInput.name = 'Smallprogramnotes[override_room][]';
+                        roomInput.value = room;
+                        row.appendChild(roomInput);
+
+                        var eventsInput = document.createElement('textarea');
+                        eventsInput.name = 'Smallprogramnotes[override_events][]';
+                        eventsInput.style.display = 'none';
+                        eventsInput.value = events.join('\n');
+                        row.appendChild(eventsInput);
+
+                        overridesContainer.appendChild(row);
+                    }
+
+                    document.addEventListener('click', function(e){
+                        var editBtn = e.target.closest('.sp-card-edit-btn');
+                        if (editBtn) {
+                            var cardId = editBtn.getAttribute('data-card-id');
+                            var editor = document.querySelector('.sp-card-editor[data-card-id="' + cardId + '"]');
+                            var listEl = document.querySelector('.sp-room-card-events[data-card-id="' + cardId + '"]');
+                            if (!editor || !listEl) return;
+                            var textarea = editor.querySelector('.sp-card-editor-text');
+                            textarea.value = eventsFromList(listEl).join('\n');
+                            editor.style.display = 'block';
+                            textarea.focus();
+                            return;
+                        }
+
+                        var cancelBtn = e.target.closest('.sp-card-editor-cancel');
+                        if (cancelBtn) {
+                            var cancelCardId = cancelBtn.getAttribute('data-card-id');
+                            var cancelEditor = document.querySelector('.sp-card-editor[data-card-id="' + cancelCardId + '"]');
+                            var cancelList = document.querySelector('.sp-room-card-events[data-card-id="' + cancelCardId + '"]');
+                            if (!cancelEditor || !cancelList) return;
+                            var cancelTextarea = cancelEditor.querySelector('.sp-card-editor-text');
+                            cancelTextarea.value = eventsFromList(cancelList).join('\n');
+                            cancelEditor.style.display = 'none';
+                            return;
+                        }
+
+                        var applyBtn = e.target.closest('.sp-card-editor-save');
+                        if (applyBtn) {
+                            var applyCardId = applyBtn.getAttribute('data-card-id');
+                            var applyEditor = document.querySelector('.sp-card-editor[data-card-id="' + applyCardId + '"]');
+                            var applyList = document.querySelector('.sp-room-card-events[data-card-id="' + applyCardId + '"]');
+                            if (!applyEditor || !applyList) return;
+                            var applyTextarea = applyEditor.querySelector('.sp-card-editor-text');
+                            var events = applyTextarea.value.split(/\r\n|\r|\n/).map(function(v){ return v.trim(); }).filter(function(v){ return v !== ''; });
+                            renderList(applyList, events);
+                            upsertOverride(
+                                applyList.getAttribute('data-day') || '',
+                                applyList.getAttribute('data-session') || '',
+                                applyList.getAttribute('data-room') || '',
+                                events
+                            );
+                            applyEditor.style.display = 'none';
+                            return;
+                        }
+                    });
+                })();
+                </script>
                 <?php echo $this->Form->end(); ?>
             </div>
         </div>

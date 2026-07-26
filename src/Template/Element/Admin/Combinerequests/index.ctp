@@ -61,7 +61,7 @@ $this->Eventsubmissions = TableRegistry::get('Eventsubmissions');
                                 <td data-title="Request By School"><?php echo $datarecord->Users['first_name'];?></td>
                                 <td data-title="Combine With School School"><?php echo $datarecord->Combineduser['first_name'];?></td>
                                 <td data-title="Student Name"><?php echo $datarecord->student_name;?></td>
-                                <td data-title="Request Date"><?php echo date('M d, Y', strtotime($datarecord->created)); ?></td>
+                                <td data-title="Request Date"><?php echo (($__ts = strtotime((string)$datarecord->created)) !== false && $__ts > 0 ? date('M d, Y', $__ts) : 'N/A'); ?></td>
                                 <td data-title="Status">
                                 <?php
                                 $statusLabel = 'Unknown';

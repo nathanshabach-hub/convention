@@ -35,7 +35,7 @@
                                 <td data-title="DB ID"><?php echo $datarecord->id;?></td>
                                 <td data-title="Tag Name"><?php echo $datarecord->name;?></td>
 								
-                                <td data-title="Created"><?php echo date('M d, Y', strtotime($datarecord->created)); ?></td>
+                                <td data-title="Created"><?php echo (($__ts = strtotime((string)$datarecord->created)) !== false && $__ts > 0 ? date('M d, Y', $__ts) : 'N/A'); ?></td>
                                 <td data-title="Last Modified">
 								<?php 
 								if($datarecord->modified == NULL)
@@ -44,7 +44,7 @@
 								}
 								else
 								{
-									echo date('M d, Y', strtotime($datarecord->modified));
+									echo (($__ts = strtotime((string)$datarecord->modified)) !== false && $__ts > 0 ? date('M d, Y', $__ts) : 'N/A');
 								}
 								
 								?>

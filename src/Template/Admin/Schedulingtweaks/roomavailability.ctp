@@ -56,10 +56,12 @@
                                 <?php echo $this->Form->text(
                                     'available_from[' . $room->id . ']',
                                     [
-                                        'class'       => 'form-control input-sm mdtpicker',
-                                        'placeholder' => 'hh:mm (24hr)',
-                                            'value'       => ($room->available_from)
-                                                ? date('H:i', strtotime((string)$room->available_from)) : '',
+                                        'type'        => 'time',
+                                        'class'       => 'form-control input-sm',
+                                        'step'        => 60,
+                                        'required'    => false,
+                                        'value'       => ($room->available_from)
+                                            ? date('H:i', strtotime((string)$room->available_from)) : '',
                                     ]
                                 ); ?>
                             </td>
@@ -67,10 +69,12 @@
                                 <?php echo $this->Form->text(
                                     'available_to[' . $room->id . ']',
                                     [
-                                        'class'       => 'form-control input-sm mdtpicker',
-                                        'placeholder' => 'hh:mm (24hr)',
-                                            'value'       => ($room->available_to)
-                                                ? date('H:i', strtotime((string)$room->available_to)) : '',
+                                        'type'        => 'time',
+                                        'class'       => 'form-control input-sm',
+                                        'step'        => 60,
+                                        'required'    => false,
+                                        'value'       => ($room->available_to)
+                                            ? date('H:i', strtotime((string)$room->available_to)) : '',
                                     ]
                                 ); ?>
                             </td>

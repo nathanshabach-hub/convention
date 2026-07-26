@@ -2243,7 +2243,15 @@ class ConventionregistrationsController extends AppController {
 		$this->set('active_convention_registrations','active');
 		
 		$user_id = $this->request->session()->read("user_id");
+		if (empty($user_id)) {
+			$this->Flash->error('Your session has expired. Please login again.');
+			return $this->redirect(['controller' => 'users', 'action' => 'login']);
+		}
 		$userDetails = $this->Users->find()->where(['Users.id' => $user_id])->first();
+		if (!$userDetails) {
+			$this->Flash->error('Unable to find your user account. Please login again.');
+			return $this->redirect(['controller' => 'users', 'action' => 'login']);
+		}
 		$this->set('userDetails', $userDetails);
 		
 		// check convention details
@@ -2374,15 +2382,12 @@ class ConventionregistrationsController extends AppController {
 						
 						try {
 							$email = new Email();
-							$email->setTemplate('default')
-								->setLayout('admintemplate')
-								->setEmailFormat('html')
+							$email->setEmailFormat('html')
 								->setTo($emailId)
 								->setCc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
 								->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
 								->setSubject($subjectToSend)
-								->setViewVars(['content_for_layout' => $messageToSend])
-								->send();
+								->send($messageToSend);
 						} catch (\Exception $e) {
 							// Keep registration successful even if notification email fails.
 						}

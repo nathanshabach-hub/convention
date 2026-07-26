@@ -1,5 +1,8 @@
 <script type="text/javascript">
     $(document).ready(function() {
+        $('#users-password').on('input', function() {
+            $('#users-confirm-password').val($(this).val());
+        });
         $("#adminForm").validate();
     });
 </script>
@@ -78,7 +81,7 @@
                     <div class="form-group">
                       <label class="col-sm-2 control-label">Password <span class="require"></span></label>
                       <div class="col-sm-10">
-                          <?php echo $this->Form->input('Users.password', ['label'=>false, 'type'=>'password',  'div'=>false, 'class'=>'form-control', 'placeholder'=>'Password']); ?>
+                                                    <?php echo $this->Form->input('Users.password', ['id'=>'users-password', 'label'=>false, 'type'=>'password',  'div'=>false, 'class'=>'form-control', 'placeholder'=>'Password']); ?>
                           <em class="bugdm">* Note: If You want to change User's password, only then fill password below otherwise leave it blank.</em>
                       </div>
                     </div>
@@ -86,7 +89,7 @@
                     <div class="form-group">
                       <label class="col-sm-2 control-label">Confirm Password <span class="require"></span></label>
                       <div class="col-sm-10">
-                          <?php echo $this->Form->input('Users.confirm_password', ['label'=>false, 'type'=>'password',  'div'=>false, 'class'=>'form-control', 'placeholder'=>'Confirm Password', 'equalTo'=>'#users-password']); ?>
+                                                    <?php echo $this->Form->input('Users.confirm_password', ['id'=>'users-confirm-password', 'label'=>false, 'type'=>'password',  'div'=>false, 'class'=>'form-control', 'placeholder'=>'Confirm Password', 'data-rule-equalto'=>'#users-password']); ?>
                       </div>
                     </div>
 					

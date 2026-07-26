@@ -110,7 +110,7 @@
 								<td data-title="Discount"><?php echo CURR.' '.number_format($transactionD->total_discount_applied,2); ?></td>
 								<td data-title="Amount"><?php echo CURR.' '.number_format($transactionD->total_amount,2); ?></td>
 								<td data-title="Status"><?php echo $paymentStatus[$transactionD->status]; ?></td>
-                                <td data-title="Transaction Date"><?php echo date('M d, Y H:i A', strtotime($transactionD->created)); ?></td>
+                                    <td data-title="Transaction Date"><?php $createdTs = !empty($transactionD->created) ? strtotime((string)$transactionD->created) : false; echo ($createdTs && $createdTs > 0) ? date('M d, Y H:i A', $createdTs) : 'N/A'; ?></td>
 								<td data-title="Transaction ID"><?php echo $transactionD->transaction_id_received ? $transactionD->transaction_id_received : 'N/A'; ?></td>
                             </tr>
                     </tbody>

@@ -189,18 +189,42 @@ class HearteventsController extends AppController {
             $data = $this->Heartevents->patchEntity($heartevents, $this->request->getData());
             if (count($data->getErrors()) == 0) {
 				
-				if(!empty($this->request->getData()['Heartevents']['event_document']['name']))
-				{
-					$data->mediafile_original_file_name =  $this->request->getData()['Heartevents']['event_document']['name'];
-					
-					$specialCharacters = array('#', '$', '%', '@', '+', '=', '\\', '/', '"', ' ', "'", ':', '~', '`', '!', '^', '*', '(', ')', '|', "'", "&");
-					$toReplace = "-";
-					$this->request->getData()['Heartevents']['event_document']['name'] = str_replace($specialCharacters, $toReplace, $this->request->getData()['Heartevents']['event_document']['name']);
-					$imageArray = $this->request->getData()['Heartevents']['event_document'];
-					$returnedUploadImageArray = $this->PImage->upload($imageArray, UPLOAD_EVENTS_HEART_PATH); 
-					 
-					$data->mediafile_file_system_name =  $returnedUploadImageArray[0];
-					
+				$uploadFile = $this->request->getData('Heartevents.event_document');
+				$originalFileName = '';
+				if (is_array($uploadFile)) {
+					$originalFileName = (string)($uploadFile['name'] ?? '');
+				} elseif (is_object($uploadFile) && method_exists($uploadFile, 'getClientFilename')) {
+					$uploadError = method_exists($uploadFile, 'getError') ? (int)$uploadFile->getError() : UPLOAD_ERR_OK;
+					if ($uploadError === UPLOAD_ERR_OK) {
+						$originalFileName = (string)$uploadFile->getClientFilename();
+					}
+				}
+
+				if ($originalFileName !== '') {
+					$data->mediafile_original_file_name = $originalFileName;
+
+					$specialCharacters = array('#', '$', '%', '@', '+', '=', '\\', '/', '"', ' ', "'", ':', '~', '`', '!', '^', '*', '(', ')', '|', "&");
+					$toReplace = '-';
+					$sanitizedFileName = str_replace($specialCharacters, $toReplace, $originalFileName);
+
+					if (is_object($uploadFile) && method_exists($uploadFile, 'moveTo')) {
+						$ext = pathinfo($sanitizedFileName, PATHINFO_EXTENSION);
+						$base = pathinfo($sanitizedFileName, PATHINFO_FILENAME);
+						$base = trim($base, '-');
+						if ($base === '') {
+							$base = 'event-heart-file';
+						}
+						$fileSystemName = $base . '-' . time() . '-' . rand(100, 1000000);
+						if ($ext !== '') {
+							$fileSystemName .= '.' . strtolower($ext);
+						}
+						$uploadFile->moveTo(UPLOAD_EVENTS_HEART_PATH . $fileSystemName);
+						$data->mediafile_file_system_name = $fileSystemName;
+					} elseif (is_array($uploadFile)) {
+						$uploadFile['name'] = $sanitizedFileName;
+						$returnedUploadImageArray = $this->PImage->upload($uploadFile, UPLOAD_EVENTS_HEART_PATH);
+						$data->mediafile_file_system_name = $returnedUploadImageArray[0];
+					}
 				}
 				
                 $data->slug = 'events-heart-'.$sess_selected_convention_registration_id.'-'.time().'-'.rand(100,1000000);

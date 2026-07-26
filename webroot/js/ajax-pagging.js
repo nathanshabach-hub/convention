@@ -80,6 +80,9 @@
     };
 
     $(document).ready(function () {
+        // If a previous AJAX status toggle left inline display:block on loader, reset it.
+        $('.right_action_lo').hide();
+
         $(document).on('click', '.right_acdc', function (e) {
             var clickId = this.id;
             var clickTitle = $(this).children('a').attr('title');
@@ -91,13 +94,30 @@
                 }
 
                 $('#loder' + clickId).show();
+                // Safety net: if the AJAX call hangs, refresh to reflect server-side change.
+                var fallbackReload = setTimeout(function () {
+                    window.location.reload();
+                }, 10000);
+
                 $.ajax({
                     type: 'GET',
                     url: thisHref,
                     cache: false,
+                    timeout: 9000,
                     success: function (result) {
-                        $('#loder' + clickId).hide();
+                        clearTimeout(fallbackReload);
                         $('#' + clickId).html(result);
+                        // Some responses can be incomplete/errored while status already changed.
+                        // Force a quick refresh so the list reflects final state consistently.
+                        window.location.reload();
+                    },
+                    error: function () {
+                        clearTimeout(fallbackReload);
+                        window.location.reload();
+                    },
+                    complete: function () {
+                        $('#loder' + clickId).hide();
+                        $('.right_action_lo').hide();
                     }
                 });
                 return false;

@@ -143,11 +143,28 @@ class JudgeevaluationsController extends AppController {
         $judgeUsersById = [];
         if (!empty($judgeUserIds)) {
             $judgeUsers = $this->Users->find()
-                ->select(['id', 'first_name', 'last_name'])
                 ->where(['Users.id IN' => array_values(array_unique($judgeUserIds))])
                 ->all();
             foreach ($judgeUsers as $judgeUser) {
-                $judgeUsersById[$judgeUser->id] = trim(($judgeUser->first_name ?? '') . ' ' . ($judgeUser->last_name ?? ''));
+                $nameParts = [
+                    trim(isset($judgeUser->title) ? (string)$judgeUser->title : ''),
+                    trim(isset($judgeUser->first_name) ? (string)$judgeUser->first_name : ''),
+                    trim(isset($judgeUser->middle_name) ? (string)$judgeUser->middle_name : ''),
+                    trim(isset($judgeUser->last_name) ? (string)$judgeUser->last_name : ''),
+                ];
+                $nameParts = array_values(array_filter($nameParts, function ($part) {
+                    return $part !== '';
+                }));
+
+                $judgeName = trim(implode(' ', $nameParts));
+                if ($judgeName === '') {
+                    $judgeName = trim(isset($judgeUser->email_address) ? (string)$judgeUser->email_address : '');
+                }
+                if ($judgeName === '') {
+                    $judgeName = 'User #' . $judgeUser->id;
+                }
+
+                $judgeUsersById[$judgeUser->id] = $judgeName;
             }
         }
         $this->set('judgeevaluations', $judgeEvaluations);

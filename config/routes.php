@@ -24,6 +24,12 @@ use Cake\Routing\RouteBuilder;
 return static function (RouteBuilder $routes): void {
     $routes->setRouteClass(DashedRoute::class);
 
+    // Safety overrides for legacy admin conventions URLs.
+    // These explicit routes prevent accidental resolution to front-end slug routes.
+    $routes->connect('/admin/conventions', ['prefix' => 'Admin', 'controller' => 'Conventions', 'action' => 'index']);
+    $routes->connect('/admin/conventions/:action/*', ['prefix' => 'Admin', 'controller' => 'Conventions']);
+    $routes->connect('/admin/seasons/:action/*', ['prefix' => 'Admin', 'controller' => 'Seasons']);
+
     // Admin routing
     $routes->prefix('admin', function (RouteBuilder $routes) {
         $routes->connect('/', ['controller' => 'admins', 'action' => 'login']);

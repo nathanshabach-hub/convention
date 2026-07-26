@@ -82,9 +82,30 @@ $this->Evaluationquestions = TableRegistry::get('Evaluationquestions');
                                         if (!empty($datarecord->uploaded_by_user_id) && !empty($judgeUsersById[$datarecord->uploaded_by_user_id])) {
                                             $judgeName = $judgeUsersById[$datarecord->uploaded_by_user_id];
                                         } elseif (!empty($datarecord->Judge)) {
-                                            $judgeName = trim(($datarecord->Judge['first_name'] ?? '') . ' ' . ($datarecord->Judge['last_name'] ?? '')) ?: '-';
+                                            $nameParts = [
+                                                trim(isset($datarecord->Judge['title']) ? (string)$datarecord->Judge['title'] : ''),
+                                                trim(isset($datarecord->Judge['first_name']) ? (string)$datarecord->Judge['first_name'] : ''),
+                                                trim(isset($datarecord->Judge['middle_name']) ? (string)$datarecord->Judge['middle_name'] : ''),
+                                                trim(isset($datarecord->Judge['last_name']) ? (string)$datarecord->Judge['last_name'] : ''),
+                                            ];
+                                            $nameParts = array_values(array_filter($nameParts, function ($part) {
+                                                return $part !== '';
+                                            }));
+                                            $judgeName = trim(implode(' ', $nameParts));
+                                            if ($judgeName === '') {
+                                                $judgeName = trim(isset($datarecord->Judge['email_address']) ? (string)$datarecord->Judge['email_address'] : '');
+                                            }
                                         }
-                                        echo $judgeName;
+                                        if ($judgeName === '-' && !empty($datarecord->uploaded_by_user_id)) {
+                                            $judgeName = 'User #' . (int)$datarecord->uploaded_by_user_id;
+                                        }
+                                        if ($judgeName === '-' && !empty($datarecord->Schools['first_name'])) {
+                                            $judgeName = trim((string)$datarecord->Schools['first_name']) . ' (No Judge Linked)';
+                                        }
+                                        if ($judgeName === '-') {
+                                            $judgeName = 'Unknown (No Judge Saved)';
+                                        }
+                                        echo h($judgeName);
                                     ?>
                                     </td>
                                 <td data-title="Marks">

@@ -14,6 +14,13 @@ use Cake\I18n\I18n;
 class JudgeevaluationsController extends AppController {
 
     public $paginate = ['limit' => 50];
+	public $Evaluationforms = null;
+	public $Judgeevaluations = null;
+	public $Judgeevaluationmarks = null;
+	public $Conventionseasonevents = null;
+	public $Crstudentevents = null;
+	public $Conventionregistrationstudents = null;
+	public $Resultpositions = null;
 	
 	public function initialize(): void {
         parent::initialize();
@@ -49,6 +56,10 @@ class JudgeevaluationsController extends AppController {
 		
 		$user_id 	= $this->request->session()->read("user_id");
 		$user_type 	= $this->request->session()->read("user_type");
+		if (empty($user_id)) {
+			$this->Flash->error('Your session has expired. Please login again.');
+			return $this->redirect(['controller' => 'users', 'action' => 'login']);
+		}
 		
 		//echo ' fsdf sdf sdf d';exit;
 		$this->viewBuilder()->setLayout("home");		
@@ -447,6 +458,10 @@ class JudgeevaluationsController extends AppController {
 		
 		$user_id 	= $this->request->session()->read("user_id");
 		$user_type 	= $this->request->session()->read("user_type");
+		if (empty($user_id)) {
+			$this->Flash->error('Your session has expired. Please login again.');
+			return $this->redirect(['controller' => 'users', 'action' => 'login']);
+		}
 		
 		//echo ' fsdf sdf sdf d';exit;
 		$this->viewBuilder()->setLayout("home");		
@@ -464,12 +479,17 @@ class JudgeevaluationsController extends AppController {
 		$this->set('conv_reg_slug',$conv_reg_slug);
 		
 		$userDetails = $this->Users->find()->where(['Users.id' => $user_id])->first();
+		if (!$userDetails) {
+			$this->Flash->error('Unable to find your user account. Please login again.');
+			return $this->redirect(['controller' => 'users', 'action' => 'login']);
+		}
 		$this->set('userDetails', $userDetails);
 		
 		// to get eventsubmission details
 		$eventsubmissionD 	= $this->Eventsubmissions->find()->where(['Eventsubmissions.slug' => $event_submission_slug])->contain(["Users","Students"])->first();
 		$this->set('eventsubmissionD', $eventsubmissionD);
-		$event_id_number 	= $eventsubmissionD->event_id_number;
+		$event_id_number_raw = (string)$eventsubmissionD->event_id_number;
+		$event_id_number 	= $event_id_number_raw;
 		//$event_id_number 	= '012';
 		//$this->prx($eventsubmissionD);
 		

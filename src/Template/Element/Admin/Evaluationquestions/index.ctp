@@ -38,7 +38,7 @@
                                 <td data-title="Category Name"><?php echo $datarecord->Evaluationcategories['name'];?></td>
 								<td data-title="Question"><?php echo $datarecord->question;?></td>
 								<td data-title="Max Points"><?php echo $datarecord->max_points;?></td>
-                                <td data-title="Created"><?php echo date('M d, Y', strtotime($datarecord->created)); ?></td>
+                                <td data-title="Created"><?php echo (($__ts = strtotime((string)$datarecord->created)) !== false && $__ts > 0 ? date('M d, Y', $__ts) : 'N/A'); ?></td>
                                 <td data-title="Last Modified">
 								<?php 
 								if($datarecord->modified == NULL)
@@ -47,7 +47,7 @@
 								}
 								else
 								{
-									echo date('M d, Y', strtotime($datarecord->modified));
+									echo (($__ts = strtotime((string)$datarecord->modified)) !== false && $__ts > 0 ? date('M d, Y', $__ts) : 'N/A');
 								}
 								
 								?>

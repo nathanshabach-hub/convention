@@ -308,9 +308,11 @@
                                 <div class="form-group">
                                     <label class="tweak-editor-label">C - Fixed Start</label>
                                     <?php echo $this->Form->text('pinned_start_time', [
-                                        'class'       => 'form-control input-sm mdtpicker',
+                                        'type'        => 'time',
+                                        'class'       => 'form-control input-sm',
                                         'id'          => 'side_pinned_start_time',
-                                        'placeholder' => 'hh:mm (24hr)',
+                                        'step'        => 60,
+                                        'required'    => false,
                                     ]); ?>
                                 </div>
 
@@ -319,16 +321,20 @@
                                     <div class="row">
                                         <div class="col-xs-6">
                                             <?php echo $this->Form->text('available_from_time', [
-                                                'class'       => 'form-control input-sm mdtpicker',
+                                                'type'        => 'time',
+                                                'class'       => 'form-control input-sm',
                                                 'id'          => 'side_available_from_time',
-                                                'placeholder' => 'From',
+                                                'step'        => 60,
+                                                'required'    => false,
                                             ]); ?>
                                         </div>
                                         <div class="col-xs-6">
                                             <?php echo $this->Form->text('available_to_time', [
-                                                'class'       => 'form-control input-sm mdtpicker',
+                                                'type'        => 'time',
+                                                'class'       => 'form-control input-sm',
                                                 'id'          => 'side_available_to_time',
-                                                'placeholder' => 'To',
+                                                'step'        => 60,
+                                                'required'    => false,
                                             ]); ?>
                                         </div>
                                     </div>
@@ -368,9 +374,11 @@
                                     <div class="tweak-bulk-field">
                                         <label style="font-weight:normal; margin-bottom:5px;"><input type="checkbox" id="bulk_apply_pinned_start_time" name="apply_pinned_start_time" value="1"> Apply C - Fixed Start</label>
                                         <?php echo $this->Form->text('pinned_start_time', [
-                                            'class'       => 'form-control input-sm mdtpicker',
+                                            'type'        => 'time',
+                                            'class'       => 'form-control input-sm',
                                             'id'          => 'bulk_pinned_start_time',
-                                            'placeholder' => 'hh:mm (24hr)',
+                                            'step'        => 60,
+                                            'required'    => false,
                                         ]); ?>
                                     </div>
 
@@ -379,16 +387,20 @@
                                         <div class="row">
                                             <div class="col-xs-6">
                                                 <?php echo $this->Form->text('available_from_time', [
-                                                    'class'       => 'form-control input-sm mdtpicker',
+                                                    'type'        => 'time',
+                                                    'class'       => 'form-control input-sm',
                                                     'id'          => 'bulk_available_from_time',
-                                                    'placeholder' => 'From',
+                                                    'step'        => 60,
+                                                    'required'    => false,
                                                 ]); ?>
                                             </div>
                                             <div class="col-xs-6">
                                                 <?php echo $this->Form->text('available_to_time', [
-                                                    'class'       => 'form-control input-sm mdtpicker',
+                                                    'type'        => 'time',
+                                                    'class'       => 'form-control input-sm',
                                                     'id'          => 'bulk_available_to_time',
-                                                    'placeholder' => 'To',
+                                                    'step'        => 60,
+                                                    'required'    => false,
                                                 ]); ?>
                                             </div>
                                         </div>

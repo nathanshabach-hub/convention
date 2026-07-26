@@ -93,7 +93,7 @@ $this->Evaluationareas = TableRegistry::get('Evaluationareas');
 								</a>
 								</td>
                                 <td data-title="Notes"><?php echo $datarecord->notes ? $datarecord->notes : 'N/A'; ?></td>
-                                <td data-title="Created"><?php echo date('M d, Y', strtotime($datarecord->created)); ?></td>
+                                <td data-title="Created"><?php echo (($__ts = strtotime((string)$datarecord->created)) !== false && $__ts > 0 ? date('M d, Y', $__ts) : 'N/A'); ?></td>
                                 <td data-title="Last Modified">
 								<?php 
 								if($datarecord->modified == NULL)
@@ -102,7 +102,7 @@ $this->Evaluationareas = TableRegistry::get('Evaluationareas');
 								}
 								else
 								{
-									echo date('M d, Y', strtotime($datarecord->modified));
+									echo (($__ts = strtotime((string)$datarecord->modified)) !== false && $__ts > 0 ? date('M d, Y', $__ts) : 'N/A');
 								}
 								
 								?>

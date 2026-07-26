@@ -7,12 +7,12 @@
 			<div class="ersu_message">
 				<?php echo $this->Flash->render() ?>
 			</div>
-			<div class="teachers-top-heading cr-students-header">
-				<span class="cr-students-title">Student Registration</span>
-				<div style="display:flex; gap:8px; float:right;">
-					<?php echo $this->Html->link(' + Add Student', ['controller' => 'conventionregistrations', 'action' => 'addstudent'], ['escape' => false, 'class' => 'btn btn-primary']); ?>
+			<div class="teachers-top-heading cr-students-header" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;width:100%;max-width:100%;overflow:hidden;box-sizing:border-box;">
+				<span class="cr-students-title" style="min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Student Registration</span>
+				<div class="cr-students-actions" style="display:flex; gap:8px; margin-left:auto; flex-wrap:wrap; justify-content:flex-end;">
+					<?php echo $this->Html->link(' + Add Student', ['controller' => 'conventionregistrations', 'action' => 'addstudent'], ['escape' => false, 'class' => 'btn btn-primary', 'style' => 'float:none;']); ?>
 					<?php if (!empty($resultsReleased)): ?>
-					<?php echo $this->Html->link('<i class="fa fa-download"></i> Download All Results', ['controller' => 'conventionregistrations', 'action' => 'downloadallresults'], ['escape' => false, 'class' => 'btn btn-success', 'target' => '_blank', 'rel' => 'noopener']); ?>
+					<?php echo $this->Html->link('<i class="fa fa-download"></i> Download All Results', ['controller' => 'conventionregistrations', 'action' => 'downloadallresults'], ['escape' => false, 'class' => 'btn btn-success', 'target' => '_blank', 'rel' => 'noopener', 'style' => 'float:none;']); ?>
 					<?php endif; ?>
 				</div>
 			</div>

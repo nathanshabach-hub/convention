@@ -100,6 +100,8 @@ if (!empty($schedulingD->lunch_time_start) && !empty($schedulingD->lunch_time_en
     $lunchBanner = 'LUNCH '.date('g:i a', strtotime((string)$schedulingD->lunch_time_start)).' - '.date('g:i a', strtotime((string)$schedulingD->lunch_time_end));
 }
 
+$smallProgramEditable = isset($smallProgramEditable) ? (bool)$smallProgramEditable : false;
+
 /**
  * Helper function to consolidate Male & Female event pairs AND same-base-name events with different suffixes
  * Examples:
@@ -432,6 +434,57 @@ function consolidateEventNames($eventNames) {
     letter-spacing: 0.06em;
     padding: 4px 8px;
     text-align: center;
+}
+.sp-room-card-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+.sp-card-edit-btn {
+    border: 0;
+    background: rgba(255,255,255,0.18);
+    color: #fff;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+.sp-card-editor {
+    display: none;
+    padding: 8px;
+    border-top: 1px solid #d9d9d9;
+    background: #f8fbff;
+}
+.sp-card-editor textarea {
+    width: 100%;
+    min-height: 88px;
+    resize: vertical;
+    font-size: 11px;
+    line-height: 1.35;
+    padding: 6px;
+    border: 1px solid #c4cfe5;
+    border-radius: 3px;
+}
+.sp-card-editor-actions {
+    margin-top: 6px;
+    display: flex;
+    gap: 6px;
+}
+.sp-card-editor-actions button {
+    border: 0;
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+.sp-card-editor-save {
+    background: #2f8f4f;
+    color: #fff;
+}
+.sp-card-editor-cancel {
+    background: #b8c3d6;
+    color: #1a1a1a;
 }
 .sp-room-card-events {
     padding: 5px 8px 4px;
@@ -904,13 +957,33 @@ function consolidateEventNames($eventNames) {
 
                                 <div class="sp-rooms">
                                     <?php foreach ($sessionData['rooms'] as $roomName => $eventNames) { ?>
+                                        <?php
+                                        $displayEventNames = consolidateEventNames($eventNames);
+                                        $cardId = md5((string)$dayData['dayLabel'].'|'.(string)$sessionData['key'].'|'.(string)$roomName);
+                                        ?>
                                         <div class="sp-room-card">
-                                            <div class="sp-room-card-header"><?php echo h($roomName); ?></div>
-                                            <ul class="sp-room-card-events">
-                                                <?php foreach (consolidateEventNames($eventNames) as $eventName) { ?>
+                                            <div class="sp-room-card-header">
+                                                <div class="sp-room-card-header-row">
+                                                    <span><?php echo h($roomName); ?></span>
+                                                    <?php if ($smallProgramEditable) { ?>
+                                                        <button type="button" class="sp-card-edit-btn" data-card-id="<?php echo h($cardId); ?>">Edit</button>
+                                                    <?php } ?>
+                                                </div>
+                                            </div>
+                                            <ul class="sp-room-card-events" data-card-id="<?php echo h($cardId); ?>" data-day="<?php echo h($dayData['dayLabel']); ?>" data-session="<?php echo h($sessionData['key']); ?>" data-room="<?php echo h($roomName); ?>">
+                                                <?php foreach ($displayEventNames as $eventName) { ?>
                                                     <li><?php echo h($eventName); ?></li>
                                                 <?php } ?>
                                             </ul>
+                                            <?php if ($smallProgramEditable) { ?>
+                                            <div class="sp-card-editor" data-card-id="<?php echo h($cardId); ?>">
+                                                <textarea class="sp-card-editor-text" placeholder="One event per line"><?php echo h(implode("\n", $displayEventNames)); ?></textarea>
+                                                <div class="sp-card-editor-actions">
+                                                    <button type="button" class="sp-card-editor-save" data-card-id="<?php echo h($cardId); ?>">Apply</button>
+                                                    <button type="button" class="sp-card-editor-cancel" data-card-id="<?php echo h($cardId); ?>">Cancel</button>
+                                                </div>
+                                            </div>
+                                            <?php } ?>
                                         </div>
                                     <?php } ?>
                                 </div>

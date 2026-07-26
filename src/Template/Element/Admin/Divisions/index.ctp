@@ -36,19 +36,41 @@
                                 <td data-title="Event Category"><?php echo $datarecord->Eventcategories['name'];?></td>
 								<td data-title="Division Name"><?php echo $datarecord->name;?></td>
 								<td data-title="Max. Events"><?php echo $datarecord->max_events;?></td>
-                                <td data-title="Created"><?php echo date('M d, Y', strtotime($datarecord->created)); ?></td>
+                                <td data-title="Created">
+                                    <?php
+                                    $createdDisplay = 'N/A';
+
+                                    if (!empty($datarecord->created) && $datarecord->created !== '0000-00-00 00:00:00') {
+                                        if (is_object($datarecord->created) && method_exists($datarecord->created, 'format')) {
+                                            $createdDisplay = $datarecord->created->format('M d, Y');
+                                        } else {
+                                            $createdTs = strtotime((string)$datarecord->created);
+                                            if ($createdTs !== false && $createdTs > 0) {
+                                                $createdDisplay = date('M d, Y', $createdTs);
+                                            }
+                                        }
+                                    }
+
+                                    echo $createdDisplay;
+                                    ?>
+                                </td>
                                 <td data-title="Last Modified">
-								<?php 
-								if($datarecord->modified == NULL)
-								{
-									echo 'N/A';
-								}
-								else
-								{
-									echo date('M d, Y', strtotime($datarecord->modified));
-								}
-								
-								?>
+                                <?php
+                                $modifiedDisplay = 'N/A';
+
+                                if (!empty($datarecord->modified) && $datarecord->modified !== '0000-00-00 00:00:00') {
+                                    if (is_object($datarecord->modified) && method_exists($datarecord->modified, 'format')) {
+                                        $modifiedDisplay = $datarecord->modified->format('M d, Y');
+                                    } else {
+                                        $modifiedTs = strtotime((string)$datarecord->modified);
+                                        if ($modifiedTs !== false && $modifiedTs > 0) {
+                                            $modifiedDisplay = date('M d, Y', $modifiedTs);
+                                        }
+                                    }
+                                }
+
+                                echo $modifiedDisplay;
+                                ?>
 								</td>
                                 <td data-title="Action">
                                     

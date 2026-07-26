@@ -189,15 +189,25 @@ class AdminsController extends AppController {
         $this->set('title', ADMIN_TITLE . 'Admin Dashboard');
         $this->viewBuilder()->setLayout('admin');
         $this->set('dashboard', '1');
+
+        $allSquad247Submissions = $this->loadSquad247Submissions();
+        $this->set('total_squad247', count($allSquad247Submissions));
 		
         // Updated to use getSession()
         $sess_admin_header_season_id = $this->request->getSession()->read("sess_admin_header_season_id");
         $this->set('sess_admin_header_season_id', $sess_admin_header_season_id);
         if($sess_admin_header_season_id > 0)
         {
-            $convSD = $this->Conventionseasons->find()->where(["Conventionseasons.id" =>$sess_admin_header_season_id])->first();
+            $convSD = $this->Conventionseasons->find()->where(["Conventionseasons.id" =>$sess_admin_header_season_id])->contain(['Conventions'])->first();
+
+            if (!$convSD) {
+                $this->Flash->error('Selected convention season was not found.');
+                return $this->redirect(['action' => 'dashboard']);
+            }
 			
             $this->set('conv_season_slug', $convSD->slug);
+            $selectedConventionName = trim((string)($convSD->Conventions['name'] ?? ''));
+            $this->set('total_squad247', $this->countSquad247SubmissionsForConvention($allSquad247Submissions, $selectedConventionName));
 			
             $total_students = $this->Conventionregistrationstudents->find()
                 ->select(['student_id'])
@@ -306,6 +316,407 @@ class AdminsController extends AppController {
             $total_judges = $this->Users->find()->where($condJ)->count();
             $this->set('total_judges', $total_judges);
         }
+    }
+
+    public function squad247() {
+        $this->set('title', ADMIN_TITLE . '24/7 Squad Information');
+        $this->viewBuilder()->setLayout('admin');
+        $this->set('dashboard', '1');
+
+        $contentFile = CONFIG . 'squad247_content.json';
+        $defaultData = [
+            'convention_subtitle' => 'Regional Student Conventions 2025',
+            'application_intro' => 'Southern Cross Educational Enterprises is seeking applications from A.C.E. Graduates and supporters to join the 2025 Regional Convention 24/7 Squads in the following regions:',
+            'success_requirements' => [
+                'Be at least 17 years of age (if under 18 and staying on site, events team will contact parent/guardian).',
+                'Will not be eligible to compete as a student at the Convention.',
+                'Will not have responsibility as a sponsor or accompanist for children or students attending Convention.',
+                'Will be willing to volunteer their time 24/7 during Convention in any area (judging, stage handling, sound/audio, general help).',
+                'Be able to arrive prior to check-in and remain until after awards and campsite clean-up.',
+                'Be flexible in sleeping arrangements.',
+                'Be passionate about the purpose and ministry of Student Conventions.',
+            ],
+            'successful_need_to' => [
+                'Cover their own transport expenses and registration fee listed on the application form.',
+                'Registration fee for PNG, Fiji, Cook Islands, Solomon Islands and AUS workshop includes convention registration, food, 24/7 pin and 24/7 T-shirt.',
+                'Registration fee for Indonesia and NZ includes convention registration, onsite accommodation and food, and 24/7 T-shirt.',
+                'If travelling internationally, check with Events Coordinator for extra food, accommodation and transport cost estimates.',
+                'Be prepared to use any musical or platform gifts at evening rallies.',
+            ],
+            'important_note' => 'Regional Squad experience is required (where possible) for South Pacific Squad applicants.',
+            'applications_email' => 'events@scee.edu.au',
+            'applications_deadline' => 'ALL APPLICATIONS MUST BE RECEIVED TWO MONTHS PRIOR to the commencement of the Convention.',
+            'page2_title' => '24/7 Squad Regional Application Form 2025 (Page 2)',
+            'page2_description' => 'The application form includes personal details, country selection, convention experience, references, testimony, and declaration sections.',
+            'applicant_must_provide' => [
+                'A current portrait photo.',
+                'A reference from Principal and/or Pastor.',
+                'Personal testimony of salvation and current walk with the Lord.',
+                'A description of church background and beliefs.',
+            ],
+            'blue_card_requirement' => 'For Australian/NZ conventions, Australian volunteers at Australian conventions must hold an approved Blue Card (or the relevant state Working With Children approval). Applicants can apply via bluecard.qld.gov.au.',
+            'payment_options' => 'Once the application is received, specific payment details are sent based on the country selected.',
+            'regions_left' => [
+                ['name' => 'FIJI', 'dates' => '30 June - 4 July'],
+                ['name' => 'NZ', 'dates' => '1 - 5 September'],
+            ],
+            'regions_right' => [
+                ['name' => 'PNG', 'dates' => '8 - 12 September'],
+                ['name' => 'AUS Workshop', 'dates' => '10 - 12 June'],
+                ['name' => 'INDO', 'dates' => '13 - 17 October'],
+            ],
+            'fees' => [
+                ['name' => 'Fiji', 'amount' => '100 FJD'],
+                ['name' => 'AUS', 'amount' => '100 AUD'],
+                ['name' => 'NZ', 'amount' => '200 NZD'],
+                ['name' => 'PNG', 'amount' => '225 Kina'],
+                ['name' => 'INDO', 'amount' => '1,500,000 Rp'],
+            ],
+        ];
+
+        $squad247Data = $defaultData;
+        if (is_file($contentFile)) {
+            $decoded = json_decode((string)@file_get_contents($contentFile), true);
+            if (is_array($decoded)) {
+                if (isset($decoded['convention_subtitle'])) {
+                    $squad247Data['convention_subtitle'] = trim((string)$decoded['convention_subtitle']);
+                }
+                foreach (['application_intro','important_note','applications_email','applications_deadline','page2_title','page2_description','blue_card_requirement','payment_options'] as $textKey) {
+                    if (isset($decoded[$textKey])) {
+                        $squad247Data[$textKey] = trim((string)$decoded[$textKey]);
+                    }
+                }
+                foreach (['success_requirements','successful_need_to','applicant_must_provide'] as $listKey) {
+                    if (isset($decoded[$listKey]) && is_array($decoded[$listKey])) {
+                        $squad247Data[$listKey] = $decoded[$listKey];
+                    }
+                }
+                if (isset($decoded['regions_left']) && is_array($decoded['regions_left'])) {
+                    $squad247Data['regions_left'] = $decoded['regions_left'];
+                }
+                if (isset($decoded['regions_right']) && is_array($decoded['regions_right'])) {
+                    $squad247Data['regions_right'] = $decoded['regions_right'];
+                }
+                if (isset($decoded['fees']) && is_array($decoded['fees'])) {
+                    $squad247Data['fees'] = $decoded['fees'];
+                }
+            }
+        }
+
+        if ($this->request->is('post')) {
+            $posted = (array)$this->request->getData('Squad247', []);
+
+            $normalizeRows = static function (array $rows, $firstKey, $secondKey) {
+                $normalized = [];
+                foreach ($rows as $row) {
+                    if (!is_array($row)) {
+                        continue;
+                    }
+                    $firstVal = trim((string)($row[$firstKey] ?? ''));
+                    $secondVal = trim((string)($row[$secondKey] ?? ''));
+                    if ($firstVal === '' && $secondVal === '') {
+                        continue;
+                    }
+                    $normalized[] = [$firstKey => $firstVal, $secondKey => $secondVal];
+                }
+                return $normalized;
+            };
+
+            $normalizeLines = static function ($value) {
+                $text = trim((string)$value);
+                if ($text === '') {
+                    return [];
+                }
+
+                $lines = preg_split('/\r\n|\r|\n/', $text);
+                $normalized = [];
+                foreach ($lines as $line) {
+                    $line = trim((string)$line);
+                    $line = preg_replace('/^[\-*\x{2022}\d]+[\.)\-\s]+/u', '', $line);
+                    $line = trim((string)$line);
+                    if ($line !== '') {
+                        $normalized[] = $line;
+                    }
+                }
+                return $normalized;
+            };
+
+            $nextData = [
+                'convention_subtitle' => trim((string)($posted['convention_subtitle'] ?? '')),
+                'application_intro' => trim((string)($posted['application_intro'] ?? '')),
+                'success_requirements' => $normalizeLines($posted['success_requirements'] ?? ''),
+                'successful_need_to' => $normalizeLines($posted['successful_need_to'] ?? ''),
+                'important_note' => trim((string)($posted['important_note'] ?? '')),
+                'applications_email' => trim((string)($posted['applications_email'] ?? '')),
+                'applications_deadline' => trim((string)($posted['applications_deadline'] ?? '')),
+                'page2_title' => trim((string)($posted['page2_title'] ?? '')),
+                'page2_description' => trim((string)($posted['page2_description'] ?? '')),
+                'applicant_must_provide' => $normalizeLines($posted['applicant_must_provide'] ?? ''),
+                'blue_card_requirement' => trim((string)($posted['blue_card_requirement'] ?? '')),
+                'payment_options' => trim((string)($posted['payment_options'] ?? '')),
+                'regions_left' => $normalizeRows(isset($posted['regions_left']) && is_array($posted['regions_left']) ? $posted['regions_left'] : [], 'name', 'dates'),
+                'regions_right' => $normalizeRows(isset($posted['regions_right']) && is_array($posted['regions_right']) ? $posted['regions_right'] : [], 'name', 'dates'),
+                'fees' => $normalizeRows(isset($posted['fees']) && is_array($posted['fees']) ? $posted['fees'] : [], 'name', 'amount'),
+            ];
+
+            if ($nextData['convention_subtitle'] === '') {
+                $nextData['convention_subtitle'] = $defaultData['convention_subtitle'];
+            }
+            foreach (['application_intro','important_note','applications_email','applications_deadline','page2_title','page2_description','blue_card_requirement','payment_options'] as $textKey) {
+                if ($nextData[$textKey] === '') {
+                    $nextData[$textKey] = $defaultData[$textKey];
+                }
+            }
+            foreach (['success_requirements','successful_need_to','applicant_must_provide'] as $listKey) {
+                if (empty($nextData[$listKey])) {
+                    $nextData[$listKey] = $defaultData[$listKey];
+                }
+            }
+
+            if (empty($nextData['regions_left']) || empty($nextData['regions_right']) || empty($nextData['fees'])) {
+                $this->Flash->error('Please provide at least one row for each section before saving.');
+                $squad247Data = $nextData;
+            } else {
+                @file_put_contents($contentFile, json_encode($nextData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+                $this->Flash->success('24/7 Squad information updated successfully.');
+                return $this->redirect(['action' => 'squad247']);
+            }
+        }
+
+        $allSquad247Submissions = $this->loadSquad247Submissions();
+        $filteredSquad247Submissions = $allSquad247Submissions;
+
+        $selectedSquad247ConventionName = '';
+        $selectedSquad247Aliases = array();
+        $selectedSquad247SeasonDateRange = '';
+        $sess_admin_header_season_id = $this->request->getSession()->read("sess_admin_header_season_id");
+        if (!empty($sess_admin_header_season_id)) {
+            $selectedConvSeason = $this->Conventionseasons->find()
+                ->where(["Conventionseasons.id" => $sess_admin_header_season_id])
+                ->contain(['Conventions'])
+                ->first();
+            if ($selectedConvSeason && !empty($selectedConvSeason->Conventions['name'])) {
+                $selectedSquad247ConventionName = trim((string)$selectedConvSeason->Conventions['name']);
+                $selectedSquad247Aliases = $this->resolveSquad247ConventionAliases($selectedSquad247ConventionName);
+
+                $startDateText = '';
+                $endDateText = '';
+                if (!empty($selectedConvSeason->registration_start_date)) {
+                    $startDateText = date('j M Y', strtotime((string)$selectedConvSeason->registration_start_date));
+                }
+                if (!empty($selectedConvSeason->registration_end_date)) {
+                    $endDateText = date('j M Y', strtotime((string)$selectedConvSeason->registration_end_date));
+                }
+                if ($startDateText !== '' && $endDateText !== '') {
+                    $selectedSquad247SeasonDateRange = $startDateText . ' - ' . $endDateText;
+                } elseif ($startDateText !== '') {
+                    $selectedSquad247SeasonDateRange = $startDateText;
+                } elseif ($endDateText !== '') {
+                    $selectedSquad247SeasonDateRange = $endDateText;
+                }
+
+                if ($selectedSquad247ConventionName !== '') {
+                    $filteredSquad247Submissions = $this->filterSquad247SubmissionsForConvention($allSquad247Submissions, $selectedSquad247ConventionName);
+                }
+            }
+        }
+
+        $this->set('selectedSquad247ConventionName', $selectedSquad247ConventionName);
+        $this->set('selectedSquad247Aliases', $selectedSquad247Aliases);
+        $this->set('selectedSquad247SeasonDateRange', $selectedSquad247SeasonDateRange);
+        $this->set('squad247Data', $squad247Data);
+        $this->set('squad247Submissions', $filteredSquad247Submissions);
+    }
+
+    protected function squad247SubmissionsFile() {
+        return TMP . 'squad247_submissions.json';
+    }
+
+    protected function loadSquad247Submissions() {
+        $submissionsFile = $this->squad247SubmissionsFile();
+        if (!is_file($submissionsFile)) {
+            return array();
+        }
+
+        $decoded = json_decode((string)@file_get_contents($submissionsFile), true);
+        return is_array($decoded) ? $decoded : array();
+    }
+
+    protected function decodeSquad247Payload($payload) {
+        if (is_array($payload) && count($payload) === 1 && isset($payload[0]) && is_string($payload[0])) {
+            $decodedPayload = json_decode($payload[0], true);
+            if (is_array($decodedPayload)) {
+                return $decodedPayload;
+            }
+        }
+
+        if (is_string($payload)) {
+            $decodedPayload = json_decode($payload, true);
+            if (is_array($decodedPayload)) {
+                return $decodedPayload;
+            }
+        }
+
+        return is_array($payload) ? $payload : array();
+    }
+
+    protected function countSquad247SubmissionsForConvention(array $submissions, $selectedConventionName) {
+        $selectedAliases = $this->resolveSquad247ConventionAliases((string)$selectedConventionName);
+        if (empty($selectedAliases)) {
+            return count($submissions);
+        }
+
+        $count = 0;
+        foreach ($submissions as $submission) {
+            $payload = $this->decodeSquad247Payload($submission['payload'] ?? array());
+            $searchText = $this->extractSquad247SubmissionSearchText($payload);
+            if ($searchText === '') {
+                continue;
+            }
+
+            foreach ($selectedAliases as $alias) {
+                if ($alias !== '' && strpos($searchText, $alias) !== false) {
+                    $count++;
+                    break;
+                }
+            }
+        }
+
+        return $count;
+    }
+
+    protected function filterSquad247SubmissionsForConvention(array $submissions, $selectedConventionName) {
+        $selectedAliases = $this->resolveSquad247ConventionAliases((string)$selectedConventionName);
+        if (empty($selectedAliases)) {
+            return $submissions;
+        }
+
+        $filtered = array();
+        foreach ($submissions as $index => $submission) {
+            $payload = $this->decodeSquad247Payload($submission['payload'] ?? array());
+            $searchText = $this->extractSquad247SubmissionSearchText($payload);
+            if ($searchText === '') {
+                continue;
+            }
+
+            foreach ($selectedAliases as $alias) {
+                if ($alias !== '' && strpos($searchText, $alias) !== false) {
+                    $filtered[$index] = $submission;
+                    break;
+                }
+            }
+        }
+
+        return $filtered;
+    }
+
+    protected function extractSquad247SubmissionSearchText(array $payload) {
+        $parts = array();
+
+        if (!empty($payload['fields']) && is_array($payload['fields'])) {
+            foreach ($payload['fields'] as $field) {
+                if (!is_array($field)) {
+                    continue;
+                }
+
+                $label = strtolower(trim((string)($field['label'] ?? '')));
+                $value = strtolower(trim((string)($field['value'] ?? '')));
+                if ($value === '') {
+                    continue;
+                }
+
+                if (strpos($label, 'country') !== false || strpos($label, 'convention') !== false || strpos($label, 'region') !== false) {
+                    $parts[] = $value;
+                    continue;
+                }
+
+                if (in_array($value, ['indo', 'png', 'nz', 'aus', 'ck', 'slb', 'fiji'], true)) {
+                    $parts[] = $value;
+                }
+            }
+        }
+
+        return implode(' ', $parts);
+    }
+
+    protected function resolveSquad247ConventionAliases($conventionName) {
+        $name = strtolower(trim((string)$conventionName));
+        if ($name === '') {
+            return array();
+        }
+
+        $aliasMap = [
+            'indonesia' => ['indonesia', 'indo'],
+            'papua new guinea' => ['papua new guinea', 'png'],
+            'new zealand' => ['new zealand', 'nz'],
+            'australia' => ['australia', 'aus'],
+            'fiji' => ['fiji'],
+            'cook islands' => ['cook islands', 'cook', 'ck'],
+            'solomon islands' => ['solomon islands', 'solomon', 'slb'],
+        ];
+
+        foreach ($aliasMap as $needle => $aliases) {
+            if (strpos($name, $needle) !== false) {
+                return $aliases;
+            }
+        }
+
+        return array($name);
+    }
+
+    protected function saveSquad247Submissions(array $submissions) {
+        return @file_put_contents(
+            $this->squad247SubmissionsFile(),
+            json_encode(array_values($submissions), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
+        ) !== false;
+    }
+
+    public function squad247DeleteSubmission($index = null) {
+        $this->request->allowMethod(['post', 'delete']);
+
+        if (!is_numeric($index)) {
+            $this->Flash->error('Invalid submission selected for deletion.');
+            return $this->redirect(['action' => 'squad247']);
+        }
+
+        $submissionIndex = (int)$index;
+        $submissions = $this->loadSquad247Submissions();
+
+        if (!isset($submissions[$submissionIndex])) {
+            $this->Flash->error('Submission not found. It may have already been deleted.');
+            return $this->redirect(['action' => 'squad247']);
+        }
+
+        $submission = $submissions[$submissionIndex];
+        $payload = $this->decodeSquad247Payload(isset($submission['payload']) ? $submission['payload'] : array());
+
+        $uploadedFiles = isset($payload['files']) && is_array($payload['files']) ? $payload['files'] : array();
+        $uploadsDir = WWW_ROOT . 'uploads' . DS . 'squad247' . DS;
+        foreach ($uploadedFiles as $fileInfo) {
+            $storedName = '';
+            if (is_array($fileInfo) && !empty($fileInfo['stored_name'])) {
+                $storedName = basename((string)$fileInfo['stored_name']);
+            } elseif (is_array($fileInfo) && !empty($fileInfo['url'])) {
+                $storedName = basename(parse_url((string)$fileInfo['url'], PHP_URL_PATH));
+            }
+
+            if ($storedName !== '') {
+                $filePath = $uploadsDir . $storedName;
+                if (is_file($filePath)) {
+                    @unlink($filePath);
+                }
+            }
+        }
+
+        unset($submissions[$submissionIndex]);
+
+        if ($this->saveSquad247Submissions($submissions)) {
+            $this->Flash->success('24/7 submission deleted successfully.');
+        } else {
+            $this->Flash->error('Unable to delete the submission right now. Please try again.');
+        }
+
+        return $this->redirect(['action' => 'squad247']);
     }
 
     public function runninglist() {
@@ -987,6 +1398,10 @@ class AdminsController extends AppController {
         $this->viewBuilder()->setLayout('admin');
         $this->set('title', ADMIN_TITLE . 'Dashboard Videos');
 
+        $settingsColumns = (array)$this->Settings->getSchema()->columns();
+        $hasVideoLinksJson = in_array('video_links_json', $settingsColumns, true);
+        $videoLinksFile = WWW_ROOT . 'files' . DS . 'dashboard_video_links.json';
+
         $adminId = $this->request->getSession()->read('admin_id');
         if (!$adminId) {
             return $this->redirect(['action' => 'login']);
@@ -999,7 +1414,16 @@ class AdminsController extends AppController {
         }
 
         $videoLinks = [];
-        if (!empty($settingsInfo->video_links_json)) {
+        if (is_file($videoLinksFile)) {
+            $fileVideoLinks = json_decode((string)@file_get_contents($videoLinksFile), true);
+            if (is_array($fileVideoLinks)) {
+                $videoLinks = array_values(array_filter(array_map('trim', $fileVideoLinks), static function ($value) {
+                    return $value !== '';
+                }));
+            }
+        }
+
+        if (empty($videoLinks) && $hasVideoLinksJson && !empty($settingsInfo->video_links_json)) {
             $decodedLinks = json_decode((string)$settingsInfo->video_links_json, true);
             if (is_array($decodedLinks)) {
                 $videoLinks = array_values(array_filter(array_map('trim', $decodedLinks), static function ($value) {
@@ -1025,17 +1449,22 @@ class AdminsController extends AppController {
                 return $value !== '';
             }));
 
-            $fields = [
-                'video_links_json' => json_encode($submittedVideoLinks, JSON_UNESCAPED_SLASHES),
-            ];
+            $fields = [];
+            if ($hasVideoLinksJson) {
+                $fields['video_links_json'] = json_encode($submittedVideoLinks, JSON_UNESCAPED_SLASHES);
+            }
 
             for ($i = 1; $i <= 9; $i++) {
                 $fieldName = 'video_link_' . $i;
-                $fields[$fieldName] = isset($submittedVideoLinks[$i - 1]) ? $submittedVideoLinks[$i - 1] : null;
+                if (in_array($fieldName, $settingsColumns, true)) {
+                    $fields[$fieldName] = isset($submittedVideoLinks[$i - 1]) ? $submittedVideoLinks[$i - 1] : null;
+                }
             }
 
             $fields['modified'] = date('Y-m-d H:i:s');
             $this->Settings->updateAll($fields, ['Settings.id' => 1]);
+
+            @file_put_contents($videoLinksFile, json_encode($submittedVideoLinks, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 
             $this->Flash->success('Dashboard video links updated successfully.');
             return $this->redirect(['action' => 'videos']);
@@ -1062,5 +1491,675 @@ class AdminsController extends AppController {
 
         $adminInfo = $this->Admins->find()->where(['Admins.id' => $adminId])->first();
         $this->set('adminInfo', $adminInfo);
+    }
+
+    /**
+     * Convention Season Report
+     * Shows statistics for a selected convention season
+     */
+    public function report() {
+        $this->viewBuilder()->setLayout('admin');
+        $this->set('title', ADMIN_TITLE . 'Convention Report');
+        $this->set('report', '1');
+
+        $sess_admin_header_season_id = $this->request->getSession()->read("sess_admin_header_season_id");
+        $this->set('sess_admin_header_season_id', $sess_admin_header_season_id);
+
+        if ($sess_admin_header_season_id <= 0) {
+            $this->Flash->error('Please select a convention season from the header.');
+            return $this->redirect(['action' => 'dashboard']);
+        }
+
+        $convSD = $this->Conventionseasons->find()
+            ->where(["Conventionseasons.id" => $sess_admin_header_season_id])
+            ->contain(['Conventions'])
+            ->first();
+
+        if (!$convSD) {
+            $this->Flash->error('Selected convention season was not found.');
+            return $this->redirect(['action' => 'dashboard']);
+        }
+
+        $this->set('conv_season', $convSD);
+
+        // Count registered schools
+        $total_schools = 0;
+        $listSchools = $this->Conventionregistrations->find()
+            ->where([
+                "convention_id" => $convSD->convention_id,
+                "season_id" => $convSD->season_id,
+                "season_year" => $convSD->season_year
+            ])
+            ->contain(['Users'])
+            ->all();
+        foreach ($listSchools as $school) {
+            if (isset($school->Users) && $school->Users['user_type'] == "School") {
+                $total_schools++;
+            }
+        }
+        $this->set('total_schools', $total_schools);
+
+        // Count registered students
+        $total_students = $this->Conventionregistrationstudents->find()
+            ->select(['student_id'])
+            ->where([
+                "convention_id" => $convSD->convention_id,
+                "season_id" => $convSD->season_id,
+                "season_year" => $convSD->season_year,
+                "student_id IS NOT" => null,
+                "student_id >" => 0,
+            ])
+            ->distinct(['student_id'])
+            ->count();
+        $this->set('total_students', $total_students);
+
+        // Count supervisors
+        $total_supervisors = $this->Conventionregistrationteachers->find()
+            ->where([
+                "convention_id" => $convSD->convention_id,
+                "season_id" => $convSD->season_id,
+                "season_year" => $convSD->season_year
+            ])
+            ->count();
+        $this->set('total_supervisors', $total_supervisors);
+
+        // Count judges
+        $total_judges = 0;
+        foreach ($listSchools as $school) {
+            if (isset($school->Users) && 
+                ($school->Users['user_type'] == "Judge" || $school->Users['user_type'] == "Teacher_Parent") && 
+                $school->Users['is_judge'] == 1) {
+                $total_judges++;
+            }
+        }
+        $this->set('total_judges', $total_judges);
+
+        // Count visitors
+        try {
+            $Visitors = $this->loadModel('Visitors');
+            $total_visitors = $Visitors->find()
+                ->where([
+                    "convention_id" => $convSD->convention_id,
+                    "season_id" => $convSD->season_id
+                ])
+                ->count();
+        } catch (\Exception $e) {
+            $total_visitors = 0;
+        }
+        $this->set('total_visitors', $total_visitors);
+
+        // Get all students with their event counts
+        $studentEventCounts = $this->Crstudentevents->find()
+            ->select(['student_id'])
+            ->where(["conventionseason_id" => $convSD->id])
+            ->group(['student_id'])
+            ->all();
+
+        $students_20_events = 0;
+        $students_11_15_events = 0;
+        $students_5_10_events = 0;
+
+        foreach ($studentEventCounts as $row) {
+            $eventCount = $this->Crstudentevents->find()
+                ->where([
+                    "conventionseason_id" => $convSD->id,
+                    "student_id" => $row->student_id
+                ])
+                ->select(['DISTINCT event_id'])
+                ->count();
+
+            if ($eventCount == 20) {
+                $students_20_events++;
+            } elseif ($eventCount >= 11 && $eventCount <= 15) {
+                $students_11_15_events++;
+            } elseif ($eventCount >= 5 && $eventCount <= 10) {
+                $students_5_10_events++;
+            }
+        }
+
+        $this->set('students_20_events', $students_20_events);
+        $this->set('students_11_15_events', $students_11_15_events);
+        $this->set('students_5_10_events', $students_5_10_events);
+
+        // Count 1st, 2nd, 3rd place winners
+        try {
+            $Resultpositions = $this->loadModel('Resultpositions');
+            
+            // 1st place winners
+            $first_place = $Resultpositions->find()
+                ->where([
+                    "position" => 1,
+                    "convention_id" => $convSD->convention_id
+                ])
+                ->count();
+            $this->set('first_place_winners', $first_place);
+
+            // 2nd place winners
+            $second_place = $Resultpositions->find()
+                ->where([
+                    "position" => 2,
+                    "convention_id" => $convSD->convention_id
+                ])
+                ->count();
+            $this->set('second_place_winners', $second_place);
+
+            // 3rd place winners
+            $third_place = $Resultpositions->find()
+                ->where([
+                    "position" => 3,
+                    "convention_id" => $convSD->convention_id
+                ])
+                ->count();
+            $this->set('third_place_winners', $third_place);
+        } catch (\Exception $e) {
+            $this->set('first_place_winners', 0);
+            $this->set('second_place_winners', 0);
+            $this->set('third_place_winners', 0);
+        }
+
+        // Award counts - Silver Apple Award (events 336, 342)
+        $silver_apple = 0;
+        $golden_awards = 0;
+        
+        $silver_apple_students = $this->Conventionregistrationstudents->find()
+            ->where([
+                "convention_id" => $convSD->convention_id,
+                "season_id" => $convSD->season_id,
+                "season_year" => $convSD->season_year
+            ])
+            ->all();
+        
+        foreach ($silver_apple_students as $reg) {
+            $event_ids = !empty($reg->event_ids) ? explode(',', (string)$reg->event_ids) : [];
+            if (in_array('336', $event_ids) || in_array('342', $event_ids)) {
+                $silver_apple++;
+            }
+            
+            $golden_event_ids = ['331', '337', '332', '338', '333', '339', '334', '340', '335', '341'];
+            foreach ($event_ids as $eid) {
+                if (in_array(trim((string)$eid), $golden_event_ids)) {
+                    $golden_awards++;
+                    break;
+                }
+            }
+        }
+        
+        $this->set('silver_apple_count', $silver_apple);
+        $this->set('golden_awards_count', $golden_awards);
+
+        // Count total entries (event registrations)
+        $total_entries = $this->Crstudentevents->find()
+            ->where(["conventionseason_id" => $convSD->id])
+            ->count();
+        $this->set('total_entries', $total_entries);
+    }
+
+    public function downloadReport() {
+        $sess_admin_header_season_id = $this->request->getSession()->read("sess_admin_header_season_id");
+
+        if ($sess_admin_header_season_id <= 0) {
+            $this->Flash->error('Please select a convention season from the header.');
+            return $this->redirect(['action' => 'dashboard']);
+        }
+
+        $convSD = $this->Conventionseasons->find()
+            ->where(["Conventionseasons.id" => $sess_admin_header_season_id])
+            ->contain(['Conventions'])
+            ->first();
+
+        if (!$convSD) {
+            $this->Flash->error('Selected convention season was not found.');
+            return $this->redirect(['action' => 'dashboard']);
+        }
+
+        // Gather all the report data (using same logic as report() method)
+        
+        // Count registered schools
+        $total_schools = 0;
+        $listSchools = $this->Conventionregistrations->find()
+            ->where([
+                "convention_id" => $convSD->convention_id,
+                "season_id" => $convSD->season_id,
+                "season_year" => $convSD->season_year
+            ])
+            ->contain(['Users'])
+            ->all();
+        foreach ($listSchools as $school) {
+            if (isset($school->Users) && $school->Users['user_type'] == "School") {
+                $total_schools++;
+            }
+        }
+
+        // Count registered students
+        $total_students = $this->Conventionregistrationstudents->find()
+            ->select(['student_id'])
+            ->where([
+                "convention_id" => $convSD->convention_id,
+                "season_id" => $convSD->season_id,
+                "season_year" => $convSD->season_year,
+                "student_id IS NOT" => null,
+                "student_id >" => 0,
+            ])
+            ->distinct(['student_id'])
+            ->count();
+
+        // Count supervisors
+        $total_supervisors = $this->Conventionregistrationteachers->find()
+            ->where([
+                "convention_id" => $convSD->convention_id,
+                "season_id" => $convSD->season_id,
+                "season_year" => $convSD->season_year
+            ])
+            ->count();
+
+        // Count judges
+        $total_judges = 0;
+        foreach ($listSchools as $school) {
+            if (isset($school->Users) && 
+                ($school->Users['user_type'] == "Judge" || $school->Users['user_type'] == "Teacher_Parent") && 
+                $school->Users['is_judge'] == 1) {
+                $total_judges++;
+            }
+        }
+
+        // Count visitors
+        try {
+            $Visitors = $this->loadModel('Visitors');
+            $total_visitors = $Visitors->find()
+                ->where([
+                    "convention_id" => $convSD->convention_id,
+                    "season_id" => $convSD->season_id
+                ])
+                ->count();
+        } catch (\Exception $e) {
+            $total_visitors = 0;
+        }
+
+        // Get student event distribution
+        $studentEventCounts = $this->Crstudentevents->find()
+            ->select(['student_id'])
+            ->where(["conventionseason_id" => $convSD->id])
+            ->group(['student_id'])
+            ->all();
+
+        $students_20_events = 0;
+        $students_11_15_events = 0;
+        $students_5_10_events = 0;
+
+        foreach ($studentEventCounts as $row) {
+            $eventCount = $this->Crstudentevents->find()
+                ->where([
+                    "conventionseason_id" => $convSD->id,
+                    "student_id" => $row->student_id
+                ])
+                ->select(['DISTINCT event_id'])
+                ->count();
+
+            if ($eventCount == 20) {
+                $students_20_events++;
+            } elseif ($eventCount >= 11 && $eventCount <= 15) {
+                $students_11_15_events++;
+            } elseif ($eventCount >= 5 && $eventCount <= 10) {
+                $students_5_10_events++;
+            }
+        }
+
+        // Count place winners
+        try {
+            $Resultpositions = $this->loadModel('Resultpositions');
+            
+            $first_place = $Resultpositions->find()
+                ->where(["position" => 1, "convention_id" => $convSD->convention_id])
+                ->count();
+            $second_place = $Resultpositions->find()
+                ->where(["position" => 2, "convention_id" => $convSD->convention_id])
+                ->count();
+            $third_place = $Resultpositions->find()
+                ->where(["position" => 3, "convention_id" => $convSD->convention_id])
+                ->count();
+        } catch (\Exception $e) {
+            $first_place = 0;
+            $second_place = 0;
+            $third_place = 0;
+        }
+
+        // Award counts
+        $silver_apple = 0;
+        $golden_awards = 0;
+        
+        $silver_apple_students = $this->Conventionregistrationstudents->find()
+            ->where([
+                "convention_id" => $convSD->convention_id,
+                "season_id" => $convSD->season_id,
+                "season_year" => $convSD->season_year
+            ])
+            ->all();
+        
+        foreach ($silver_apple_students as $reg) {
+            $event_ids = !empty($reg->event_ids) ? explode(',', (string)$reg->event_ids) : [];
+            if (in_array('336', $event_ids) || in_array('342', $event_ids)) {
+                $silver_apple++;
+            }
+            
+            $golden_event_ids = ['331', '337', '332', '338', '333', '339', '334', '340', '335', '341'];
+            foreach ($event_ids as $eid) {
+                if (in_array(trim((string)$eid), $golden_event_ids)) {
+                    $golden_awards++;
+                    break;
+                }
+            }
+        }
+
+        // Count total entries
+        $total_entries = $this->Crstudentevents->find()
+            ->where(["conventionseason_id" => $convSD->id])
+            ->count();
+
+        // Generate PDF with professional grayscale design
+        $pdf = $this->_generateProfessionalReportPDF($convSD, $first_place, $second_place, $third_place, 
+            $total_schools, $total_students, $total_supervisors, $total_judges, $total_visitors,
+            $students_20_events, $students_11_15_events, $students_5_10_events,
+            $silver_apple, $golden_awards, $total_entries);
+
+        // Output PDF for download
+        $filename = 'convention_report_' . date('Y-m-d_His') . '.pdf';
+        $pdf->Output($filename, 'D');
+        die();
+    }
+
+    public function previewReport()
+    {
+        // Check session
+        if (!$this->request->getSession()->read('admin_id')) {
+            return $this->redirect(['controller' => 'admins', 'action' => 'login']);
+        }
+
+        // Get season from session
+        $season_id = $this->request->getSession()->read('sess_admin_header_season_id');
+        if (!$season_id) {
+            return $this->redirect(['controller' => 'admins', 'action' => 'dashboard']);
+        }
+
+        // Load required models
+        $this->loadModel('Conventionseasons');
+        $this->loadModel('Conventions');
+        $this->loadModel('Conventionregistrations');
+        $this->loadModel('Conventionregistrationstudents');
+        $this->loadModel('Conventionregistrationteachers');
+        $this->loadModel('Crstudentevents');
+
+        // Get convention season data
+        $convSD = $this->Conventionseasons->find()->where(["Conventionseasons.id" => $season_id])->contain(['Conventions'])->first();
+        if (!$convSD) {
+            return $this->redirect(['controller' => 'admins', 'action' => 'dashboard']);
+        }
+
+        // Get registrations
+        $listSchools = $this->Conventionregistrations->find()
+            ->where([
+                "season_id" => $convSD->season_id,
+                "season_year" => $convSD->season_year,
+                "convention_id" => $convSD->convention_id
+            ])
+            ->contain(['Users'])
+            ->all();
+
+        // Count schools
+        $total_schools = count($listSchools);
+
+        // Count students
+        $total_students = $this->Conventionregistrationstudents->find()
+            ->where([
+                "convention_id" => $convSD->convention_id,
+                "season_id" => $convSD->season_id,
+                "season_year" => $convSD->season_year
+            ])
+            ->count();
+
+        // Count supervisors
+        $total_supervisors = $this->Conventionregistrationteachers->find()
+            ->where([
+                "convention_id" => $convSD->convention_id,
+                "season_id" => $convSD->season_id,
+                "season_year" => $convSD->season_year
+            ])
+            ->count();
+
+        // Count judges
+        $total_judges = 0;
+        foreach ($listSchools as $school) {
+            if (isset($school->Users) && 
+                ($school->Users['user_type'] == "Judge" || $school->Users['user_type'] == "Teacher_Parent") && 
+                $school->Users['is_judge'] == 1) {
+                $total_judges++;
+            }
+        }
+
+        // Count visitors
+        try {
+            $Visitors = $this->loadModel('Visitors');
+            $total_visitors = $Visitors->find()
+                ->where([
+                    "convention_id" => $convSD->convention_id,
+                    "season_id" => $convSD->season_id
+                ])
+                ->count();
+        } catch (\Exception $e) {
+            $total_visitors = 0;
+        }
+
+        // Get student event distribution
+        $studentEventCounts = $this->Crstudentevents->find()
+            ->select(['student_id'])
+            ->where(["conventionseason_id" => $convSD->id])
+            ->group(['student_id'])
+            ->all();
+
+        $students_20_events = 0;
+        $students_11_15_events = 0;
+        $students_5_10_events = 0;
+
+        foreach ($studentEventCounts as $row) {
+            $eventCount = $this->Crstudentevents->find()
+                ->where([
+                    "conventionseason_id" => $convSD->id,
+                    "student_id" => $row->student_id
+                ])
+                ->select(['DISTINCT event_id'])
+                ->count();
+
+            if ($eventCount == 20) {
+                $students_20_events++;
+            } elseif ($eventCount >= 11 && $eventCount <= 15) {
+                $students_11_15_events++;
+            } elseif ($eventCount >= 5 && $eventCount <= 10) {
+                $students_5_10_events++;
+            }
+        }
+
+        // Count place winners
+        try {
+            $Resultpositions = $this->loadModel('Resultpositions');
+            
+            $first_place = $Resultpositions->find()
+                ->where(["position" => 1, "convention_id" => $convSD->convention_id])
+                ->count();
+            $second_place = $Resultpositions->find()
+                ->where(["position" => 2, "convention_id" => $convSD->convention_id])
+                ->count();
+            $third_place = $Resultpositions->find()
+                ->where(["position" => 3, "convention_id" => $convSD->convention_id])
+                ->count();
+        } catch (\Exception $e) {
+            $first_place = 0;
+            $second_place = 0;
+            $third_place = 0;
+        }
+
+        // Award counts
+        $silver_apple = 0;
+        $golden_awards = 0;
+        
+        $silver_apple_students = $this->Conventionregistrationstudents->find()
+            ->where([
+                "convention_id" => $convSD->convention_id,
+                "season_id" => $convSD->season_id,
+                "season_year" => $convSD->season_year
+            ])
+            ->all();
+        
+        foreach ($silver_apple_students as $reg) {
+            $event_ids = !empty($reg->event_ids) ? explode(',', (string)$reg->event_ids) : [];
+            if (in_array('336', $event_ids) || in_array('342', $event_ids)) {
+                $silver_apple++;
+            }
+            
+            $golden_event_ids = ['331', '337', '332', '338', '333', '339', '334', '340', '335', '341'];
+            foreach ($event_ids as $eid) {
+                if (in_array(trim((string)$eid), $golden_event_ids)) {
+                    $golden_awards++;
+                    break;
+                }
+            }
+        }
+
+        // Count total entries
+        $total_entries = $this->Crstudentevents->find()
+            ->where(["conventionseason_id" => $convSD->id])
+            ->count();
+
+        // Generate PDF with professional grayscale design
+        $pdf = $this->_generateProfessionalReportPDF($convSD, $first_place, $second_place, $third_place, 
+            $total_schools, $total_students, $total_supervisors, $total_judges, $total_visitors,
+            $students_20_events, $students_11_15_events, $students_5_10_events,
+            $silver_apple, $golden_awards, $total_entries);
+
+        // Output PDF inline for preview
+        $response = $this->response->withType('application/pdf');
+        $response = $response->withStringBody($pdf->Output('', 'S'));
+        return $response;
+    }
+
+    private function _generateProfessionalReportPDF($convSD, $first_place, $second_place, $third_place, 
+        $total_schools, $total_students, $total_supervisors, $total_judges, $total_visitors,
+        $students_20_events, $students_11_15_events, $students_5_10_events,
+        $silver_apple, $golden_awards, $total_entries)
+    {
+        $pdf = new \TCPDF();
+        $pdf->SetCreator('ACP Live');
+        $pdf->SetAuthor('Convention Management System');
+        $pdf->SetTitle('Convention Report');
+        $pdf->SetDefaultMonospacedFont(\PDF_FONT_MONOSPACED);
+        $pdf->SetMargins(20, 20, 20);
+        $pdf->SetAutoPageBreak(true, 20);
+        $pdf->AddPage();
+
+        // Professional header
+        $pdf->SetFont('helvetica', 'B', 22);
+        $pdf->SetTextColor(40, 40, 40);
+        $pdf->Cell(0, 12, 'CONVENTION REPORT', 0, 1, 'C');
+        
+        $pdf->SetFont('helvetica', '', 12);
+        $pdf->SetTextColor(80, 80, 80);
+        $pdf->Cell(0, 8, h($convSD->Conventions['name']) . ' ' . $convSD->season_year, 0, 1, 'C');
+        $pdf->Ln(3);
+
+        // Detailed Sections
+        $sections = [
+            [
+                'title' => 'PLACE WINNERS',
+                'data' => [
+                    ['1st Place Winners', $first_place],
+                    ['2nd Place Winners', $second_place],
+                    ['3rd Place Winners', $third_place],
+                ]
+            ],
+            [
+                'title' => 'CONVENTION REGISTRATIONS',
+                'data' => [
+                    ['Schools', $total_schools],
+                    ['Students', $total_students],
+                    ['Supervisors', $total_supervisors],
+                    ['Judges', $total_judges],
+                    ['Visitors', $total_visitors],
+                ]
+            ],
+            [
+                'title' => 'STUDENT EVENT DISTRIBUTION',
+                'data' => [
+                    ['Students with 20 Events', $students_20_events],
+                    ['Students with 11-15 Events', $students_11_15_events],
+                    ['Students with 5-10 Events', $students_5_10_events],
+                ]
+            ],
+            [
+                'title' => 'SCRIPTURE READING AWARDS',
+                'data' => [
+                    ['Silver Apple Readings', $silver_apple],
+                    ['Golden Awards', $golden_awards],
+                ]
+            ],
+            [
+                'title' => 'EVENT REGISTRATIONS',
+                'data' => [
+                    ['Total Event Entries', $total_entries],
+                ]
+            ],
+        ];
+
+        $alternateBackground = false;
+        foreach ($sections as $section) {
+            // Section header with background
+            $pdf->SetFont('helvetica', 'B', 11);
+            $pdf->SetTextColor(40, 40, 40);
+            if ($alternateBackground) {
+                $pdf->SetFillColor(245, 245, 245);
+            } else {
+                $pdf->SetFillColor(235, 235, 235);
+            }
+            $pdf->Cell(0, 8, $section['title'], 0, 1, 'L', true);
+            $pdf->Ln(2);
+
+            // Section data
+            $pdf->SetFont('helvetica', '', 10);
+            $rowCount = 0;
+            foreach ($section['data'] as $row) {
+                $pdf->SetTextColor(40, 40, 40);
+                $pdf->Cell(110, 7, $row[0], 0, 0, 'L');
+                
+                $pdf->SetTextColor(0, 0, 0);
+                $pdf->SetFont('helvetica', 'B', 10);
+                $pdf->Cell(50, 7, number_format($row[1]), 0, 1, 'R');
+                $pdf->SetFont('helvetica', '', 10);
+                $rowCount++;
+            }
+            
+            $pdf->Ln(4);
+            $alternateBackground = !$alternateBackground;
+        }
+
+        $pdf->Ln(10);
+
+        // Events Coordinator Signature Section
+        $pdf->SetFont('helvetica', '', 10);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->Cell(0, 8, 'Events Coordinator', 0, 1, 'L');
+        $pdf->Ln(12);
+        
+        $pdf->SetDrawColor(64, 64, 64);
+        $pdf->SetLineWidth(0.3);
+        $pdf->Line(20, $pdf->GetY(), 90, $pdf->GetY());
+        $pdf->Ln(2);
+        
+        $pdf->SetFont('helvetica', '', 8);
+        $pdf->SetTextColor(100, 100, 100);
+        $pdf->Cell(70, 5, 'Signature', 0, 1, 'L');
+        
+        // Add the date stamp below signature
+        $pdf->SetFont('helvetica', '', 8);
+        $pdf->SetTextColor(100, 100, 100);
+        $pdf->Cell(70, 5, 'Date: ' . date('F d, Y'), 0, 1, 'L');
+
+        return $pdf;
     }
 }

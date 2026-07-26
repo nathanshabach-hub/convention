@@ -46,7 +46,7 @@
 						<li class="d-flex justify-content-between
 							flex-wrap"><a target="_blank" href="https://convention.accelerateministries.com.au/contact/">Contact</a>
 							<a target="_blank" href="https://convention.accelerateministries.com.au/faq/">FAQ</a>
-							<a target="_blank" href="https://247squad.com.au/" class="m-0">24/7 Squad</a>
+							<a target="_blank" href="<?php echo HTTP_PATH; ?>/users/squad247" class="m-0">24/7 Squad</a>
 							<a target="_blank" href="https://accelerateministries.com.au/" class="m-0">Accelerate Ministries</a>
 						</li>
 					</ul>

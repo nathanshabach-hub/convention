@@ -1,24 +1,28 @@
 /**
- * Accelerate Convention Portal – Service Worker
+ * Accelerate Convention Portal - Service Worker
  * Handles: static asset caching, offline fallback, evaluation sync queue
  */
 
+const APP_BASE_PATH = location.pathname.replace(/\/sw\.js$/, '');
+
+function appUrl(path) {
+  return APP_BASE_PATH + path;
+}
+
 const CACHE_VERSION = 'acp-v1';
 const STATIC_CACHE = CACHE_VERSION + '-static';
-const DATA_CACHE   = CACHE_VERSION + '-data';
+const DATA_CACHE = CACHE_VERSION + '-data';
 
-// Static assets to cache on install (shell)
 const STATIC_ASSETS = [
-  '/offline.html',
-  '/img/pwa-icon-192.png',
-  '/img/pwa-icon-512.png',
-  '/img/front/main-logo.png',
-  '/css/front/bootstrap.min.css',
-  '/css/front/style_front.css',
-  '/css/front/forms.css',
+  appUrl('/offline.html'),
+  appUrl('/img/pwa-icon-192.png'),
+  appUrl('/img/pwa-icon-512.png'),
+  appUrl('/img/front/main-logo.png'),
+  appUrl('/css/front/bootstrap.min.css'),
+  appUrl('/css/front/style_front.css'),
+  appUrl('/css/front/forms.css'),
 ];
 
-// Routes whose responses should be cached for offline reading (judge-facing pages)
 const CACHEABLE_ROUTES = [
   /\/conventionregistrations\/judgeevents\//,
   /\/conventionregistrations\/judgeevententries\//,
@@ -36,7 +40,6 @@ const CACHEABLE_ROUTES = [
   /\/users\/judgeexperience/,
 ];
 
-// Routes that should NEVER be served from cache (mutations / admin pages)
 const NEVER_CACHE = [
   /\/admin\//,
   /\/users\/login/,
@@ -44,20 +47,13 @@ const NEVER_CACHE = [
   /\/judgeevaluations\/syncpending/,
 ];
 
-// ─── Install ──────────────────────────────────────────────────────────────────
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(STATIC_CACHE).then(cache => {
-      return cache.addAll(STATIC_ASSETS.map(url => new Request(url, { cache: 'reload' })))
-        .catch(err => {
-          // Non-fatal: some assets may not exist yet on localhost
-          console.warn('[SW] Static pre-cache error (non-fatal):', err);
-        });
-    }).then(() => self.skipWaiting())
+    caches.open(STATIC_CACHE).then(cache => cache.addAll(STATIC_ASSETS))
+      .then(() => self.skipWaiting())
   );
 });
 
-// ─── Activate – clean up old caches ──────────────────────────────────────────
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
@@ -70,38 +66,29 @@ self.addEventListener('activate', event => {
   );
 });
 
-// ─── Fetch ────────────────────────────────────────────────────────────────────
 self.addEventListener('fetch', event => {
   const req = event.request;
   const url = new URL(req.url);
 
-  // Only handle same-origin requests
   if (url.origin !== location.origin) return;
-
-  // Never cache these
   if (NEVER_CACHE.some(re => re.test(url.pathname))) return;
 
-  // POST: judge evaluation submission – intercept when offline
   if (req.method === 'POST' && /\/judgeevaluations\/addnew\//.test(url.pathname)) {
     event.respondWith(handleEvaluationPost(req));
     return;
   }
 
-  // GET: navigation / page request
   if (req.mode === 'navigate') {
     event.respondWith(handleNavigate(req));
     return;
   }
 
-  // GET: static assets – cache first
   event.respondWith(cacheFirst(req));
 });
 
-// ─── Navigation handler: network first, fall back to cache then offline page ──
 async function handleNavigate(req) {
   try {
     const networkResponse = await fetch(req);
-    // Cache judge-facing pages for offline reading
     if (CACHEABLE_ROUTES.some(re => re.test(new URL(req.url).pathname))) {
       const cache = await caches.open(DATA_CACHE);
       cache.put(req, networkResponse.clone());
@@ -110,14 +97,14 @@ async function handleNavigate(req) {
   } catch (_) {
     const cached = await caches.match(req);
     if (cached) return cached;
-    return caches.match('/offline.html');
+    return caches.match(appUrl('/offline.html'));
   }
 }
 
-// ─── Cache-first handler for static assets ───────────────────────────────────
 async function cacheFirst(req) {
   const cached = await caches.match(req);
   if (cached) return cached;
+
   try {
     const networkResponse = await fetch(req);
     if (networkResponse.ok) {
@@ -130,16 +117,11 @@ async function cacheFirst(req) {
   }
 }
 
-// ─── Offline evaluation POST handler ─────────────────────────────────────────
 async function handleEvaluationPost(req) {
   try {
-    // Online: pass through normally
-    const networkResponse = await fetch(req.clone());
-    return networkResponse;
+    return await fetch(req.clone());
   } catch (_) {
-    // Offline: queue in IndexedDB and return synthetic success response
     await queuePendingEvaluation(req.clone());
-    // Return a redirect response to the judge events list (graceful UX)
     return new Response(
       JSON.stringify({ queued: true, message: 'Evaluation saved offline. Will sync when online.' }),
       {
@@ -153,7 +135,6 @@ async function handleEvaluationPost(req) {
   }
 }
 
-// ─── Queue evaluation to IndexedDB ───────────────────────────────────────────
 async function queuePendingEvaluation(req) {
   try {
     const formData = await req.formData();
@@ -180,7 +161,6 @@ async function queuePendingEvaluation(req) {
 
     db.close();
 
-    // Notify all open clients to update the pending count badge
     const clients = await self.clients.matchAll({ includeUncontrolled: true });
     clients.forEach(client => client.postMessage({ type: 'EVAL_QUEUED' }));
   } catch (err) {
@@ -188,7 +168,6 @@ async function queuePendingEvaluation(req) {
   }
 }
 
-// ─── Background Sync: flush pending evaluations ──────────────────────────────
 self.addEventListener('sync', event => {
   if (event.tag === 'sync-evaluations') {
     event.waitUntil(syncPendingEvaluations());
@@ -200,20 +179,19 @@ async function syncPendingEvaluations() {
   const tx = db.transaction('pending_evaluations', 'readonly');
   const store = tx.objectStore('pending_evaluations');
   const all = await new Promise((resolve, reject) => {
-    const req = store.getAll();
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = reject;
+    const request = store.getAll();
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = reject;
   });
   db.close();
 
   if (all.length === 0) return;
 
-  // Batch-send via the dedicated sync endpoint
   const payload = all.map(ev => ({ localId: ev.id, url: ev.url, payload: ev.payload }));
 
   let data;
   try {
-    const response = await fetch('/judgeevaluations/syncpending', {
+    const response = await fetch(appUrl('/judgeevaluations/syncpending'), {
       method: 'POST',
       credentials: 'same-origin',
       headers: {
@@ -259,12 +237,11 @@ async function removePendingEvaluation(id) {
   db.close();
 }
 
-// ─── IndexedDB helper ────────────────────────────────────────────────────────
 function openDB() {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open('acp_offline', 1);
-    req.onupgradeneeded = e => {
-      const db = e.target.result;
+    const request = indexedDB.open('acp_offline', 1);
+    request.onupgradeneeded = event => {
+      const db = event.target.result;
       if (!db.objectStoreNames.contains('pending_evaluations')) {
         const store = db.createObjectStore('pending_evaluations', { keyPath: 'id', autoIncrement: true });
         store.createIndex('queuedAt', 'queuedAt', { unique: false });
@@ -273,7 +250,7 @@ function openDB() {
         db.createObjectStore('judge_cache', { keyPath: 'key' });
       }
     };
-    req.onsuccess = e => resolve(e.target.result);
-    req.onerror = reject;
+    request.onsuccess = event => resolve(event.target.result);
+    request.onerror = reject;
   });
 }

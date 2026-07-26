@@ -165,6 +165,32 @@
                     <?php echo $this->Html->link('More info <i class="fa fa-arrow-circle-right"></i>', ['controller' => 'admins', 'action' => 'runninglist'], [ 'escape' => false, 'title' => 'More info', 'class' => 'small-box-footer']); ?>
                 </div>
             </div>
+
+            <div class="col-lg-3 col-xs-6">
+                <div class="small-box bg-black">
+                    <div class="inner">
+                        <h3><?php echo isset($total_squad247) ? (int)$total_squad247 : 0; ?></h3>
+                        <p>24/7 Squad</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa fa-file-text-o"></i>
+                    </div>
+                    <?php echo $this->Html->link('More info <i class="fa fa-arrow-circle-right"></i>', ['controller' => 'admins', 'action' => 'squad247'], [ 'escape' => false, 'title' => 'More info', 'class' => 'small-box-footer']); ?>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-xs-6">
+                <div class="small-box bg-red">
+                    <div class="inner">
+                        <h3>—</h3>
+                        <p>Report</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa fa-bar-chart"></i>
+                    </div>
+                    <?php echo $this->Html->link('More info <i class="fa fa-arrow-circle-right"></i>', ['controller' => 'admins', 'action' => 'report'], [ 'escape' => false, 'title' => 'More info', 'class' => 'small-box-footer']); ?>
+                </div>
+            </div>
             
         </div>
     </section>
@@ -315,6 +341,32 @@
                         <i class="fa fa-dollar"></i>
                     </div>
                     <?php echo $this->Html->link('More info <i class="fa fa-arrow-circle-right"></i>', ['controller' => 'transactions', 'action' => 'index'], [ 'escape' => false, 'title' => 'More info', 'class' => 'small-box-footer']); ?>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-xs-6">
+                <div class="small-box bg-black">
+                    <div class="inner">
+                        <h3>&mdash;</h3>
+                        <p>24/7 Squad</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa fa-file-text-o"></i>
+                    </div>
+                    <?php echo $this->Html->link('More info <i class="fa fa-arrow-circle-right"></i>', ['controller' => 'admins', 'action' => 'squad247'], [ 'escape' => false, 'title' => 'More info', 'class' => 'small-box-footer']); ?>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-xs-6">
+                <div class="small-box bg-red">
+                    <div class="inner">
+                        <h3>—</h3>
+                        <p>Report</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa fa-bar-chart"></i>
+                    </div>
+                    <?php echo $this->Html->link('More info <i class="fa fa-arrow-circle-right"></i>', ['controller' => 'admins', 'action' => 'report'], [ 'escape' => false, 'title' => 'More info', 'class' => 'small-box-footer']); ?>
                 </div>
             </div>
         </div>

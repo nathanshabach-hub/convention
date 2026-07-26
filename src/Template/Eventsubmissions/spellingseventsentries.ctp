@@ -14,7 +14,7 @@
 			<!-- dashboard-section-2 start-->
 
 			<div class="m_content" id="listID">
-				<?php echo $this->element("Eventsubmissions/spellingseventsentries"); ?>
+								<?php include dirname(__DIR__) . '/Element/Eventsubmissions/spellingseventsentries.ctp'; ?>
 			</div>
 
 

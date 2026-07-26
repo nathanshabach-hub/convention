@@ -18,7 +18,24 @@
                             <tr>
                                 <td data-title="Convention"><?php echo $datarecord->Conventions['name'];?></td>
                                 <td data-title="Season Year"><?php echo $datarecord->season_year;?></td>
-                                <td data-title="Created"><?php echo date('M d, Y', strtotime($datarecord->created)); ?></td>
+                                <td data-title="Created">
+                                    <?php
+                                    $createdDisplay = 'N/A';
+
+                                    if (!empty($datarecord->created) && $datarecord->created !== '0000-00-00 00:00:00') {
+                                        if (is_object($datarecord->created) && method_exists($datarecord->created, 'format')) {
+                                            $createdDisplay = $datarecord->created->format('M d, Y');
+                                        } else {
+                                            $createdTs = strtotime((string)$datarecord->created);
+                                            if ($createdTs !== false && $createdTs > 0) {
+                                                $createdDisplay = date('M d, Y', $createdTs);
+                                            }
+                                        }
+                                    }
+
+                                    echo $createdDisplay;
+                                    ?>
+                                </td>
                                 <td data-title="Events">
 								<?php
 								echo $this->Html->link('<i class="fa fa-puzzle-piece"></i>', ['controller' => 'conventionregistrations', 'action' => 'judgeevents',$datarecord->slug], [ 'escape' => false, 'title' => 'View Selected Events', 'class'=>'']);

@@ -32,7 +32,48 @@
 								<td data-title="Price Structure"><?php echo $priceStructureCR[$datarecord->price_structure]; ?></td>
 								<td data-title="Amount"><?php echo number_format($datarecord->total_amount,2); ?></td>
 								<td data-title="Status"><?php echo $paymentStatus[$datarecord->status]; ?></td>
-                                <td data-title="Transaction Date"><?php echo date('M d, Y H:i A', strtotime($datarecord->created)); ?></td>
+                                    <td data-title="Transaction Date">
+                                    <?php
+                                    $transactionDate = 'N/A';
+                                    $timestamp = false;
+
+                                    if (!empty($datarecord->created)) {
+                                        $createdValue = $datarecord->created;
+                                        if ($createdValue instanceof \DateTimeInterface) {
+                                            $timestamp = $createdValue->getTimestamp();
+                                        } elseif (is_numeric($createdValue)) {
+                                            $timestamp = (int)$createdValue;
+                                        } else {
+                                            $timestamp = strtotime((string)$createdValue);
+                                        }
+                                    }
+
+                                    if (($timestamp === false || $timestamp <= 0) && !empty($datarecord->modified)) {
+                                        $modifiedValue = $datarecord->modified;
+                                        if ($modifiedValue instanceof \DateTimeInterface) {
+                                            $timestamp = $modifiedValue->getTimestamp();
+                                        } elseif (is_numeric($modifiedValue)) {
+                                            $timestamp = (int)$modifiedValue;
+                                        } else {
+                                            $timestamp = strtotime((string)$modifiedValue);
+                                        }
+
+                                    }
+
+                                    if (($timestamp === false || $timestamp <= 0) && !empty($datarecord->slug)) {
+                                        $slugParts = explode('-', (string)$datarecord->slug);
+                                        if (count($slugParts) >= 4 && ctype_digit($slugParts[3])) {
+                                            $timestamp = (int)$slugParts[3];
+                                        }
+                                    }
+
+                                    if ($timestamp !== false && $timestamp > 0) {
+                                        $transactionDate = date('M d, Y h:i A', $timestamp);
+                                    }
+
+                                    echo $transactionDate;
+                                    ?>
+                                </td>
                                 <td data-title="Transaction ID"><?php echo $datarecord->transaction_id_received ? $datarecord->transaction_id_received : 'N/A'; ?></td>
 								<td data-title="Action">
                                     <?php echo $this->Html->link('<i class="fa fa-eye"></i>', ['controller' => 'transactions', 'action' => 'viewdetails',$datarecord->slug], [ 'escape' => false, 'title' => 'View Details', 'class'=>'']); ?>

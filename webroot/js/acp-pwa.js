@@ -8,8 +8,32 @@
 
   if (!('serviceWorker' in navigator)) return;
 
+  var APP_BASE_PATH = (function () {
+    var script = document.querySelector('script[src*="/js/acp-pwa.js"]');
+    if (!script || !script.src) return '';
+
+    try {
+      return new URL(script.src, window.location.href).pathname.split('/js/acp-pwa.js')[0];
+    } catch (error) {
+      return '';
+    }
+  })();
+
+  function appUrl(path) {
+    return APP_BASE_PATH + path;
+  }
+
+  function stripAppBase(path) {
+    if (APP_BASE_PATH && path.indexOf(APP_BASE_PATH) === 0) {
+      var stripped = path.slice(APP_BASE_PATH.length);
+      return stripped || '/';
+    }
+
+    return path;
+  }
+
   // ── Register Service Worker ────────────────────────────────────────────────
-  navigator.serviceWorker.register('/sw.js', { scope: '/' })
+  navigator.serviceWorker.register(appUrl('/sw.js'), { scope: APP_BASE_PATH + '/' })
     .then(function (reg) {
       console.log('[ACP] Service Worker registered, scope:', reg.scope);
 
@@ -130,7 +154,7 @@
             return { localId: ev.id, url: ev.url, payload: ev.payload };
           });
 
-          fetch('/judgeevaluations/syncpending', {
+          fetch(appUrl('/judgeevaluations/syncpending'), {
             method: 'POST',
             credentials: 'same-origin',
             headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
@@ -208,6 +232,18 @@
     }
   });
 
+  document.addEventListener('click', function (e) {
+    var link = e.target && e.target.closest ? e.target.closest('a[href]') : null;
+    if (!link) return;
+    if (navigator.onLine) return;
+
+    var href = link.getAttribute('href') || '';
+    if (href.indexOf('/users/switchprofile/') === -1) return;
+
+    e.preventDefault();
+    showOfflineToast('Switching between Supervisor and Judge requires internet.', 'warning');
+  });
+
   // ── Init ──────────────────────────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', function () {
     updateOnlineStatus();
@@ -233,7 +269,7 @@
     var slugMatch = path.match(/(convention-registration-[\w-]+)/);
     if (slugMatch) convRegSlug = slugMatch[1];
 
-    var apiUrl = '/conventionregistrations/precachejudgedata' + (convRegSlug ? '/' + convRegSlug : '');
+    var apiUrl = appUrl('/conventionregistrations/precachejudgedata' + (convRegSlug ? '/' + convRegSlug : ''));
 
     fetch(apiUrl, { credentials: 'same-origin' })
       .then(function (resp) { return resp.ok ? resp.json() : null; })
@@ -292,12 +328,14 @@
     links.forEach(function (a) {
       var href = a.getAttribute('href') || '';
       if (!href || href.charAt(0) !== '/') return;
-      if (seen[href]) return;
 
-      var allowed = allowList.some(function (re) { return re.test(href); });
+      var normalizedPath = stripAppBase(new URL(href, window.location.origin).pathname);
+      if (seen[normalizedPath]) return;
+
+      var allowed = allowList.some(function (re) { return re.test(normalizedPath); });
       if (!allowed) return;
 
-      seen[href] = true;
+      seen[normalizedPath] = true;
       targets.push(href);
     });
 

@@ -63,7 +63,7 @@
 								?>
 								</td>
 								<td data-title="Library Title"><?php echo $library->search_term;?></td>
-                                <td data-title="Created"><?php echo date('M d, Y', strtotime($library->created)); ?></td>
+                                <td data-title="Created"><?php echo (($__ts = strtotime((string)$library->created)) !== false && $__ts > 0 ? date('M d, Y', $__ts) : 'N/A'); ?></td>
                                 <td data-title="Action">
                                     <div id="loderstatus<?php echo $library->id; ?>" class="right_action_lo"><?php echo $this->Html->image("loading.gif"); ?></div>
                                     <span class="right_acdc" id="status<?php echo $library->id; ?>">

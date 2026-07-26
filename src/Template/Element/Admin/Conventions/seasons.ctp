@@ -40,8 +40,8 @@
                             <tr>
                                 <td data-title="# DB ID"><?php echo $datarecord->id;?></td>
                                 <td data-title="Season Year"><?php echo $datarecord->season_year;?></td>
-                                <td data-title="Registration Start Date"><?php echo date('M d, Y', strtotime($datarecord->registration_start_date)); ?></td>
-                                <td data-title="Registration End Date"><?php echo date('M d, Y', strtotime($datarecord->registration_end_date)); ?></td>
+                                <td data-title="Registration Start Date"><?php echo (($__ts = strtotime((string)$datarecord->registration_start_date)) !== false && $__ts > 0 ? date('M d, Y', $__ts) : 'N/A'); ?></td>
+                                <td data-title="Registration End Date"><?php echo (($__ts = strtotime((string)$datarecord->registration_end_date)) !== false && $__ts > 0 ? date('M d, Y', $__ts) : 'N/A'); ?></td>
 								
 								<td data-title="Student registration"><?php echo number_format($datarecord->student_registration_fees,2);?></td>
 								<td data-title="Non-competitor registration"><?php echo number_format($datarecord->non_competitor_registration_fees,2);?></td>

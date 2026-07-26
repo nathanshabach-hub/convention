@@ -32,6 +32,7 @@ $this->Crstudentevents = TableRegistry::get('Crstudentevents');
 			foreach($arrStudentSorted as $student_id_sorted)
 			{
 				$arrStudentSchedule = array();
+				$arrProjectedSchedule = array();
 			?>
             <div class="tbl-resp-listing">
 				<div class="student-header">
@@ -211,7 +212,7 @@ $this->Crstudentevents = TableRegistry::get('Crstudentevents');
 						return $a['sch_date_time'] <=> $b['sch_date_time'];
 					});
 
-					// Collect projected path rows into the array so they sort correctly
+					// Collect projected path rows separately so they do not look like fixed bookings.
 					$projectedCollected = array();
 					foreach ($arrStudentSchedule as $studentsch) {
 						if (
@@ -245,32 +246,24 @@ $this->Crstudentevents = TableRegistry::get('Crstudentevents');
 								$arrSch['schedule_category'] = $nextMatch->schedule_category;
 								$arrSch['round_number']      = $nextMatch->round_number;
 								$arrSch['is_projected']      = true;
-								$arrStudentSchedule[] = $arrSch;
+								$arrProjectedSchedule[] = $arrSch;
 								$nextBaseId = (int)$nextMatch->id;
 							}
 						}
 					}
 
-					// Re-sort with projected rows in correct chronological position
 					usort($arrStudentSchedule, function ($a, $b) {
 						return $a['sch_date_time'] <=> $b['sch_date_time'];
 					});
+					usort($arrProjectedSchedule, function ($a, $b) {
+						return $a['sch_date_time'] <=> $b['sch_date_time'];
+					});
 
-					// Now render
+					// Render fixed schedule rows.
 					foreach($arrStudentSchedule as $studentsch)
 					{
 						if($studentsch['is_bye'] != 1)
 						{
-							if (!empty($studentsch['is_projected'])) {
-					?>
-						<tr class="projected-path-row" style="background:#ffffcc;">
-							<td data-title="Day" width="15%"><?php echo $studentsch['day'];?></td>
-							<td data-title="Start" width="15%"><?php echo $studentsch['start_time'];?></td>
-							<td data-title="Event" width="35%"><?php echo $studentsch['event_name'];?><br><span style="color:#b9770e; font-size: 12px;">Projected path</span></td>
-							<td data-title="Location" width="35%"><?php echo $studentsch['room_name'];?></td>
-						</tr>
-					<?php
-							} else {
 					?>
 						<tr>
 							<td data-title="Day" width="15%"><?php echo $studentsch['day'];?></td>
@@ -279,7 +272,24 @@ $this->Crstudentevents = TableRegistry::get('Crstudentevents');
 							<td data-title="Location" width="35%"><?php echo $studentsch['room_name'];?></td>
 						</tr>
 					<?php
-							}
+						}
+					}
+
+					if (!empty($arrProjectedSchedule)) {
+					?>
+						<tr class="projected-path-row" style="background:#ffffcc;">
+							<td colspan="4"><b>Projected Bracket Paths (Conditional)</b> - these are possible next rounds, not simultaneous confirmed bookings.</td>
+						</tr>
+					<?php
+						foreach ($arrProjectedSchedule as $projectedSch) {
+					?>
+						<tr class="projected-path-row" style="background:#ffffcc;">
+							<td data-title="Day" width="15%"><?php echo $projectedSch['day'];?></td>
+							<td data-title="Start" width="15%"><?php echo $projectedSch['start_time'];?></td>
+							<td data-title="Event" width="35%"><?php echo $projectedSch['event_name'];?><br><span style="color:#b9770e; font-size: 12px;">Projected path</span></td>
+							<td data-title="Location" width="35%"><?php echo $projectedSch['room_name'];?></td>
+						</tr>
+					<?php
 						}
 					}
 					

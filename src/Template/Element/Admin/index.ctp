@@ -113,7 +113,7 @@ $this->Categories = TableRegistry::get('Categories');
 								//echo $truck->truck_plan;
 								?></td>
 								<td data-title="Created"><?php echo $truck->truck_menu_type; ?></td>
-								<td data-title="Created"><?php echo date('M d, Y', strtotime($truck->created)); ?></td>
+								<td data-title="Created"><?php echo (($__ts = strtotime((string)$truck->created)) !== false && $__ts > 0 ? date('M d, Y', $__ts) : 'N/A'); ?></td>
                                 <td data-title="Action">
                                     <div id="loderstatus<?php echo $truck->id; ?>" class="right_action_lo"><?php echo $this->Html->image("loading.gif"); ?></div>
                                     <span class="right_acdc" id="status<?php echo $truck->id; ?>">

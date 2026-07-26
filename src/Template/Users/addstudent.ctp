@@ -34,14 +34,12 @@ $(document).ready(function () {
 					
 					<div class="form-group">
 						<label for="name">Birth Year</label>
-						<div class="input text">
-						<?php echo $this->Form->select('Users.birth_year', $birthYearDD, ['id' => 'gender', 'label' => false, 'div' => false, 'class' => 'form-control required', 'autocomplete' => 'off', 'empty' => 'Choose']); ?></div>
+						<?php echo $this->Form->select('Users.birth_year', $birthYearDD, ['id' => 'birth_year', 'label' => false, 'div' => false, 'class' => 'form-control required', 'autocomplete' => 'off', 'empty' => 'Choose']); ?>
 					</div>
 					
 					<div class="form-group">
 						<label for="name">Gender</label>
-						<div class="input text">
-						<?php echo $this->Form->select('Users.gender', $genderDD, ['id' => 'gender', 'label' => false, 'div' => false, 'class' => 'form-control required', 'autocomplete' => 'off', 'empty' => 'Choose']); ?></div>
+						<?php echo $this->Form->select('Users.gender', $genderDD, ['id' => 'gender', 'label' => false, 'div' => false, 'class' => 'form-control required', 'autocomplete' => 'off', 'empty' => 'Choose']); ?>
 					</div>
 					
 					<div class="form-group form-btns">

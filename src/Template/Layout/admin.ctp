@@ -6,8 +6,8 @@
   <title><?php echo $title; ?></title>
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   <meta name="theme-color" content="#1c2452">
-  <link rel="manifest" href="/manifest.json">
-  <link rel="apple-touch-icon" href="/img/pwa-icon-192.png">
+  <link rel="manifest" href="<?php echo HTTP_PATH; ?>/manifest.json">
+  <link rel="apple-touch-icon" href="<?php echo HTTP_PATH; ?>/img/pwa-icon-192.png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
   <link rel="shortcut icon" type="image/x-icon" href="<?php echo HTTP_PATH; ?>/img/favicon.ico" /> 
@@ -80,6 +80,6 @@
   <span>📡 You are offline — changes may not save until reconnected.</span>
   <span id="acp-sync-badge" style="display:none;background:#d6b23c;color:#1c2452;border-radius:999px;padding:3px 12px;font-size:12px;font-weight:700;"></span>
 </div>
-<script src="/js/acp-pwa.js"></script>
+<script src="<?php echo HTTP_PATH; ?>/js/acp-pwa.js"></script>
 </body>
 </html>

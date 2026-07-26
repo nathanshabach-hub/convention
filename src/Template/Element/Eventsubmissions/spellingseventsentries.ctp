@@ -14,6 +14,24 @@ $this->Crstudentevents 		= TableRegistry::get('Crstudentevents');
 <div class="admin_loader" id="loaderID"><?php echo $this->Html->image('loader_large_blue.gif');?></div>
 <?php if (!$eventsubmissions->isEmpty()) { ?> 
     <div class="panel-body">
+
+		<?php
+		$formatSubmissionDate = static function ($value) {
+			if ($value instanceof \DateTimeInterface) {
+				$timestamp = $value->getTimestamp();
+				if ($timestamp > 0) {
+					return date('M d, Y', $timestamp);
+				}
+			} elseif (!empty($value)) {
+				$timestamp = is_numeric($value) ? (int)$value : strtotime((string)$value);
+				if (!empty($timestamp) && $timestamp > 0) {
+					return date('M d, Y', $timestamp);
+				}
+			}
+
+			return 'N/A';
+		};
+		?>
         
         <?php echo $this->Form->create(null, ['id'=>'scoreevent', "method" => "Post"]);  ?>
         <section id="no-more-tables" class="lstng-section">
@@ -131,8 +149,21 @@ $this->Crstudentevents 		= TableRegistry::get('Crstudentevents');
 						}
 						?>
 						</td>
-						<td data-title="School"><?php echo $datarecord->Users['first_name']; ?></td>
-						<td data-title="Submission Date"><?php echo date('M d, Y', strtotime($datarecord->created)); ?></td>
+												<td data-title="School"><?php echo $datarecord->Users['first_name']; ?></td>
+												<?php
+												$submissionTs = 0;
+												if (!empty($datarecord->slug) && preg_match('/-(\d{10})-\d+$/', (string)$datarecord->slug, $slugDateMatches)) {
+													$submissionTs = (int)$slugDateMatches[1];
+												}
+
+												if ($submissionTs <= 0) {
+													$createdTs = strtotime((string)($datarecord->created ?? ''));
+													if ($createdTs > 0) {
+														$submissionTs = $createdTs;
+													}
+												}
+												?>
+												<td data-title="Submission Date"><?php echo ($submissionTs > 0) ? date('M d, Y', $submissionTs) : 'N/A'; ?></td>
 						
 						<?php
 						$judge_id 	= $this->request->session()->read("user_id");
@@ -142,16 +173,17 @@ $this->Crstudentevents 		= TableRegistry::get('Crstudentevents');
 						$condCheckJudging[] = "(Judgeevaluations.uploaded_by_user_id = '".$judge_id."')";
 						
 						$getJudgeEvalData = $this->Judgeevaluations->find()->where($condCheckJudging)->first();
-						
-						// to check withdrawn
-						if($getJudgeEvalData->withdraw_yes_no == 1)
-							$checkedWithdr = 'checked';
-						else
-							$checkedWithdr = '';
+
+						$checkedWithdr = '';
+						$spellingScore = '';
+						if ($getJudgeEvalData) {
+							$checkedWithdr = ($getJudgeEvalData->withdraw_yes_no == 1) ? 'checked' : '';
+							$spellingScore = $getJudgeEvalData->spelling_score;
+						}
 						?>
 						
 						<td data-title="Total Score">
-						<input type="number" name="spelling_score_<?php echo $cntrES; ?>" id="spelling_score_<?php echo $cntrES; ?>" style="width:60px;" value="<?php echo $getJudgeEvalData->spelling_score; ?>" />
+						<input type="number" name="spelling_score_<?php echo $cntrES; ?>" id="spelling_score_<?php echo $cntrES; ?>" style="width:60px;" value="<?php echo $spellingScore; ?>" />
 						</td>
 						
 						<td data-title="Withdrawn">

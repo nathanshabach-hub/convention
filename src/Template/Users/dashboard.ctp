@@ -26,6 +26,13 @@ if (!function_exists('buildInstructionalVideoEmbedUrl')) {
 $instructionalVideos = [];
 if (!empty($settingsD)) {
 	$videoLinks = [];
+	$videoLinksFile = WWW_ROOT . 'files' . DS . 'dashboard_video_links.json';
+	if (is_file($videoLinksFile)) {
+		$fileVideoLinks = json_decode((string)@file_get_contents($videoLinksFile), true);
+		if (is_array($fileVideoLinks)) {
+			$videoLinks = $fileVideoLinks;
+		}
+	}
 	if (!empty($settingsD->video_links_json)) {
 		$decodedVideoLinks = json_decode((string)$settingsD->video_links_json, true);
 		if (is_array($decodedVideoLinks)) {
@@ -42,7 +49,21 @@ if (!empty($settingsD)) {
 		}
 	}
 
-	foreach (array_values(array_filter(array_map('trim', (array)$videoLinks))) as $index => $videoLink) {
+	$normalizedVideoLinks = [];
+	foreach ((array)$videoLinks as $videoLink) {
+		if (!is_scalar($videoLink)) {
+			continue;
+		}
+
+		$videoLink = trim((string)$videoLink);
+		if ($videoLink === '') {
+			continue;
+		}
+
+		$normalizedVideoLinks[] = $videoLink;
+	}
+
+	foreach (array_values($normalizedVideoLinks) as $index => $videoLink) {
 		$instructionalVideos[] = [
 			'title' => 'Video ' . ($index + 1),
 			'url' => buildInstructionalVideoEmbedUrl($videoLink),
@@ -150,7 +171,7 @@ if (isset($userDetails) && is_object($userDetails)) {
 						
 						
 						<?php
-						if(!empty($settingsD->postinfo))
+						if (!empty($settingsD) && !empty($settingsD->postinfo))
 						{
 							echo '<p>';
 							

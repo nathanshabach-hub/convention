@@ -64,7 +64,24 @@ $this->Events = TableRegistry::get('Events');
 								<td data-title="Birth Year"><?php echo $datarecord->Students['birth_year'];?></td>
 								<td data-title="Gender"><?php echo $datarecord->Students['gender'];?></td>
 								<td data-title="Supervisor"><?php echo $datarecord->Teachers['first_name'].' '.$datarecord->Teachers['last_name'];?></td>
-                                <td data-title="Registration Date"><?php echo date('M d, Y', strtotime($datarecord->created)); ?></td>
+                                <td data-title="Registration Date">
+                                    <?php
+                                    $createdDisplay = 'N/A';
+
+                                    if (!empty($datarecord->created) && $datarecord->created !== '0000-00-00 00:00:00') {
+                                        if (is_object($datarecord->created) && method_exists($datarecord->created, 'format')) {
+                                            $createdDisplay = $datarecord->created->format('M d, Y');
+                                        } else {
+                                            $createdTs = strtotime((string)$datarecord->created);
+                                            if ($createdTs !== false && $createdTs > 0) {
+                                                $createdDisplay = date('M d, Y', $createdTs);
+                                            }
+                                        }
+                                    }
+
+                                    echo $createdDisplay;
+                                    ?>
+                                </td>
                                 <td data-title="Events">
 									<?php
 									if($datarecord->event_ids != '' && $datarecord->event_ids != NULL)

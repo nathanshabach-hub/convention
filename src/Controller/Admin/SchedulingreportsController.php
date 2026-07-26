@@ -1074,9 +1074,11 @@ class SchedulingreportsController extends AppController {
         $smallProgramNotes = $this->getSmallProgramNotes($conventionSD, $schedulingD);
         $this->set('smallProgramNotes', $smallProgramNotes);
 
-        $programData = $this->buildSmallProgramData($conventionSD, $schedulingD);
+		$programData = $this->buildSmallProgramData($conventionSD, $schedulingD, $smallProgramNotes);
         $this->set('programDays', $programData['programDays']);
         $this->set('programDateRangeLabel', $programData['programDateRangeLabel']);
+		$this->set('smallProgramDayOptions', $this->getSmallProgramDayOptions($programData['programDays']));
+		$this->set('smallProgramEditable', true);
     }
 	public function smallprogramprint($convention_season_slug=null) {
 		$this->viewBuilder()->setLayout('print_reports');
@@ -1096,12 +1098,13 @@ class SchedulingreportsController extends AppController {
 		$this->set('schedulingD', $schedulingD);
 		$this->set('smallProgramNotes', $this->getSmallProgramNotes($conventionSD, $schedulingD));
 
-		$programData = $this->buildSmallProgramData($conventionSD, $schedulingD);
+		$programData = $this->buildSmallProgramData($conventionSD, $schedulingD, $this->getSmallProgramNotes($conventionSD, $schedulingD));
 		$this->set('programDays', $programData['programDays']);
 		$this->set('programDateRangeLabel', $programData['programDateRangeLabel']);
+		$this->set('smallProgramEditable', false);
 	}
 
-	private function buildSmallProgramData($conventionSD, $schedulingD = null) {
+	private function buildSmallProgramData($conventionSD, $schedulingD = null, array $smallProgramNotes = array()) {
 		$lunchStart = '';
 		$lunchEnd = '';
 		if ($schedulingD && !empty($schedulingD->lunch_time_start)) {
@@ -1263,6 +1266,8 @@ class SchedulingreportsController extends AppController {
 			}
 		}
 
+		$programDays = $this->applySmallProgramEventOverrides($programDays, $smallProgramNotes);
+
 		$dateRangeFromSchedule = '';
 		if ($minDate !== null && $maxDate !== null) {
 			$dateRangeFromSchedule = date('j F', strtotime($minDate)).' - '.date('j F Y', strtotime($maxDate));
@@ -1281,6 +1286,129 @@ class SchedulingreportsController extends AppController {
 			'programDays' => $programDays,
 			'programDateRangeLabel' => $programDateRangeLabel,
 		);
+	}
+
+	private function getSmallProgramDayOptions(array $programDays): array {
+		$options = array();
+		foreach ($programDays as $dayData) {
+			$label = trim((string)($dayData['dayLabel'] ?? ''));
+			if ($label === '') {
+				continue;
+			}
+			$options[$label] = $label;
+		}
+		return $options;
+	}
+
+	private function applySmallProgramEventOverrides(array $programDays, array $smallProgramNotes): array {
+		$rows = $smallProgramNotes['event_overrides'] ?? array();
+		if (!is_array($rows) || empty($rows)) {
+			return $programDays;
+		}
+
+		foreach ($rows as $row) {
+			if (!is_array($row)) {
+				continue;
+			}
+
+			$dayLabel = trim((string)($row['day'] ?? ''));
+			$sessionKey = strtolower(trim((string)($row['session'] ?? '')));
+			$roomName = trim((string)($row['room'] ?? ''));
+			$events = $row['events'] ?? array();
+
+			if ($dayLabel === '' || $sessionKey === '' || $roomName === '') {
+				continue;
+			}
+
+			$dayKeyMatched = null;
+			$dayNeedle = strtolower($dayLabel);
+			foreach ($programDays as $dayKey => $dayData) {
+				$candidate = strtolower(trim((string)($dayData['dayLabel'] ?? '')));
+				if ($candidate === $dayNeedle) {
+					$dayKeyMatched = $dayKey;
+					break;
+				}
+			}
+			if ($dayKeyMatched === null) {
+				continue;
+			}
+
+			$normalizedEvents = array();
+			if (is_string($events)) {
+				$events = preg_split('/\r\n|\r|\n/', $events);
+			}
+			if (is_array($events)) {
+				foreach ($events as $eventLine) {
+					$eventLine = trim((string)$eventLine);
+					if ($eventLine !== '') {
+						$normalizedEvents[] = $eventLine;
+					}
+				}
+			}
+
+			if (!isset($programDays[$dayKeyMatched]['sessions']) || !is_array($programDays[$dayKeyMatched]['sessions'])) {
+				$programDays[$dayKeyMatched]['sessions'] = array();
+			}
+
+			$sessionIndex = null;
+			foreach ($programDays[$dayKeyMatched]['sessions'] as $i => $sessionData) {
+				if (strtolower((string)($sessionData['key'] ?? '')) === $sessionKey) {
+					$sessionIndex = $i;
+					break;
+				}
+			}
+
+			if ($sessionIndex === null) {
+				$programDays[$dayKeyMatched]['sessions'][] = array(
+					'key' => $sessionKey,
+					'title' => 'Convention Events',
+					'sortOrder' => 2,
+					'startRaw' => '',
+					'finishRaw' => '',
+					'rooms' => array(),
+				);
+				$sessionIndex = count($programDays[$dayKeyMatched]['sessions']) - 1;
+			}
+
+			if (!isset($programDays[$dayKeyMatched]['sessions'][$sessionIndex]['rooms']) || !is_array($programDays[$dayKeyMatched]['sessions'][$sessionIndex]['rooms'])) {
+				$programDays[$dayKeyMatched]['sessions'][$sessionIndex]['rooms'] = array();
+			}
+
+			if (count($normalizedEvents) === 0) {
+				unset($programDays[$dayKeyMatched]['sessions'][$sessionIndex]['rooms'][$roomName]);
+				continue;
+			}
+
+			$programDays[$dayKeyMatched]['sessions'][$sessionIndex]['rooms'][$roomName] = array_values(array_unique($normalizedEvents));
+		}
+
+		foreach ($programDays as $dayKey => $dayData) {
+			if (empty($dayData['sessions']) || !is_array($dayData['sessions'])) {
+				continue;
+			}
+			foreach ($dayData['sessions'] as $idx => $sessionData) {
+				$rooms = $sessionData['rooms'] ?? array();
+				if (!is_array($rooms)) {
+					$rooms = array();
+				}
+				$roomNames = array_keys($rooms);
+				usort($roomNames, function($a, $b) {
+					return $this->getSmallProgramRoomSortOrder($a) <=> $this->getSmallProgramRoomSortOrder($b);
+				});
+				$normalizedRooms = array();
+				foreach ($roomNames as $roomName) {
+					$eventNames = $rooms[$roomName];
+					if (!is_array($eventNames)) {
+						$eventNames = array((string)$eventNames);
+					}
+					natcasesort($eventNames);
+					$normalizedRooms[$roomName] = array_values($eventNames);
+				}
+				$programDays[$dayKey]['sessions'][$idx]['rooms'] = $normalizedRooms;
+			}
+		}
+
+		return $programDays;
 	}
 
 	private function normalizeSmallProgramRoomName($roomName) {
@@ -1423,6 +1551,38 @@ class SchedulingreportsController extends AppController {
                 }
                 $eveningEntriesStr = implode("\n", $eveningLines);
 
+				$overrideDays = isset($postedNotes['override_day']) && is_array($postedNotes['override_day']) ? $postedNotes['override_day'] : array();
+				$overrideSessions = isset($postedNotes['override_session']) && is_array($postedNotes['override_session']) ? $postedNotes['override_session'] : array();
+				$overrideRooms = isset($postedNotes['override_room']) && is_array($postedNotes['override_room']) ? $postedNotes['override_room'] : array();
+				$overrideEvents = isset($postedNotes['override_events']) && is_array($postedNotes['override_events']) ? $postedNotes['override_events'] : array();
+				$eventOverrides = array();
+				foreach ($overrideDays as $i => $dayValue) {
+					$dayValue = trim((string)$dayValue);
+					$sessionValue = strtolower(trim((string)($overrideSessions[$i] ?? '')));
+					$roomValue = trim((string)($overrideRooms[$i] ?? ''));
+					$eventsRaw = trim((string)($overrideEvents[$i] ?? ''));
+					if ($dayValue === '' || $sessionValue === '' || $roomValue === '') {
+						continue;
+					}
+
+					$eventLines = array();
+					if ($eventsRaw !== '') {
+						foreach (preg_split('/\r\n|\r|\n/', $eventsRaw) as $line) {
+							$line = trim((string)$line);
+							if ($line !== '') {
+								$eventLines[] = $line;
+							}
+						}
+					}
+
+					$eventOverrides[] = array(
+						'day' => $dayValue,
+						'session' => $sessionValue,
+						'room' => $roomValue,
+						'events' => $eventLines,
+					);
+				}
+
                 $payload = array(
                         'intro_day_label' => trim((string)($postedNotes['intro_day_label'] ?? '')),
                         'intro_entries' => $introEntriesStr,
@@ -1443,6 +1603,7 @@ class SchedulingreportsController extends AppController {
                         'athletics_important_items' => trim((string)($postedNotes['athletics_important_items'] ?? '')),
                         'athletics_offsite_note' => trim((string)($postedNotes['athletics_offsite_note'] ?? '')),
                         'athletics_banner' => trim((string)($postedNotes['athletics_banner'] ?? '')),
+						'event_overrides' => $eventOverrides,
                 );
 
                 $record->notes_json = json_encode($payload);
@@ -1499,6 +1660,7 @@ class SchedulingreportsController extends AppController {
 			'athletics_important_items' => '',
 			'athletics_offsite_note' => '',
 			'athletics_banner' => '',
+			'event_overrides' => array(),
 		);
 	}
 

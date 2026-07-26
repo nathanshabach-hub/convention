@@ -57,7 +57,7 @@ $this->Categories = TableRegistry::get('Categories');
                                 <td data-title="First Name"><?php echo $user->first_name; ?></td>
 								<td data-title="Last Name"><?php echo $user->last_name; ?></td>
 								<td data-title="Email Address"><?php echo $user->email_address; ?></td>
-                                <td data-title="Created"><?php echo date('M d, Y', strtotime($user->created)); ?></td>
+                                <td data-title="Created"><?php echo (($__ts = strtotime((string)$user->created)) !== false && $__ts > 0 ? date('M d, Y', $__ts) : 'N/A'); ?></td>
 								<td data-title="Status"><?php if($user->status == 1) echo 'Active'; else echo 'Inactive'; ?></td>
                                 <td data-title="Action">
                                     <div id="loderstatus<?php echo $user->id; ?>" class="right_action_lo"><?php echo $this->Html->image("loading.gif"); ?></div>

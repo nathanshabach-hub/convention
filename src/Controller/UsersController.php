@@ -31,7 +31,7 @@ class UsersController extends AppController {
     public function beforeFilter(EventInterface $event): void {
         parent::beforeFilter($event);
 
-        $this->Auth->allow(['login','registration','registerprevdetails','forgotpassword','resetpassword','teachersetpassword','dashboard','myschedule','myevents','editprofile','changepassword','teachers','editteacher','addteacher','archiveteacher','restoreteacher','students','addstudent','editstudent','archivestudent','restorestudent','generatestudentlogincode','judgesregistration','logout','judgesconfirmation','judgeeditprofile','applyforjudge','switchprofile','judgeexperience','judgingform','logintotest']);
+        $this->Auth->allow(['login','registration','registerprevdetails','forgotpassword','resetpassword','teachersetpassword','dashboard','myschedule','myevents','editprofile','changepassword','teachers','editteacher','addteacher','archiveteacher','restoreteacher','students','addstudent','editstudent','archivestudent','restorestudent','generatestudentlogincode','judgesregistration','squad247','squad247submit','logout','judgesconfirmation','judgeeditprofile','applyforjudge','switchprofile','judgeexperience','judgingform','logintotest']);
 
         $this->loadModel("Emailtemplates");
         $this->loadModel("Conventions");
@@ -391,14 +391,14 @@ class UsersController extends AppController {
                         //echo $messageToSend; exit;
                         
                         $email = new Email();
-                        $email->setTemplate('default')
-                            ->setLayout('admintemplate')
-                            ->setEmailFormat('html')
-                            ->setTo($emailId)
-                            ->setCc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
-                            ->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-                            ->setSubject($subjectToSend)
-                            ->setViewVars(['content_for_layout' => $messageToSend])
+                        $email->template('default')
+                            ->layout('admintemplate')
+                            ->emailFormat('html')
+                            ->to($emailId)
+                            ->cc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
+                            ->from([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
+                            ->subject($subjectToSend)
+                            ->viewVars(['content_for_layout' => $messageToSend])
                             ->send();
 
                         $this->Flash->success('We have successfully sent you reset password link. Please click that link and reset your password.');
@@ -1137,14 +1137,14 @@ class UsersController extends AppController {
                     //echo $messageToSend;exit;
                     
                     $email = new Email();
-                    $email->setTemplate('default')
-                            ->setLayout('admintemplate')
-                        ->setEmailFormat('html')
-                        ->setTo($emailId)
-                        //->setCc(HEADERS_CC)
-                        ->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-                        ->setSubject($subjectToSend)
-                        ->setViewVars(['content_for_layout' => $messageToSend])
+                    $email->template('default')
+                            ->layout('admintemplate')
+                        ->emailFormat('html')
+                        ->to($emailId)
+                        //->cc(HEADERS_CC)
+                        ->from([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
+                        ->subject($subjectToSend)
+                        ->viewVars(['content_for_layout' => $messageToSend])
                         ->send();
                     
                     
@@ -1552,7 +1552,6 @@ class UsersController extends AppController {
                 $flagCheck = 0;
                 $this->Flash->error('Email address already exists.');
             }
-            
             // to check if its exists in admins table
             $checkUA = $this->Admins->find()->where(['Admins.email' => $data->email_address])->first();
             if($checkUA)
@@ -1602,14 +1601,14 @@ class UsersController extends AppController {
                     //echo $messageToSend;exit;
                     
                     $email = new Email();
-                    $email->setTemplate('default')
-                            ->setLayout('admintemplate')
-                        ->setEmailFormat('html')
-                        ->setTo($emailId)
-                        ->setCc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
-                        ->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-                        ->setSubject($subjectToSend)
-                        ->setViewVars(['content_for_layout' => $messageToSend])
+                    $email->template('default')
+                            ->layout('admintemplate')
+                        ->emailFormat('html')
+                        ->to($emailId)
+                        ->cc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
+                        ->from([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
+                        ->subject($subjectToSend)
+                        ->viewVars(['content_for_layout' => $messageToSend])
                         ->send();
                     
                     $this->Flash->success('Your account has been successfully created. Please check your email for your activation link. If you do not receive it within a few minutes, please check your spam folder or contact our support team.');
@@ -1622,6 +1621,324 @@ class UsersController extends AppController {
         }
         $this->set('users', $users);
         
+    }
+
+    public function squad247() {
+        $this->viewBuilder()->setLayout("home");
+        $this->set('title_for_layout', '24/7 Squad Application '.TITLE_FOR_PAGES);
+
+        $contentFile = CONFIG . 'squad247_content.json';
+        $defaultData = [
+            'convention_subtitle' => 'Regional Student Conventions 2025',
+            'application_intro' => 'Southern Cross Educational Enterprises is seeking applications from A.C.E. Graduates and supporters to join the 2025 Regional Convention 24/7 Squads in the following regions:',
+            'success_requirements' => [
+                'Be at least 17 years of age (if under 18 and staying on site, events team will contact parent/guardian).',
+                'Will not be eligible to compete as a student at the Convention.',
+                'Will not have responsibility as a sponsor or accompanist for children or students attending Convention.',
+                'Will be willing to volunteer their time 24/7 during Convention in any area (judging, stage handling, sound/audio, general help).',
+                'Be able to arrive prior to check-in and remain until after awards and campsite clean-up.',
+                'Be flexible in sleeping arrangements.',
+                'Be passionate about the purpose and ministry of Student Conventions.',
+            ],
+            'successful_need_to' => [
+                'Cover their own transport expenses and registration fee listed on the application form.',
+                'Registration fee for PNG, Fiji, Cook Islands, Solomon Islands and AUS workshop includes convention registration, food, 24/7 pin and 24/7 T-shirt.',
+                'Registration fee for Indonesia and NZ includes convention registration, onsite accommodation and food, and 24/7 T-shirt.',
+                'If travelling internationally, check with Events Coordinator for extra food, accommodation and transport cost estimates.',
+                'Be prepared to use any musical or platform gifts at evening rallies.',
+            ],
+            'important_note' => 'Regional Squad experience is required (where possible) for South Pacific Squad applicants.',
+            'applications_email' => 'events@scee.edu.au',
+            'applications_deadline' => 'ALL APPLICATIONS MUST BE RECEIVED TWO MONTHS PRIOR to the commencement of the Convention.',
+            'page2_title' => '24/7 Squad Regional Application Form 2025 (Page 2)',
+            'page2_description' => 'The application form includes personal details, country selection, convention experience, references, testimony, and declaration sections.',
+            'applicant_must_provide' => [
+                'A current portrait photo.',
+                'A reference from Principal and/or Pastor.',
+                'Personal testimony of salvation and current walk with the Lord.',
+                'A description of church background and beliefs.',
+            ],
+            'blue_card_requirement' => 'For Australian/NZ conventions, Australian volunteers at Australian conventions must hold an approved Blue Card (or the relevant state Working With Children approval). Applicants can apply via bluecard.qld.gov.au.',
+            'payment_options' => 'Once the application is received, specific payment details are sent based on the country selected.',
+            'regions_left' => [
+                ['name' => 'FIJI', 'dates' => '30 June - 4 July'],
+                ['name' => 'NZ', 'dates' => '1 - 5 September'],
+            ],
+            'regions_right' => [
+                ['name' => 'PNG', 'dates' => '8 - 12 September'],
+                ['name' => 'AUS Workshop', 'dates' => '10 - 12 June'],
+                ['name' => 'INDO', 'dates' => '13 - 17 October'],
+            ],
+            'fees' => [
+                ['name' => 'Fiji', 'amount' => '100 FJD'],
+                ['name' => 'AUS', 'amount' => '100 AUD'],
+                ['name' => 'NZ', 'amount' => '200 NZD'],
+                ['name' => 'PNG', 'amount' => '225 Kina'],
+                ['name' => 'INDO', 'amount' => '1,500,000 Rp'],
+            ],
+        ];
+
+        $squad247Data = $defaultData;
+        if (is_file($contentFile)) {
+            $decoded = json_decode((string)@file_get_contents($contentFile), true);
+            if (is_array($decoded)) {
+                if (isset($decoded['convention_subtitle'])) {
+                    $squad247Data['convention_subtitle'] = trim((string)$decoded['convention_subtitle']);
+                }
+                if (isset($decoded['application_intro'])) {
+                    $squad247Data['application_intro'] = trim((string)$decoded['application_intro']);
+                }
+                if (isset($decoded['success_requirements']) && is_array($decoded['success_requirements'])) {
+                    $squad247Data['success_requirements'] = $decoded['success_requirements'];
+                }
+                if (isset($decoded['successful_need_to']) && is_array($decoded['successful_need_to'])) {
+                    $squad247Data['successful_need_to'] = $decoded['successful_need_to'];
+                }
+                if (isset($decoded['important_note'])) {
+                    $squad247Data['important_note'] = trim((string)$decoded['important_note']);
+                }
+                if (isset($decoded['applications_email'])) {
+                    $squad247Data['applications_email'] = trim((string)$decoded['applications_email']);
+                }
+                if (isset($decoded['applications_deadline'])) {
+                    $squad247Data['applications_deadline'] = trim((string)$decoded['applications_deadline']);
+                }
+                if (isset($decoded['page2_title'])) {
+                    $squad247Data['page2_title'] = trim((string)$decoded['page2_title']);
+                }
+                if (isset($decoded['page2_description'])) {
+                    $squad247Data['page2_description'] = trim((string)$decoded['page2_description']);
+                }
+                if (isset($decoded['applicant_must_provide']) && is_array($decoded['applicant_must_provide'])) {
+                    $squad247Data['applicant_must_provide'] = $decoded['applicant_must_provide'];
+                }
+                if (isset($decoded['blue_card_requirement'])) {
+                    $squad247Data['blue_card_requirement'] = trim((string)$decoded['blue_card_requirement']);
+                }
+                if (isset($decoded['payment_options'])) {
+                    $squad247Data['payment_options'] = trim((string)$decoded['payment_options']);
+                }
+                if (isset($decoded['regions_left']) && is_array($decoded['regions_left'])) {
+                    $squad247Data['regions_left'] = $decoded['regions_left'];
+                }
+                if (isset($decoded['regions_right']) && is_array($decoded['regions_right'])) {
+                    $squad247Data['regions_right'] = $decoded['regions_right'];
+                }
+                if (isset($decoded['fees']) && is_array($decoded['fees'])) {
+                    $squad247Data['fees'] = $decoded['fees'];
+                }
+            }
+        }
+
+        $this->set('squad247Data', $squad247Data);
+    }
+
+    public function squad247submit() {
+        $this->request->allowMethod(['post']);
+        $payload = $this->request->getData('submission', []);
+        if (is_array($payload) && count($payload) === 1 && isset($payload[0]) && is_string($payload[0])) {
+            $payload = $payload[0];
+        }
+        if (is_string($payload)) {
+            $decodedPayload = json_decode($payload, true);
+            $payload = is_array($decodedPayload) ? $decodedPayload : [];
+        }
+
+        $uploadedFiles = $this->request->getData('attachments');
+        $savedFiles = $this->saveSquad247Uploads($uploadedFiles);
+        if (!is_array($payload)) {
+            $payload = [];
+        }
+        $payload['files'] = $savedFiles;
+
+        $submission = [
+            'submitted_at' => date('Y-m-d H:i:s'),
+            'ip_address' => (string)$this->request->clientIp(),
+            'payload' => $payload,
+        ];
+
+        $this->saveSquad247Submission($submission);
+        $this->sendSquad247SubmissionNotification($submission);
+
+        $response = ['success' => true, 'message' => 'Thank you for your 24/7 Squad application. It has been received and our Events team will be in touch soon.'];
+        return $this->response
+            ->withType('application/json')
+            ->withStringBody(json_encode($response, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+    }
+
+    protected function squad247SubmissionsFile() {
+        return TMP . 'squad247_submissions.json';
+    }
+
+    protected function loadSquad247Submissions() {
+        $submissionsFile = $this->squad247SubmissionsFile();
+        if (!is_file($submissionsFile)) {
+            return array();
+        }
+
+        $decoded = json_decode((string)@file_get_contents($submissionsFile), true);
+        return is_array($decoded) ? $decoded : array();
+    }
+
+    protected function saveSquad247Submission(array $submission) {
+        $submissions = $this->loadSquad247Submissions();
+        array_unshift($submissions, $submission);
+        @file_put_contents($this->squad247SubmissionsFile(), json_encode($submissions, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+    }
+
+    protected function sendSquad247SubmissionNotification(array $submission) {
+        try {
+            $payload = isset($submission['payload']) && is_array($submission['payload']) ? $submission['payload'] : [];
+            $fields = isset($payload['fields']) && is_array($payload['fields']) ? $payload['fields'] : [];
+
+            $findFieldValue = static function (array $rows, array $labelNeedles, array $excludeNeedles = []) {
+                foreach ($rows as $row) {
+                    if (!is_array($row)) {
+                        continue;
+                    }
+                    $label = strtolower(trim((string)($row['label'] ?? '')));
+                    $value = trim((string)($row['value'] ?? ''));
+                    if ($label === '' || $value === '') {
+                        continue;
+                    }
+
+                    $skip = false;
+                    foreach ($excludeNeedles as $excludeNeedle) {
+                        if ($excludeNeedle !== '' && strpos($label, strtolower((string)$excludeNeedle)) !== false) {
+                            $skip = true;
+                            break;
+                        }
+                    }
+                    if ($skip) {
+                        continue;
+                    }
+
+                    foreach ($labelNeedles as $needle) {
+                        if ($needle !== '' && strpos($label, strtolower((string)$needle)) !== false) {
+                            return $value;
+                        }
+                    }
+                }
+                return '';
+            };
+
+            $applicantName = $findFieldValue($fields, ['full name', 'applicant name'], ['parent', 'guardian', 'principal', 'pastor', 'reference']);
+            $emailAddress = $findFieldValue($fields, ['email']);
+            $phone = $findFieldValue($fields, ['phone']);
+            $country = $findFieldValue($fields, ['country']);
+
+            if ($applicantName === '') {
+                $applicantName = 'Unknown Applicant';
+            }
+            if ($emailAddress === '') {
+                $emailAddress = 'Not provided';
+            }
+            if ($phone === '') {
+                $phone = 'Not provided';
+            }
+            if ($country === '') {
+                $country = 'Not provided';
+            }
+
+            $submittedAt = trim((string)($submission['submitted_at'] ?? date('Y-m-d H:i:s')));
+            $ipAddress = trim((string)($submission['ip_address'] ?? 'N/A'));
+
+            $adminUrl = rtrim((string)HTTP_PATH, '/') . '/admin/admins/squad247';
+            $fromEmail = defined('MAIL_FROM') ? (string)MAIL_FROM : 'no-reply@accelerateministries.com.au';
+            $fromName = defined('SITE_TITLE') ? (string)SITE_TITLE : 'Accelerate';
+
+            $subject = 'New 24/7 Squad Application - ' . $applicantName;
+            $body = '';
+            $body .= '<p>A new 24/7 Squad application has been submitted.</p>';
+            $body .= '<p><strong>Applicant:</strong> ' . htmlspecialchars($applicantName, ENT_QUOTES, 'UTF-8') . '<br>';
+            $body .= '<strong>Email:</strong> ' . htmlspecialchars($emailAddress, ENT_QUOTES, 'UTF-8') . '<br>';
+            $body .= '<strong>Phone:</strong> ' . htmlspecialchars($phone, ENT_QUOTES, 'UTF-8') . '<br>';
+            $body .= '<strong>Country:</strong> ' . htmlspecialchars($country, ENT_QUOTES, 'UTF-8') . '<br>';
+            $body .= '<strong>Submitted At:</strong> ' . htmlspecialchars($submittedAt, ENT_QUOTES, 'UTF-8') . '<br>';
+            $body .= '<strong>IP Address:</strong> ' . htmlspecialchars($ipAddress, ENT_QUOTES, 'UTF-8') . '</p>';
+            $body .= '<p><a href="' . htmlspecialchars($adminUrl, ENT_QUOTES, 'UTF-8') . '">Open 24/7 submissions in admin</a></p>';
+
+            $email = new Email();
+            $email->setEmailFormat('html')
+                ->setTo('nathanwaqa@accelerate.edu.au')
+                ->setFrom([$fromEmail => $fromName])
+                ->setSubject($subject)
+                ->send($body);
+        } catch (\Throwable $e) {
+            $this->log('Failed to send 24/7 submission notification email: ' . $e->getMessage(), 'error');
+        }
+    }
+
+    protected function squad247UploadsDir() {
+        return WWW_ROOT . 'uploads' . DS . 'squad247';
+    }
+
+    protected function saveSquad247Uploads($uploadedFiles) {
+        $files = [];
+        if (empty($uploadedFiles)) {
+            return $files;
+        }
+
+        if (!is_array($uploadedFiles)) {
+            $uploadedFiles = [$uploadedFiles];
+        }
+
+        $uploadDir = $this->squad247UploadsDir();
+        if (!is_dir($uploadDir)) {
+            @mkdir($uploadDir, 0775, true);
+        }
+
+        $allowedExt = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'];
+        $maxBytes = 10 * 1024 * 1024;
+
+        foreach ($uploadedFiles as $uploadedFile) {
+            if (!is_object($uploadedFile) || !method_exists($uploadedFile, 'getError')) {
+                continue;
+            }
+            if ((int)$uploadedFile->getError() !== 0) {
+                continue;
+            }
+
+            $clientName = trim((string)$uploadedFile->getClientFilename());
+            if ($clientName === '') {
+                continue;
+            }
+
+            $size = (int)$uploadedFile->getSize();
+            if ($size <= 0 || $size > $maxBytes) {
+                continue;
+            }
+
+            $ext = strtolower(pathinfo($clientName, PATHINFO_EXTENSION));
+            if (!in_array($ext, $allowedExt, true)) {
+                continue;
+            }
+
+            $base = pathinfo($clientName, PATHINFO_FILENAME);
+            $base = preg_replace('/[^A-Za-z0-9_-]/', '_', $base);
+            $base = trim((string)$base, '_');
+            if ($base === '') {
+                $base = 'attachment';
+            }
+
+            $storedName = date('YmdHis') . '_' . mt_rand(1000, 9999) . '_' . $base . '.' . $ext;
+            $targetPath = $uploadDir . DS . $storedName;
+
+            try {
+                $uploadedFile->moveTo($targetPath);
+            } catch (\Throwable $e) {
+                continue;
+            }
+
+            $files[] = [
+                'name' => $clientName,
+                'stored_name' => $storedName,
+                'size' => $size,
+                'url' => HTTP_PATH . '/uploads/squad247/' . rawurlencode($storedName),
+            ];
+        }
+
+        return $files;
     }
     
     public function judgesconfirmation($slug = null, $md5slug = null, $email = null, $uIDA = null) {
@@ -1648,14 +1965,14 @@ class UsersController extends AppController {
                     //echo $messageToSend;exit;
                     
                     $email = new Email();
-                    $email->setTemplate('default')
-                            ->setLayout('admintemplate')
-                        ->setEmailFormat('html')
-                        ->setTo(ACCOUNTS_TEAM_ANOTHER_EMAIL)
-                        //->setCc(HEADERS_CC)
-                        ->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-                        ->setSubject($subjectToSend)
-                        ->setViewVars(['content_for_layout' => $messageToSend])
+                    $email->template('default')
+                            ->layout('admintemplate')
+                        ->emailFormat('html')
+                        ->to(ACCOUNTS_TEAM_ANOTHER_EMAIL)
+                        //->cc(HEADERS_CC)
+                        ->from([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
+                        ->subject($subjectToSend)
+                        ->viewVars(['content_for_layout' => $messageToSend])
                         ->send();
                     
                     
@@ -1759,13 +2076,13 @@ class UsersController extends AppController {
                     //echo $messageToSend;exit;
                     
                     $email = new Email();
-                    $email->setTemplate('default')
-                            ->setLayout('admintemplate')
-                        ->setEmailFormat('html')
-                        ->setTo(ACCOUNTS_TEAM_ANOTHER_EMAIL)
-                        ->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-                        ->setSubject($subjectToSend)
-                        ->setViewVars(['content_for_layout' => $messageToSend])
+                    $email->template('default')
+                            ->layout('admintemplate')
+                        ->emailFormat('html')
+                        ->to(ACCOUNTS_TEAM_ANOTHER_EMAIL)
+                        ->from([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
+                        ->subject($subjectToSend)
+                        ->viewVars(['content_for_layout' => $messageToSend])
                         ->send();
                     
                     $this->Flash->success('Your request to apply for judge has been submitted successfully. Please wait while admin review and approve/reject.');

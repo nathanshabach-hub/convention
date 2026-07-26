@@ -1,0 +1,79 @@
+{
+    "convention_subtitle": "Regional Student Conventions 2026",
+    "application_intro": "Southern Cross Educational Enterprises is seeking applications from A.C.E. Graduates and supporters to join the 2026 Regional Convention 24/7 Squads in the following regions:",
+    "success_requirements": [
+        "Be at least 17 years of age (if under 18 and staying on site, events team will contact parent/guardian).",
+        "Will not be eligible to compete as a student at the Convention.",
+        "Will not have responsibility as a sponsor or accompanist for children or students attending Convention.",
+        "Will be willing to volunteer their time 24/7 during Convention in any area (judging, stage handling, sound/audio, general help).",
+        "Be able to arrive prior to check-in and remain until after awards and campsite clean-up.",
+        "Be flexible in sleeping arrangements.",
+        "Be passionate about the purpose and ministry of Student Conventions."
+    ],
+    "successful_need_to": [
+        "Cover their own transport expenses and registration fee listed on the application form.",
+        "Registration fee for PNG, Fiji, Cook Islands, Solomon Islands and AUS workshop includes convention registration, food, 24/7 pin and 24/7 T-shirt.",
+        "Registration fee for Indonesia and NZ includes convention registration, onsite accommodation and food, and 24/7 T-shirt.",
+        "If travelling internationally, check with Events Coordinator for extra food, accommodation and transport cost estimates.",
+        "Be prepared to use any musical or platform gifts at evening rallies."
+    ],
+    "important_note": "Regional Squad experience is required (where possible) for South Pacific Squad applicants.",
+    "applications_email": "events@scee.edu.au",
+    "applications_deadline": "ALL APPLICATIONS MUST BE RECEIVED TWO MONTHS PRIOR to the commencement of the Convention.",
+    "page2_title": "24/7 Squad Regional Application Form 2025 (Page 2)",
+    "page2_description": "The application form includes personal details, country selection, convention experience, references, testimony, and declaration sections.",
+    "applicant_must_provide": [
+        "A current portrait photo.",
+        "A reference from Principal and/or Pastor.",
+        "Personal testimony of salvation and current walk with the Lord.",
+        "A description of church background and beliefs."
+    ],
+    "blue_card_requirement": "For Australian/NZ conventions, Australian volunteers at Australian conventions must hold an approved Blue Card (or the relevant state Working With Children approval). Applicants can apply via bluecard.qld.gov.au.",
+    "payment_options": "Once the application is received, specific payment details are sent based on the country selected.",
+    "regions_left": [
+        {
+            "name": "FIJI",
+            "dates": "5th - 10th July"
+        },
+        {
+            "name": "NZ",
+            "dates": "7th - 11th September"
+        }
+    ],
+    "regions_right": [
+        {
+            "name": "PNG",
+            "dates": "17th - 21st August"
+        },
+        {
+            "name": "AUS Workshop",
+            "dates": "23 - 25 September"
+        },
+        {
+            "name": "INDO",
+            "dates": "5th - 9th October 2026"
+        }
+    ],
+    "fees": [
+        {
+            "name": "Fiji",
+            "amount": "150  FJD"
+        },
+        {
+            "name": "AUS",
+            "amount": "100 AUD"
+        },
+        {
+            "name": "NZ",
+            "amount": "210 NZD"
+        },
+        {
+            "name": "PNG",
+            "amount": "TBC"
+        },
+        {
+            "name": "INDO",
+            "amount": "1,500,000 Rp"
+        }
+    ]
+}

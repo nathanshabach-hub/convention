@@ -99,6 +99,10 @@ class EventsubmissionsController extends AppController {
 
 		$user_id = $this->request->session()->read("user_id");
 		$user_type 	= $this->request->session()->read("user_type");
+		if (empty($user_id)) {
+			$this->Flash->error('Your session has expired. Please login again.');
+			return $this->redirect(['controller' => 'users', 'action' => 'login']);
+		}
 		$userDetails = null;
 		if (!empty($user_id)) {
 			$userDetails = $this->Users->find()->where(['Users.id' => $user_id])->first();
@@ -148,6 +152,10 @@ class EventsubmissionsController extends AppController {
 		$this->set('active_cr_eventsubmission','active');
 		
         $user_id = $this->request->session()->read("user_id");
+		if (empty($user_id)) {
+			$this->Flash->error('Your session has expired. Please login again.');
+			return $this->redirect(['controller' => 'users', 'action' => 'login']);
+		}
 		$userDetails = $this->Users->find()->where(['Users.id' => $user_id])->first();
         $this->set('userDetails', $userDetails);
 		
@@ -196,7 +204,7 @@ class EventsubmissionsController extends AppController {
 			$eventSubmissionInput = (array)($requestData['Eventsubmissions'] ?? []);
 
 			$normalizeUpload = function ($fileInput) {
-				if ($fileInput instanceof \Psr\Http\Message\UploadedFileInterface) {
+				if (is_object($fileInput) && method_exists($fileInput, 'getClientFilename')) {
 					if ($fileInput->getError() !== UPLOAD_ERR_OK || !$fileInput->getClientFilename()) {
 						return null;
 					}
@@ -338,6 +346,10 @@ class EventsubmissionsController extends AppController {
 		$this->schoolAdminLoginCheck();
 		
         $user_id = $this->request->session()->read("user_id");
+		if (empty($user_id)) {
+			$this->Flash->error('Your session has expired. Please login again.');
+			return $this->redirect(['controller' => 'users', 'action' => 'login']);
+		}
 		$userDetails = $this->Users->find()->where(['Users.id' => $user_id])->first();
         $this->set('userDetails', $userDetails);
 		
@@ -404,6 +416,10 @@ class EventsubmissionsController extends AppController {
 		$this->set('active_cr_packageregistration','active');
 		
         $user_id = $this->request->session()->read("user_id");
+		if (empty($user_id)) {
+			$this->Flash->error('Your session has expired. Please login again.');
+			return $this->redirect(['controller' => 'users', 'action' => 'login']);
+		}
 		$userDetails = $this->Users->find()->where(['Users.id' => $user_id])->first();
         $this->set('userDetails', $userDetails);
 		
@@ -456,7 +472,7 @@ class EventsubmissionsController extends AppController {
 			$eventSubmissionInput = (array)($requestData['Eventsubmissions'] ?? []);
 
 			$normalizeUpload = function ($fileInput) {
-				if ($fileInput instanceof \Psr\Http\Message\UploadedFileInterface) {
+				if (is_object($fileInput) && method_exists($fileInput, 'getClientFilename')) {
 					if ($fileInput->getError() !== UPLOAD_ERR_OK || !$fileInput->getClientFilename()) {
 						return null;
 					}
@@ -654,13 +670,32 @@ class EventsubmissionsController extends AppController {
 		$this->set('active_cr_packageregistration','active');
 		
         $user_id = $this->request->session()->read("user_id");
+		if (empty($user_id)) {
+			$this->Flash->error('Your session has expired. Please login again.');
+			return $this->redirect(['controller' => 'users', 'action' => 'login']);
+		}
 		$userDetails = $this->Users->find()->where(['Users.id' => $user_id])->first();
         $this->set('userDetails', $userDetails);
+
+		$convRegStudentD = null;
+		$crstudentEventsD = null;
+		$eventD = null;
 		
 		if($conv_reg_student_slug)
 		{
 			$convRegStudentD = $this->Conventionregistrationstudents->find()->where(['Conventionregistrationstudents.slug' => $conv_reg_student_slug])->contain(['Students'])->first();
 			$this->set('convRegStudentD', $convRegStudentD);
+		}
+		else
+		{
+			$this->Flash->error('Invalid registration information.');
+			return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'packageregistration']);
+		}
+
+		if(!$convRegStudentD)
+		{
+			$this->Flash->error('Registration record was not found.');
+			return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'packageregistration']);
 		}
 
 		if($userDetails && $userDetails->user_type === 'Student' && (!isset($convRegStudentD->student_id) || (int)$convRegStudentD->student_id !== (int)$user_id))
@@ -673,6 +708,17 @@ class EventsubmissionsController extends AppController {
 		{
 			$crstudentEventsD = $this->Crstudentevents->find()->where(['Crstudentevents.slug' => $crstudentevents_slug])->first();
 			$this->set('crstudentEventsD', $crstudentEventsD);
+		}
+		else
+		{
+			$this->Flash->error('Invalid group event information.');
+			return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'packageregistration']);
+		}
+
+		if(!$crstudentEventsD)
+		{
+			$this->Flash->error('Group event record was not found.');
+			return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'packageregistration']);
 		}
 		
 		if($event_slug)
@@ -692,17 +738,33 @@ class EventsubmissionsController extends AppController {
 				$this->set('booksDD', $booksDD);
 			}
 		}
+		else
+		{
+			$this->Flash->error('Invalid event information.');
+			return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'packageregistration']);
+		}
+
+		if(!$eventD)
+		{
+			$this->Flash->error('Event record was not found.');
+			return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'packageregistration']);
+		}
 		
 		if($crstudentEventsD->id>0 && !empty($crstudentEventsD->group_name) && $crstudentEventsD->group_name != NULL && $eventD->id>0)
 		{
 			// to get convention registration details
 			$conventionRegD = $this->Conventionregistrations->find()->where(['Conventionregistrations.id' => $crstudentEventsD->conventionregistration_id])->first();
 			$this->set('conventionRegD', $conventionRegD);
+			if(!$conventionRegD)
+			{
+				$this->Flash->error('Convention registration could not be loaded.');
+				return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'packageregistration']);
+			}
 		}
 		else
 		{
-			$this->Flash->error('Invaid information.');
-			$this->redirect(['controller' => 'conventionregistrations', 'action' => 'packageregistration']);
+			$this->Flash->error('Invalid information.');
+			return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'packageregistration']);
 		}
 		
 		// to check submission already done for this group or not
@@ -715,11 +777,12 @@ class EventsubmissionsController extends AppController {
 		if($checkEVSubmission>0)
 		{
 			$this->Flash->error('Submission alreadydone for this group/event.');
-			$this->redirect(['controller' => 'conventionregistrations', 'action' => 'packageregistration']);
+			return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'packageregistration']);
 		}
 		
 		// to get students for this group
 		$groupStudentListArr 	= array();
+		$this->set('groupStudentList', '');
 		$condGrpStudents 		= array();
 		$condGrpStudents[] 		= "(Crstudentevents.conventionregistration_id = '".$conventionRegD->id."' AND Crstudentevents.convention_id = '".$conventionRegD->convention_id."' AND Crstudentevents.season_id = '".$conventionRegD->season_id."' AND Crstudentevents.season_year = '".$conventionRegD->season_year."')";
 		$condGrpStudents[] = "(Crstudentevents.event_id = '".$eventD->id."')";
@@ -729,6 +792,11 @@ class EventsubmissionsController extends AppController {
 		{
 			// to get student details
 			$studentD = $this->Users->find()->where(['Users.id' => $grpstudent->student_id])->first();
+			if(!$studentD)
+			{
+				continue;
+			}
+
 			$groupStudentListArr[] = $studentD->first_name.' '.$studentD->middle_name.' '.$studentD->last_name;
 			$this->set('groupStudentList', implode(", ",$groupStudentListArr));
 		}
@@ -736,10 +804,47 @@ class EventsubmissionsController extends AppController {
 		
         $eventsubmissions = $this->Eventsubmissions->newEntity([]);
         if ($this->request->is('post')) {
-            $data = $this->Eventsubmissions->patchEntity($eventsubmissions, $this->request->getData());
+			$requestData = $this->request->getData();
+			$eventSubmissionInput = (array)($requestData['Eventsubmissions'] ?? []);
+
+			$normalizeUpload = function ($fileInput) {
+				if (is_object($fileInput) && method_exists($fileInput, 'getClientFilename')) {
+					if ($fileInput->getError() !== UPLOAD_ERR_OK || !$fileInput->getClientFilename()) {
+						return null;
+					}
+
+					return [
+						'name' => $fileInput->getClientFilename(),
+						'type' => (string)$fileInput->getClientMediaType(),
+						'tmp_name' => (string)($fileInput->getStream()->getMetadata('uri') ?: ''),
+						'error' => $fileInput->getError(),
+						'size' => (int)$fileInput->getSize(),
+					];
+				}
+
+				if (is_array($fileInput) && !empty($fileInput['name'])) {
+					return $fileInput;
+				}
+
+				return null;
+			};
+
+			$eventDocumentUpload = $normalizeUpload($eventSubmissionInput['event_document'] ?? null);
+			$reportUpload = $normalizeUpload($eventSubmissionInput['report'] ?? null);
+			$scoreSheetUpload = $normalizeUpload($eventSubmissionInput['score_sheet'] ?? null);
+			$additionalDocumentsUpload = $normalizeUpload($eventSubmissionInput['additional_documents'] ?? null);
+
+			// Prevent UploadedFile objects from being marshaled into string DB columns.
+			$eventSubmissionInput['event_document'] = '';
+			$eventSubmissionInput['report'] = '';
+			$eventSubmissionInput['score_sheet'] = '';
+			$eventSubmissionInput['additional_documents'] = '';
+			$requestData['Eventsubmissions'] = $eventSubmissionInput;
+
+			$data = $this->Eventsubmissions->patchEntity($eventsubmissions, $requestData);
             if (count($data->getErrors()) == 0) {
 				
-				$book_ids = $this->request->getData()['Eventsubmissions']['book_ids'];
+				$book_ids = $eventSubmissionInput['book_ids'] ?? [];
 				//$this->prx($this->request->getData());
 				
 				if(isset($book_ids) && count((array)$book_ids))
@@ -751,49 +856,49 @@ class EventsubmissionsController extends AppController {
 					$data->book_ids = '';
 				}
 				
-				if(!empty($this->request->getData()['Eventsubmissions']['event_document']['name']))
+				if($eventDocumentUpload)
 				{
-					$data->mediafile_original_file_name =  $this->request->getData()['Eventsubmissions']['event_document']['name'];
+					$data->mediafile_original_file_name =  $eventDocumentUpload['name'];
 					
 					$specialCharacters = array('#', '$', '%', '@', '+', '=', '\\', '/', '"', ' ', "'", ':', '~', '`', '!', '^', '*', '(', ')', '|', "'", "&");
 					$toReplace = "-";
-					$this->request->getData()['Eventsubmissions']['event_document']['name'] = str_replace($specialCharacters, $toReplace, $this->request->getData()['Eventsubmissions']['event_document']['name']);
-					$imageArray = $this->request->getData()['Eventsubmissions']['event_document'];
+					$eventDocumentUpload['name'] = str_replace($specialCharacters, $toReplace, $eventDocumentUpload['name']);
+					$imageArray = $eventDocumentUpload;
 					$returnedUploadImageArray = $this->PImage->upload($imageArray, UPLOAD_EVENTS_SUBMISSION_DOCUMENT_PATH); 
 					 
 					$data->mediafile_file_system_name =  $returnedUploadImageArray[0];
 				}
 				
-				if(!empty($this->request->getData()['Eventsubmissions']['report']['name']))
+				if($reportUpload)
 				{
-					$data->report =  $this->request->getData()['Eventsubmissions']['report']['name'];
+					$data->report =  $reportUpload['name'];
 					
 					$specialCharacters = array('#', '$', '%', '@', '+', '=', '\\', '/', '"', ' ', "'", ':', '~', '`', '!', '^', '*', '(', ')', '|', "'", "&");
 					$toReplace = "-";
-					$this->request->getData()['Eventsubmissions']['report']['name'] = str_replace($specialCharacters, $toReplace, $this->request->getData()['Eventsubmissions']['report']['name']);
-					$imageArray = $this->request->getData()['Eventsubmissions']['report'];
+					$reportUpload['name'] = str_replace($specialCharacters, $toReplace, $reportUpload['name']);
+					$imageArray = $reportUpload;
 					$returnedUploadImageArray = $this->PImage->upload($imageArray, UPLOAD_EVENTS_SUBMISSION_DOCUMENT_PATH); 
 					 
 					$data->report =  $returnedUploadImageArray[0];
 				}
 				
-				if(!empty($this->request->getData()['Eventsubmissions']['score_sheet']['name']))
+				if($scoreSheetUpload)
 				{
 					$specialCharacters = array('#', '$', '%', '@', '+', '=', '\\', '/', '"', ' ', "'", ':', '~', '`', '!', '^', '*', '(', ')', '|', "'", "&");
 					$toReplace = "-";
-					$this->request->getData()['Eventsubmissions']['score_sheet']['name'] = str_replace($specialCharacters, $toReplace, $this->request->getData()['Eventsubmissions']['score_sheet']['name']);
-					$imageArray = $this->request->getData()['Eventsubmissions']['score_sheet'];
+					$scoreSheetUpload['name'] = str_replace($specialCharacters, $toReplace, $scoreSheetUpload['name']);
+					$imageArray = $scoreSheetUpload;
 					$returnedUploadImageArray = $this->PImage->upload($imageArray, UPLOAD_EVENTS_SUBMISSION_DOCUMENT_PATH); 
 					 
 					$data->score_sheet =  $returnedUploadImageArray[0];
 				}
 				
-				if(!empty($this->request->getData()['Eventsubmissions']['additional_documents']['name']))
+				if($additionalDocumentsUpload)
 				{
 					$specialCharacters = array('#', '$', '%', '@', '+', '=', '\\', '/', '"', ' ', "'", ':', '~', '`', '!', '^', '*', '(', ')', '|', "'", "&");
 					$toReplace = "-";
-					$this->request->getData()['Eventsubmissions']['additional_documents']['name'] = str_replace($specialCharacters, $toReplace, $this->request->getData()['Eventsubmissions']['additional_documents']['name']);
-					$imageArray = $this->request->getData()['Eventsubmissions']['additional_documents'];
+					$additionalDocumentsUpload['name'] = str_replace($specialCharacters, $toReplace, $additionalDocumentsUpload['name']);
+					$imageArray = $additionalDocumentsUpload;
 					$returnedUploadImageArray = $this->PImage->upload($imageArray, UPLOAD_EVENTS_SUBMISSION_DOCUMENT_PATH); 
 					 
 					$data->additional_documents =  $returnedUploadImageArray[0];
@@ -857,12 +962,19 @@ class EventsubmissionsController extends AppController {
 
 		$user_id = $this->request->session()->read("user_id");
 		$user_type 	= $this->request->session()->read("user_type");
+		if (empty($user_id)) {
+			return $this->redirect(['controller' => 'users', 'action' => 'login']);
+		}
 		$userDetails = $this->Users->find()->where(['Users.id' => $user_id])->first();
         $this->set('userDetails', $userDetails);
 		
 		$conventionRegD = $this->Conventionregistrations->find()->where(['Conventionregistrations.slug' => $conv_reg_slug])->contain(['Conventions'])->first();
 		//$this->prx($conventionRegD);
 		$this->set('conventionRegD', $conventionRegD);
+		if (!$conventionRegD) {
+			$this->Flash->error('Invalid convention registration.');
+			return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'judgeevents']);
+		}
 		if($conventionRegD->status == 2)
 		{
 			$this->Flash->error('Sorry, admin has not approved these events yet. You will receive an email and entries will be visible once approved.');
@@ -878,6 +990,10 @@ class EventsubmissionsController extends AppController {
 		
 		$eventD = $this->Events->find()->where(['Events.slug' => $event_slug])->first();
 		$this->set('eventD', $eventD);
+		if (!$eventD) {
+			$this->Flash->error('Invalid event.');
+			return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'judgeevents', $conv_reg_slug]);
+		}
 
         $condition = array();
 		$condition[] = "(Eventsubmissions.convention_id = '".$conventionRegD->convention_id."')";
@@ -927,7 +1043,7 @@ class EventsubmissionsController extends AppController {
 				// now check if this any judge submitted time score for this event submission
 				$condCheckJS = array();
 				$condCheckJS[] = "(Judgeevaluations.eventsubmission_id = '".$submission_id."')";
-				//$condCheckJS[] = "(Judgeevaluations.uploaded_by_user_id = '".$user_id."')";
+				$condCheckJS[] = "(Judgeevaluations.uploaded_by_user_id = '".$user_id."')";
 				
 				$checkJS = $this->Judgeevaluations->find()->where($condCheckJS)->first();
 				if($checkJS)
@@ -978,13 +1094,19 @@ class EventsubmissionsController extends AppController {
 	
 	public function distanceseventsentries($conv_reg_slug=null,$event_slug=null) {
 
-        $this->userLoginCheck();
-        $this->multiLoginCheck(['Teacher_Parent','Judge']);
-		
         $this->set("title_for_layout", "Distance Event Entries" . TITLE_FOR_PAGES);
         $this->viewBuilder()->setLayout('home');
 		
 		$user_id 	= $this->request->session()->read("user_id");
+		$user_type 	= $this->request->session()->read("user_type");
+		if (empty($user_id)) {
+			$this->Flash->error('Please Login.');
+			return $this->redirect(['controller' => 'users', 'action' => 'logout']);
+		}
+		if (!in_array($user_type, ['Teacher_Parent', 'Judge'], true)) {
+			$this->Flash->error('Please Login.');
+			return $this->redirect(['controller' => 'users', 'action' => 'logout']);
+		}
 		
 		if($this->request->session()->read("sess_selected_convention_registration_id")>0)
 		{
@@ -1000,27 +1122,36 @@ class EventsubmissionsController extends AppController {
         $msgString = '';
 
 		$user_id = $this->request->session()->read("user_id");
-		$user_type 	= $this->request->session()->read("user_type");
 		$userDetails = $this->Users->find()->where(['Users.id' => $user_id])->first();
         $this->set('userDetails', $userDetails);
 		
 		$conventionRegD = $this->Conventionregistrations->find()->where(['Conventionregistrations.slug' => $conv_reg_slug])->contain(['Conventions'])->first();
+		if (!$conventionRegD) {
+			$this->Flash->error('Invalid convention registration.');
+			return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'index']);
+		}
 		//$this->prx($conventionRegD);
 		$this->set('conventionRegD', $conventionRegD);
 		if($conventionRegD->status == 2)
 		{
 			$this->Flash->error('Sorry, admin has not approved these events yet. You will receive an email and entries will be visible once approved.');
-			$this->redirect(['controller' => 'conventionregistrations', 'action' => 'judgeevents',$conv_reg_slug]);
+			return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'judgeevents',$conv_reg_slug]);
 		}
 		else
 		if($conventionRegD->status == 0)
 		{
 			$this->Flash->error('Sorry, admin declined your registration. Please contact events team.');
-			$this->redirect(['controller' => 'conventionregistrations', 'action' => 'judgeevents',$conv_reg_slug]);
+			return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'judgeevents',$conv_reg_slug]);
 		}
 		
 		
 		$eventD = $this->Events->find()->where(['Events.slug' => $event_slug])->first();
+		if (!$eventD) {
+			$this->Flash->error('Invalid event.');
+			return $this->redirect(['controller' => 'conventionregistrations', 'action' => 'judgeevents', $conv_reg_slug]);
+		}
+		$soccerKickDistanceEventNumbers = ['112', '142', '172', '212', '242', '272'];
+		$isSoccerKickDistanceEvent = in_array((string)$eventD->event_id_number, $soccerKickDistanceEventNumbers, true);
 		$this->set('eventD', $eventD);
 
         $condition = array();
@@ -1057,27 +1188,42 @@ class EventsubmissionsController extends AppController {
 				else
 					$withdraw_yes_no = 0;
 
-				// Soccer kick grid
-				$soccer_kick_best_kick  = $this->request->getData()['soccer_kick_best_kick_'.$cntrE];
-				$soccer_kick_all_kicks  = $this->request->getData()['soccer_kick_all_kicks_'.$cntrE];
-				$place                  = $this->request->getData()['place_'.$cntrE];
-
-				$soccer_kick_best_kick = (!empty($soccer_kick_best_kick) && is_numeric($soccer_kick_best_kick)) ? (int)$soccer_kick_best_kick : null;
+				$place = $this->request->getData()['place_'.$cntrE] ?? null;
 				$place = (!empty($place) && is_numeric($place)) ? (int)$place : null;
 
-				// Validate JSON
-				$decodedGrid = json_decode($soccer_kick_all_kicks, true);
-				if(!is_array($decodedGrid)) $soccer_kick_all_kicks = null;
-
-				// Keep legacy distance_attempt columns from grid data for backward compat
 				$distance_attempt_1 = $distance_attempt_2 = $distance_attempt_3 = null;
-				$bestScore = $soccer_kick_best_kick;
-				if(is_array($decodedGrid)) {
-					foreach([1,2,3] as $att) {
-						$attKey = (string)$att;
-						if(!empty($decodedGrid[$attKey]) && is_array($decodedGrid[$attKey])) {
+				$soccer_kick_best_kick = null;
+				$soccer_kick_all_kicks = null;
+				$bestScore = null;
+
+				if ($isSoccerKickDistanceEvent) {
+					$soccer_kick_best_kick = $this->request->getData()['soccer_kick_best_kick_'.$cntrE] ?? null;
+					$soccer_kick_all_kicks = $this->request->getData()['soccer_kick_all_kicks_'.$cntrE] ?? null;
+					$soccer_kick_best_kick = (!empty($soccer_kick_best_kick) && is_numeric($soccer_kick_best_kick)) ? (int)$soccer_kick_best_kick : null;
+
+					$decodedGrid = json_decode($soccer_kick_all_kicks, true);
+					if(!is_array($decodedGrid)) {
+						$soccer_kick_all_kicks = null;
+						$decodedGrid = null;
+					}
+
+					$bestScore = $soccer_kick_best_kick;
+					if(is_array($decodedGrid)) {
+						foreach([1,2,3] as $att) {
+							$attKey = (string)$att;
+							if(!empty($decodedGrid[$attKey]) && is_array($decodedGrid[$attKey])) {
+								$varName = 'distance_attempt_'.$att;
+								$$varName = max($decodedGrid[$attKey]);
+							}
+						}
+					}
+				} else {
+					foreach ([1, 2, 3] as $att) {
+						$fieldName = 'distance_attempt_'.$att.'_'.$cntrE;
+						$fieldValue = $this->request->getData()[$fieldName] ?? null;
+						if ($fieldValue !== null && $fieldValue !== '' && is_numeric($fieldValue)) {
 							$varName = 'distance_attempt_'.$att;
-							$$varName = max($decodedGrid[$attKey]);
+							$$varName = (float)$fieldValue;
 						}
 					}
 				}
@@ -1102,7 +1248,7 @@ class EventsubmissionsController extends AppController {
 				// now check if this judge submitted time score for this event submission
 				$condCheckJS = array();
 				$condCheckJS[] = "(Judgeevaluations.eventsubmission_id = '".$submission_id."')";
-				//$condCheckJS[] = "(Judgeevaluations.uploaded_by_user_id = '".$user_id."')";
+				$condCheckJS[] = "(Judgeevaluations.uploaded_by_user_id = '".$user_id."')";
 				
 				$checkJS = $this->Judgeevaluations->find()->where($condCheckJS)->first();
 				if($checkJS)
@@ -1190,7 +1336,15 @@ class EventsubmissionsController extends AppController {
 
 		$user_id = $this->request->session()->read("user_id");
 		$user_type 	= $this->request->session()->read("user_type");
+		if (empty($user_id)) {
+			$this->Flash->error('Your session has expired. Please login again.');
+			return $this->redirect(['controller' => 'users', 'action' => 'login']);
+		}
 		$userDetails = $this->Users->find()->where(['Users.id' => $user_id])->first();
+		if (!$userDetails) {
+			$this->Flash->error('Unable to find your user account. Please login again.');
+			return $this->redirect(['controller' => 'users', 'action' => 'login']);
+		}
         $this->set('userDetails', $userDetails);
 		
 		$conventionRegD = $this->Conventionregistrations->find()->where(['Conventionregistrations.slug' => $conv_reg_slug])->contain(['Conventions'])->first();
@@ -1326,7 +1480,7 @@ class EventsubmissionsController extends AppController {
 				// now check if this judge submitted time score for this event submission
 				$condCheckJS = array();
 				$condCheckJS[] = "(Judgeevaluations.eventsubmission_id = '".$submission_id."')";
-				//$condCheckJS[] = "(Judgeevaluations.uploaded_by_user_id = '".$user_id."')";
+				$condCheckJS[] = "(Judgeevaluations.uploaded_by_user_id = '".$user_id."')";
 				
 				$checkJS = $this->Judgeevaluations->find()->where($condCheckJS)->first();
 				if($checkJS)
@@ -1454,7 +1608,15 @@ class EventsubmissionsController extends AppController {
 
 		$user_id = $this->request->session()->read("user_id");
 		$user_type 	= $this->request->session()->read("user_type");
+		if (empty($user_id)) {
+			$this->Flash->error('Your session has expired. Please login again.');
+			return $this->redirect(['controller' => 'users', 'action' => 'login']);
+		}
 		$userDetails = $this->Users->find()->where(['Users.id' => $user_id])->first();
+		if (!$userDetails) {
+			$this->Flash->error('Unable to find your user account. Please login again.');
+			return $this->redirect(['controller' => 'users', 'action' => 'login']);
+		}
         $this->set('userDetails', $userDetails);
 		
 		$conventionRegD = $this->Conventionregistrations->find()->where(['Conventionregistrations.slug' => $conv_reg_slug])->contain(['Conventions'])->first();
@@ -1546,7 +1708,7 @@ class EventsubmissionsController extends AppController {
 				// now check if this judge submitted time score for this event submission
 				$condCheckJS = array();
 				$condCheckJS[] = "(Judgeevaluations.eventsubmission_id = '".$submission_id."')";
-				//$condCheckJS[] = "(Judgeevaluations.uploaded_by_user_id = '".$user_id."')";
+				$condCheckJS[] = "(Judgeevaluations.uploaded_by_user_id = '".$user_id."')";
 				
 				$checkJS = $this->Judgeevaluations->find()->where($condCheckJS)->first();
 				if($checkJS)
@@ -1625,7 +1787,15 @@ class EventsubmissionsController extends AppController {
 
 		$user_id = $this->request->session()->read("user_id");
 		$user_type 	= $this->request->session()->read("user_type");
+		if (empty($user_id)) {
+			$this->Flash->error('Your session has expired. Please login again.');
+			return $this->redirect(['controller' => 'users', 'action' => 'login']);
+		}
 		$userDetails = $this->Users->find()->where(['Users.id' => $user_id])->first();
+		if (!$userDetails) {
+			$this->Flash->error('Unable to find your user account. Please login again.');
+			return $this->redirect(['controller' => 'users', 'action' => 'login']);
+		}
         $this->set('userDetails', $userDetails);
 		
 		$conventionRegD = $this->Conventionregistrations->find()->where(['Conventionregistrations.slug' => $conv_reg_slug])->contain(['Conventions'])->first();
@@ -1690,7 +1860,7 @@ class EventsubmissionsController extends AppController {
 				// now check if this judge submitted time score for this event submission
 				$condCheckJS = array();
 				$condCheckJS[] = "(Judgeevaluations.eventsubmission_id = '".$submission_id."')";
-				//$condCheckJS[] = "(Judgeevaluations.uploaded_by_user_id = '".$user_id."')";
+				$condCheckJS[] = "(Judgeevaluations.uploaded_by_user_id = '".$user_id."')";
 				
 				$checkJS = $this->Judgeevaluations->find()->where($condCheckJS)->first();
 				if($checkJS)

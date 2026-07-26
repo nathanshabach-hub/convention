@@ -12,6 +12,21 @@ use Cake\I18n\I18n;
 #[\AllowDynamicProperties]
 class HomesController extends AppController {
 
+    public $Users = null;
+    public $Emailtemplates = null;
+    public $Conventions = null;
+    public $Conventionseasons = null;
+    public $Events = null;
+    public $Divisions = null;
+    public $Seasons = null;
+    public $Conventionregistrations = null;
+    public $Conventionregistrationstudents = null;
+    public $Crstudentevents = null;
+    public $Evaluationquestions = null;
+    public $Books = null;
+    public $Settings = null;
+    public $Eventcategories = null;
+
     public function initialize(): void {
         parent::initialize();
 
@@ -76,7 +91,12 @@ class HomesController extends AppController {
         $condConvention = array();
         $condConvention[] = "(Conventions.id IN ($conventionIDSImploded))";
         $condConvention[] = "(Conventions.status  = '1')";
-        $conventionDD = $this->Conventions->find()->where($condConvention)->order(['Conventions.name' => 'ASC'])->combine('id', 'name')->toArray();
+        $conventionDD = $this->Conventions->find()
+            ->where($condConvention)
+            ->order(['Conventions.name' => 'ASC'])
+            ->all()
+            ->combine('id', 'name')
+            ->toArray();
         $this->set('conventionDD', $conventionDD);
         
     }

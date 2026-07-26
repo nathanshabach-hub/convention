@@ -869,6 +869,7 @@ footer {
 .cr-students-main {
 	padding-top: 14px;
 	padding-bottom: 16px;
+	overflow-x: hidden;
 }
 
 .cr-students-header {
@@ -878,6 +879,16 @@ footer {
 	justify-content: space-between;
 	gap: 10px;
 	flex-wrap: wrap;
+	overflow: hidden;
+	width: 100%;
+	max-width: 100%;
+	box-sizing: border-box;
+}
+
+.cr-students-main > .cr-students-header {
+	display: flex !important;
+	width: 100% !important;
+	max-width: 100% !important;
 }
 
 .cr-students-title {
@@ -886,6 +897,22 @@ footer {
 	font-weight: 700;
 	letter-spacing: 0.2px;
 	line-height: 1.2;
+	min-width: 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.cr-students-actions {
+	margin-left: auto;
+	display: flex;
+	gap: 8px;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+}
+
+.cr-students-header a {
+	float: none !important;
 }
 
 .cr-students-card {

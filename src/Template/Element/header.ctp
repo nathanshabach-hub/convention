@@ -218,6 +218,9 @@ if($user_id>0)
 					<li class="nav-item ">
 						<a class="nav-link px-3 <?php echo isset($header_menu_judgesreg_active) ? $header_menu_judgesreg_active : ''; ?>" href="<?php echo HTTP_PATH; ?>/users/judgesregistration">Judges Registration</a>
 					</li>
+					<li class="nav-item ">
+						<a class="nav-link px-3" href="<?php echo HTTP_PATH; ?>/users/squad247">24/7</a>
+					</li>
 					<?php
 					}
 					?>

@@ -5,8 +5,8 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="theme-color" content="#1c2452">
-	<link rel="manifest" href="/manifest.json">
-	<link rel="apple-touch-icon" href="/img/pwa-icon-192.png">
+	<link rel="manifest" href="<?php echo HTTP_PATH; ?>/manifest.json">
+	<link rel="apple-touch-icon" href="<?php echo HTTP_PATH; ?>/img/pwa-icon-192.png">
 	<link rel="shortcut icon" type="image/x-icon" href="<?php echo HTTP_PATH; ?>/img/favicon.ico" />
 	<title>
 		<?php echo isset($title_for_layout) ? $title_for_layout : SITE_TITLE; ?>
@@ -145,7 +145,7 @@
 <!-- PWA: install button (shown by JS when available) -->
 <button id="acp-install-btn" style="display:none;position:fixed;bottom:56px;right:18px;z-index:9999;background:#1c2452;color:#fff;border:none;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,0.22);">📲 Install App</button>
 
-<script src="/js/acp-pwa.js"></script>
+<script src="<?php echo HTTP_PATH; ?>/js/acp-pwa.js"></script>
 </body>
 
 </html>

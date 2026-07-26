@@ -567,6 +567,8 @@ class SchedulingsController extends AppController {
 				->enableHydration(false)
 				->first();
 
+			$valueSource = is_array($rawScheduling) ? $rawScheduling : [];
+
 			$formatTimeValue = function ($value) {
 				if ($value === null || $value === '') {
 					return '';
@@ -580,9 +582,53 @@ class SchedulingsController extends AppController {
 				return date('h:i A', $timestamp);
 			};
 
-				foreach ($wizardTimeValues as $timeField => $_unused) {
-					$wizardTimeValues[$timeField] = $formatTimeValue(isset($schedulingD->{$timeField}) ? $schedulingD->{$timeField} : null);
+			$coreTimeKeys = [
+				'normal_starting_time',
+				'normal_finish_time',
+				'lunch_time_start',
+				'lunch_time_end',
+			];
+
+			$hasAnyCoreTime = false;
+			foreach ($coreTimeKeys as $coreKey) {
+				if (!empty($valueSource[$coreKey])) {
+					$hasAnyCoreTime = true;
+					break;
 				}
+			}
+
+			if (!$hasAnyCoreTime) {
+				$nonEmptyCoreTimeSql = [];
+				foreach ($coreTimeKeys as $key) {
+					$nonEmptyCoreTimeSql[] = "(Schedulings.".$key." IS NOT NULL AND Schedulings.".$key." != '')";
+				}
+
+				$fallbackRow = $this->Schedulings->find()
+					->select(array_merge(['id'], array_keys($wizardTimeValues)))
+					->where([
+						'Schedulings.conventionseasons_id' => $conventionSD->id,
+						'Schedulings.convention_id' => $conventionSD->convention_id,
+						'Schedulings.season_id' => $conventionSD->season_id,
+						'Schedulings.season_year' => $conventionSD->season_year,
+					])
+					->andWhere(function ($exp) use ($nonEmptyCoreTimeSql) {
+						return $exp->or_($nonEmptyCoreTimeSql);
+					})
+					->order(['Schedulings.modified' => 'DESC', 'Schedulings.id' => 'DESC'])
+					->enableHydration(false)
+					->first();
+
+				if (is_array($fallbackRow)) {
+					$valueSource = $fallbackRow;
+				}
+			}
+
+			foreach ($wizardTimeValues as $timeField => $_unused) {
+				$sourceValue = array_key_exists($timeField, $valueSource)
+					? $valueSource[$timeField]
+					: (isset($schedulingD->{$timeField}) ? $schedulingD->{$timeField} : null);
+				$wizardTimeValues[$timeField] = $formatTimeValue($sourceValue);
+			}
 		}
 
 		$this->set('wizardTimeValues', $wizardTimeValues);

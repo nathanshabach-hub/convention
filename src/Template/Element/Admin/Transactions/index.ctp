@@ -41,7 +41,7 @@
 								<td data-title="Season Year"><?php echo $datarecord->season_year; ?></td>
 								<td data-title="Price Structure"><?php echo $priceStructureCR[$datarecord->price_structure]; ?></td>
 								<td data-title="Amount"><?php echo CURR.' '.number_format($datarecord->total_amount,2); ?></td>
-                                <td data-title="Transaction Date"><?php echo date('M d, Y H:i A', strtotime($datarecord->created)); ?></td>
+                                    <td data-title="Transaction Date"><?php $createdTs = !empty($datarecord->created) ? strtotime((string)$datarecord->created) : false; echo ($createdTs && $createdTs > 0) ? date('M d, Y H:i A', $createdTs) : 'N/A'; ?></td>
 								<td data-title="Transaction Date"><?php echo $datarecord->transaction_id_received ? $datarecord->transaction_id_received : 'N/A'; ?></td>
 								<td data-title="Status"><?php echo $paymentStatus[$datarecord->status]; ?></td>
 								
