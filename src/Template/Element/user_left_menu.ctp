@@ -55,7 +55,7 @@ if ($this->request->session()->read("user_id") > 0 && ($this->request->session()
 					<?php echo $this->Html->link('Global Supervisors List', ['controller' => 'users', 'action' => 'teachers'], ['escape' => false, 'class' => 'nav-link ' . (isset($active_teachers) ? $active_teachers : '')]); ?>
 				</li>
 				<li class="nav-item dash-item ">
-					<?php echo $this->Html->link('Global Student List', ['controller' => 'users', 'action' => 'students'], ['escape' => false, 'class' => 'nav-link ' . (isset($active_students) ? $active_students : '')]); ?>
+					<?php echo $this->Html->link('Permission Forms', ['controller' => 'conventionregistrations', 'action' => 'permissionsforms'], ['escape' => false, 'class' => 'nav-link ' . (isset($active_cr_permissionforms) ? $active_cr_permissionforms : '')]); ?>
 				</li>
 				<li class="nav-item dash-item ">
 					<?php echo $this->Html->link('Convention Registrations', ['controller' => 'conventionregistrations', 'action' => 'myregistrations'], ['escape' => false, 'class' => 'nav-link ' . (isset($active_convention_registrations) ? $active_convention_registrations : '')]); ?>
@@ -91,6 +91,9 @@ if ($this->request->session()->read("user_id") > 0 && ($this->request->session()
 				
 				<li class="nav-item dash-item">
 					<?php echo $this->Html->link('Registration Checklist', ['controller' => 'conventionregistrations', 'action' => 'packageregistration'], ['escape' => false, 'class' => 'nav-link ' . (isset($active_cr_packageregistration) ? $active_cr_packageregistration : '')]); ?>
+				</li>
+				<li class="nav-item dash-item">
+					<?php echo $this->Html->link('Permission Forms', ['controller' => 'conventionregistrations', 'action' => 'permissionsforms'], ['escape' => false, 'class' => 'nav-link ' . (isset($active_cr_permissionforms) ? $active_cr_permissionforms : '')]); ?>
 				</li>
 				
 				<li class="nav-item dash-item">

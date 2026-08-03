@@ -164,6 +164,7 @@ class ConventionregistrationsController extends AppController {
 		
 		$separator = array();
         $condition = array();
+		$seasonSupervisorOptions = [];
         //$condition = array('Conventionregistrations.parent_id' => 0);
 		
 		if($slug)
@@ -174,6 +175,66 @@ class ConventionregistrationsController extends AppController {
 			$this->set('slug', $slug);
 			
 			$condition = array('Conventionregistrationteachers.conventionregistration_id' => $CRDetails->id);
+
+			if (!empty($CRDetails->convention_id) && !empty($CRDetails->season_id) && !empty($CRDetails->season_year)) {
+				$seasonSupervisors = $this->Conventionregistrationteachers->find()
+					->where([
+						'Conventionregistrationteachers.convention_id' => $CRDetails->convention_id,
+						'Conventionregistrationteachers.season_id' => $CRDetails->season_id,
+						'Conventionregistrationteachers.season_year' => $CRDetails->season_year,
+						'Conventionregistrationteachers.status' => 1
+					])
+					->contain(['Teachers'])
+					->order([
+						'Teachers.first_name' => 'ASC',
+						'Teachers.last_name' => 'ASC'
+					])
+					->all();
+
+				$schoolIds = [];
+				foreach ($seasonSupervisors as $supervisorRecord) {
+					$schoolId = (int)($supervisorRecord->Teachers['school_id'] ?? 0);
+					if ($schoolId > 0) {
+						$schoolIds[] = $schoolId;
+					}
+				}
+
+				$schoolNameMap = [];
+				$schoolIds = array_values(array_unique($schoolIds));
+				if (!empty($schoolIds)) {
+					$schoolUsers = $this->Conventionregistrationteachers->Teachers->find()
+						->select(['id', 'first_name'])
+						->where(['id IN' => $schoolIds])
+						->all();
+					foreach ($schoolUsers as $schoolUser) {
+						$schoolNameMap[(int)$schoolUser->id] = trim((string)$schoolUser->first_name);
+					}
+				}
+
+				foreach ($seasonSupervisors as $supervisorRecord) {
+					$teacherId = (int)$supervisorRecord->teacher_id;
+					if ($teacherId <= 0 || isset($seasonSupervisorOptions[$teacherId])) {
+						continue;
+					}
+
+					$displayName = trim(
+						trim((string)($supervisorRecord->Teachers['title'] ?? '')) . ' ' .
+						trim((string)($supervisorRecord->Teachers['first_name'] ?? '')) . ' ' .
+						trim((string)($supervisorRecord->Teachers['last_name'] ?? ''))
+					);
+					if ($displayName === '') {
+						$displayName = 'Supervisor #' . $teacherId;
+					}
+
+					$schoolId = (int)($supervisorRecord->Teachers['school_id'] ?? 0);
+					$schoolName = $schoolId > 0 && isset($schoolNameMap[$schoolId]) ? trim((string)$schoolNameMap[$schoolId]) : '';
+					if ($schoolName !== '') {
+						$displayName .= ' [School: ' . $schoolName . ']';
+					}
+
+					$seasonSupervisorOptions[$teacherId] = $displayName;
+				}
+			}
 		}
 
         
@@ -229,13 +290,111 @@ class ConventionregistrationsController extends AppController {
         $separator = implode("/", $separator);
         $this->set('separator', $separator);
         $this->paginate = ['contain' => ['Users','Teachers'], 'conditions' => $condition, 'limit' => 500, 'order' => ['Conventionregistrationteachers.id' => 'DESC']];
-        $this->set('conventionregistrationteachers', $this->paginate($this->Conventionregistrationteachers));
+		$conventionregistrationteachers = $this->paginate($this->Conventionregistrationteachers);
+		$teacherStudentsMap = [];
+		if (!$conventionregistrationteachers->isEmpty()) {
+			$teacherIds = [];
+			$registrationIds = [];
+			foreach ($conventionregistrationteachers as $teacherRecord) {
+				if (!empty($teacherRecord->teacher_id)) {
+					$teacherIds[] = (int)$teacherRecord->teacher_id;
+				}
+				if (!empty($teacherRecord->conventionregistration_id)) {
+					$registrationIds[] = (int)$teacherRecord->conventionregistration_id;
+				}
+			}
+
+			$teacherIds = array_values(array_unique($teacherIds));
+			$registrationIds = array_values(array_unique($registrationIds));
+
+			if (!empty($teacherIds) && !empty($registrationIds)) {
+				$assignedStudents = $this->Conventionregistrationstudents->find()
+					->where([
+						'Conventionregistrationstudents.teacher_parent_id IN' => $teacherIds,
+						'Conventionregistrationstudents.conventionregistration_id IN' => $registrationIds
+					])
+					->contain(['Students'])
+					->order([
+						'Students.first_name' => 'ASC',
+						'Students.last_name' => 'ASC'
+					])
+					->all();
+
+				foreach ($assignedStudents as $studentRecord) {
+					$mapKey = (int)$studentRecord->conventionregistration_id . '_' . (int)$studentRecord->teacher_parent_id;
+					if (!isset($teacherStudentsMap[$mapKey])) {
+						$teacherStudentsMap[$mapKey] = [];
+					}
+					$teacherStudentsMap[$mapKey][] = $studentRecord;
+				}
+			}
+		}
+
+		$this->set('teacherStudentsMap', $teacherStudentsMap);
+		$this->set('seasonSupervisorOptions', $seasonSupervisorOptions);
+		$this->set('conventionregistrationteachers', $conventionregistrationteachers);
         if ($this->request->is("ajax")) {
             $this->viewBuilder()->setLayout(($this->request->is("ajax")) ? "" : "default");
             $this->viewBuilder()->setTemplatePath('Element' . DS . 'Admin/Conventionregistrations');
             $this->render('teachers');
         }
     }
+
+	public function reassignstudentsupervisor() {
+		if (!$this->request->is('post')) {
+			return $this->redirect($this->referer(['action' => 'index']));
+		}
+
+		$studentRegistrationId = (int)$this->request->getData('student_registration_id');
+		$newTeacherParentId = (int)$this->request->getData('new_teacher_parent_id');
+		$returnSlug = trim((string)$this->request->getData('return_slug'));
+
+		if ($studentRegistrationId <= 0 || $newTeacherParentId <= 0) {
+			$this->Flash->error('Invalid reassignment request.');
+			return ($returnSlug !== '')
+				? $this->redirect(['action' => 'teachers', $returnSlug])
+				: $this->redirect($this->referer(['action' => 'index']));
+		}
+
+		$studentRecord = $this->Conventionregistrationstudents->find()
+			->where(['Conventionregistrationstudents.id' => $studentRegistrationId])
+			->first();
+
+		if (empty($studentRecord)) {
+			$this->Flash->error('Student registration record not found.');
+			return ($returnSlug !== '')
+				? $this->redirect(['action' => 'teachers', $returnSlug])
+				: $this->redirect($this->referer(['action' => 'index']));
+		}
+
+		$targetSupervisor = $this->Conventionregistrationteachers->find()
+			->where([
+				'Conventionregistrationteachers.teacher_id' => $newTeacherParentId,
+				'Conventionregistrationteachers.convention_id' => $studentRecord->convention_id,
+				'Conventionregistrationteachers.season_id' => $studentRecord->season_id,
+				'Conventionregistrationteachers.season_year' => $studentRecord->season_year,
+				'Conventionregistrationteachers.status' => 1
+			])
+			->first();
+
+		if (empty($targetSupervisor)) {
+			$this->Flash->error('Selected supervisor is not registered in this convention season.');
+			return ($returnSlug !== '')
+				? $this->redirect(['action' => 'teachers', $returnSlug])
+				: $this->redirect($this->referer(['action' => 'index']));
+		}
+
+		$studentRecord->teacher_parent_id = $newTeacherParentId;
+		if ($this->Conventionregistrationstudents->save($studentRecord)) {
+			$this->Flash->success('Student was reassigned successfully.');
+		} else {
+			$this->Flash->error('Unable to reassign student. Please try again.');
+		}
+
+		return ($returnSlug !== '')
+			? $this->redirect(['action' => 'teachers', $returnSlug])
+			: $this->redirect($this->referer(['action' => 'index']));
+	}
 	
 	public function students($slug=null) {
 

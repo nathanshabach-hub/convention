@@ -91,7 +91,7 @@
 			
 
 			<div class="m_content" id="listID">
-				<?php echo $this->element("Conventionregistrations/packageregistration"); ?>
+				<?php echo $this->element("Conventionregistrations/packageregistration", ['enableAccordion' => false]); ?>
 			</div>
 
 

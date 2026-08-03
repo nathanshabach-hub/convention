@@ -2988,6 +2988,93 @@ class ConventionregistrationsController extends AppController {
 		$this->set('packageregistration',$packageregistration);
 		
     }
+
+	public function permissionsforms() {
+
+		$this->userLoginCheck();
+		$this->multiLoginCheck(array("School"));
+
+		$this->set("title_for_layout", "Permission Forms" . TITLE_FOR_PAGES);
+		$this->viewBuilder()->setLayout('home');
+
+		$this->set('active_cr_permissionforms','active');
+
+		$user_id = $this->request->session()->read("user_id");
+		$userDetails = null;
+		if (!empty($user_id)) {
+			$userDetails = $this->Users->find()->where(['Users.id' => $user_id])->first();
+		}
+		$this->set('userDetails', $userDetails);
+
+		if($this->request->session()->read("sess_selected_convention_registration_id")<=0)
+		{
+			$this->Flash->error('Please choose convention registration first.');
+			return $this->redirect(['controller' => 'users', 'action' => 'dashboard']);
+		}
+	}
+
+	public function permissionsformhssp() {
+
+		$this->userLoginCheck();
+		$this->multiLoginCheck(array("School"));
+
+		$this->set("title_for_layout", "Permission Form - HSSP Students" . TITLE_FOR_PAGES);
+		$this->viewBuilder()->setLayout('print_reports');
+
+		if($this->request->session()->read("sess_selected_convention_registration_id")<=0)
+		{
+			$this->Flash->error('Please choose convention registration first.');
+			return $this->redirect(['controller' => 'users', 'action' => 'dashboard']);
+		}
+
+		$conventionRegD = $this->Conventionregistrations->find()
+			->where(['Conventionregistrations.id' => $this->request->session()->read("sess_selected_convention_registration_id")])
+			->contain(['Conventions'])
+			->first();
+		$this->set('conventionRegD', $conventionRegD);
+	}
+
+	public function permissionsformschools() {
+
+		$this->userLoginCheck();
+		$this->multiLoginCheck(array("School"));
+
+		$this->set("title_for_layout", "Permission Form - Schools" . TITLE_FOR_PAGES);
+		$this->viewBuilder()->setLayout('print_reports');
+
+		if($this->request->session()->read("sess_selected_convention_registration_id")<=0)
+		{
+			$this->Flash->error('Please choose convention registration first.');
+			return $this->redirect(['controller' => 'users', 'action' => 'dashboard']);
+		}
+
+		$conventionRegD = $this->Conventionregistrations->find()
+			->where(['Conventionregistrations.id' => $this->request->session()->read("sess_selected_convention_registration_id")])
+			->contain(['Conventions'])
+			->first();
+		$this->set('conventionRegD', $conventionRegD);
+	}
+
+	public function permissionsformadult() {
+
+		$this->userLoginCheck();
+		$this->multiLoginCheck(array("School"));
+
+		$this->set("title_for_layout", "Adult Registration Form" . TITLE_FOR_PAGES);
+		$this->viewBuilder()->setLayout('print_reports');
+
+		if($this->request->session()->read("sess_selected_convention_registration_id")<=0)
+		{
+			$this->Flash->error('Please choose convention registration first.');
+			return $this->redirect(['controller' => 'users', 'action' => 'dashboard']);
+		}
+
+		$conventionRegD = $this->Conventionregistrations->find()
+			->where(['Conventionregistrations.id' => $this->request->session()->read("sess_selected_convention_registration_id")])
+			->contain(['Conventions'])
+			->first();
+		$this->set('conventionRegD', $conventionRegD);
+	}
 	
 	public function packageregistrationprint() {
 
@@ -3157,27 +3244,63 @@ class ConventionregistrationsController extends AppController {
 
 		$user_id 	= $this->request->session()->read("user_id");
 		$user_type 	= $this->request->session()->read("user_type");
+		if (empty($user_id)) {
+			$this->Flash->error('Please login first.');
+			return $this->redirect(['controller' => 'users', 'action' => 'login']);
+		}
 		$userDetails = $this->Users->find()->where(['Users.id' => $user_id])->first();
         $this->set('userDetails', $userDetails);
 
+        if (empty($userDetails)) {
+			$this->Flash->error('User account could not be found.');
+			return $this->redirect(['controller' => 'users', 'action' => 'login']);
+		}
+
         $condition = array();
 		
+		$conventionRegD = null;
 		if($this->request->session()->read("sess_selected_convention_registration_id")>0)
 		{
-			$conventionRegD = $this->Conventionregistrations->find()->where(['Conventionregistrations.id' => $this->request->session()->read("sess_selected_convention_registration_id")])->contain(['Conventions','Conventionseasons'])->first();
-			$this->set('conventionRegD', $conventionRegD);
-			
-			// to check if results released
-			if($conventionRegD->Conventionseasons['results_release'] == 0)
-			{
-				$this->Flash->error('Sorry, results not yet released by admin.');
-				$this->redirect(['controller' => 'users', 'action' => 'dashboard']);
+			$conventionRegD = $this->Conventionregistrations->find()->where([
+				'Conventionregistrations.id' => $this->request->session()->read("sess_selected_convention_registration_id"),
+				'Conventionregistrations.user_id' => $user_id,
+			])->contain(['Conventions','Conventionseasons'])->first();
+		}
+
+		if (empty($conventionRegD->id)) {
+			$currentSeasonId = (int)$this->getCurrentSeason();
+			$fallbackConditions = ['Conventionregistrations.user_id' => $user_id];
+			if ($currentSeasonId > 0) {
+				$fallbackConditions['Conventionregistrations.season_id'] = $currentSeasonId;
+			}
+
+			$conventionRegD = $this->Conventionregistrations->find()
+				->where($fallbackConditions)
+				->order(['Conventionregistrations.id' => 'DESC'])
+				->contain(['Conventions','Conventionseasons'])
+				->first();
+
+			if (!empty($conventionRegD->id)) {
+				$this->request->session()->write('sess_selected_convention_registration_id', $conventionRegD->id);
+				$this->request->session()->write('sess_selected_convention_id', $conventionRegD->convention_id);
 			}
 		}
-		else
-		{
+
+		$this->set('conventionRegD', $conventionRegD);
+		if (empty($conventionRegD->id)) {
 			$this->Flash->error('Please choose convention registration first.');
-			$this->redirect(['controller' => 'users', 'action' => 'dashboard']);
+			return $this->redirect(['controller' => 'users', 'action' => 'dashboard']);
+		}
+		
+		// to check if results released
+		$resultsRelease = null;
+		if (!empty($conventionRegD->Conventionseasons) && isset($conventionRegD->Conventionseasons['results_release'])) {
+			$resultsRelease = (int)$conventionRegD->Conventionseasons['results_release'];
+		}
+		if ($resultsRelease === 0)
+		{
+			$this->Flash->error('Sorry, results not yet released by admin.');
+			return $this->redirect(['controller' => 'users', 'action' => 'dashboard']);
 		}
 		
 		//To get list of students for this school who get any position
@@ -3217,22 +3340,49 @@ class ConventionregistrationsController extends AppController {
 
         $condition = array();
 		
+		$conventionRegD = null;
 		if($this->request->session()->read("sess_selected_convention_registration_id")>0)
 		{
-			$conventionRegD = $this->Conventionregistrations->find()->where(['Conventionregistrations.id' => $this->request->session()->read("sess_selected_convention_registration_id")])->contain(['Conventions','Conventionseasons'])->first();
-			$this->set('conventionRegD', $conventionRegD);
-			
-			// to check if results released
-			if($conventionRegD->Conventionseasons['results_release'] == 0)
-			{
-				$this->Flash->error('Sorry, results not yet released by admin.');
-				$this->redirect(['controller' => 'users', 'action' => 'dashboard']);
+			$conventionRegD = $this->Conventionregistrations->find()->where([
+				'Conventionregistrations.id' => $this->request->session()->read("sess_selected_convention_registration_id"),
+				'Conventionregistrations.user_id' => $user_id,
+			])->contain(['Conventions','Conventionseasons'])->first();
+		}
+
+		if (empty($conventionRegD->id)) {
+			$currentSeasonId = (int)$this->getCurrentSeason();
+			$fallbackConditions = ['Conventionregistrations.user_id' => $user_id];
+			if ($currentSeasonId > 0) {
+				$fallbackConditions['Conventionregistrations.season_id'] = $currentSeasonId;
+			}
+
+			$conventionRegD = $this->Conventionregistrations->find()
+				->where($fallbackConditions)
+				->order(['Conventionregistrations.id' => 'DESC'])
+				->contain(['Conventions','Conventionseasons'])
+				->first();
+
+			if (!empty($conventionRegD->id)) {
+				$this->request->session()->write('sess_selected_convention_registration_id', $conventionRegD->id);
+				$this->request->session()->write('sess_selected_convention_id', $conventionRegD->convention_id);
 			}
 		}
-		else
-		{
+
+		$this->set('conventionRegD', $conventionRegD);
+		if (empty($conventionRegD->id)) {
 			$this->Flash->error('Please choose convention registration first.');
-			$this->redirect(['controller' => 'users', 'action' => 'dashboard']);
+			return $this->redirect(['controller' => 'users', 'action' => 'dashboard']);
+		}
+		
+		// to check if results released
+		$resultsRelease = null;
+		if (!empty($conventionRegD->Conventionseasons) && isset($conventionRegD->Conventionseasons['results_release'])) {
+			$resultsRelease = (int)$conventionRegD->Conventionseasons['results_release'];
+		}
+		if ($resultsRelease === 0)
+		{
+			$this->Flash->error('Sorry, results not yet released by admin.');
+			return $this->redirect(['controller' => 'users', 'action' => 'dashboard']);
 		}
 		
 		//To get list of students for this school who get any position

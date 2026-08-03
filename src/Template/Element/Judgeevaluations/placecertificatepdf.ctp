@@ -11,11 +11,11 @@ if(count($placeCertData)>0)
 foreach($placeCertData as $placecertIndex => $placecert)
 {
 ?>
-	<div style="padding: 0px; margin:0px;margin-left:1%;margin-right: 1%;font-family:Arial,sans-serif,'Open Sans';font-weight:500;width: 98%; border: 0px solid #25266c;">
-		<div class="container" style="max-width:100%;margin:0px auto;background-color: #fff; padding: 1px; border:1px solid #25266c;">
-			<div class="maincontainer" style="max-width: 100%;background: #fff;margin:0px auto;border:1px solid #25266c;">
-				<div class="header" style="width: 100%;display: block;padding: 0px 0px 0px;">
-					<img src="<?php echo $headerImgPlace; ?>" style="width: 100%;">
+	<div style="padding: 0px; margin:0px;font-family:Arial,sans-serif,'Open Sans';font-weight:500;width: 100%;page-break-inside: avoid;break-inside: avoid-page;">
+		<div class="container" style="max-width:100%;margin:0px auto;background-color: #fff; padding: 0px; border:0px;">
+			<div class="maincontainer" style="max-width: 100%;background: #fff;margin:0px auto;border:0px;box-sizing:border-box;">
+				<div class="header" style="width: 100%;display: block;padding: 0px 0px 0px;line-height:0;font-size:0;">
+					<img src="<?php echo $headerImgPlace; ?>" style="width: 100%; display:block;">
 				</div>
 				<div class="contentpart" style="width: 100%; text-align:center;">
 					<p class="simpletextt" style="font-family: arial;font-size: 14px;    margin-top: -30px; padding: 0px;">
@@ -78,8 +78,8 @@ foreach($placeCertData as $placecertIndex => $placecert)
 						Lord, and not unto men" Colossians 3:23
 					</div>
 				</div>
-				<div class="footer" style="width: 100%;display: inline-block;padding: 0px;box-sizing: border-box;">
-					<img src="<?php echo $footerImgPlace; ?>" style="width: 100%;">&nbsp;
+				<div class="footer" style="width: 100%;display: block;padding: 0px;box-sizing: border-box;page-break-inside: avoid;break-inside: avoid-page;line-height:0;font-size:0;">
+					<img src="<?php echo $footerImgPlace; ?>" style="width: 100%; display:block;">
 				</div>
 			</div>
 		</div>

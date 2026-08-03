@@ -4,14 +4,14 @@ $this->Crstudentevents = TableRegistry::get('Crstudentevents');
 ?>
 <div class="admin_loader" id="loaderID"><?php echo $this->Html->image('loader_large_blue.gif');?></div>
 <?php if (!$events->isEmpty()) { ?> 
-    <div class="panel-body">
+	<div class="panel-body cr-grouping-panel">
         
 		<?php echo $this->Form->create(null, ['id'=>'actionFrom', "method" => "Post"]);  ?>
         <section id="no-more-tables" class="lstng-section">
              
 
-            <div class="tbl-resp-listing">
-                <table id="group_events_table" class="table table-striped table-bordered" style="width:100%">
+			<div class="tbl-resp-listing cr-grouping-table-wrap">
+				<table id="group_events_table" class="table table-striped table-bordered cr-grouping-table" style="width:100%">
 					<thead>
 						<tr>
 							<th class="sorting_paging">Event Number</th>
@@ -29,7 +29,9 @@ $this->Crstudentevents = TableRegistry::get('Crstudentevents');
 						<tr>
 						<td data-title="Event Number"><?php echo $datarecord->event_id_number;?></td>
 						<td data-title="Event Name"><?php echo $datarecord->event_name;?></td>
-						<td data-title="Group Event?"><?php echo ($datarecord->group_event_yes_no == 1) ? "Yes" : "No"; ?></td>
+						<td data-title="Group Event?">
+							<span class="cr-badge <?php echo ($datarecord->group_event_yes_no == 1) ? 'is-yes' : 'is-no'; ?>"><?php echo ($datarecord->group_event_yes_no == 1) ? "Yes" : "No"; ?></span>
+						</td>
 						<td data-title="Min"><?php echo $datarecord->min_no;?></td>
 						<td data-title="Max"><?php echo $datarecord->max_no;?></td>
 						<td data-title="Total Students">
@@ -53,11 +55,11 @@ $this->Crstudentevents = TableRegistry::get('Crstudentevents');
 						
 						if($datarecord->group_event_yes_no == 1)
 						{
-							echo $studentNotGrouped;
+							echo '<span class="cr-badge '.(($studentNotGrouped > 0) ? 'is-warning' : 'is-good').'">'.$studentNotGrouped.'</span>';
 						}
 						else
 						{
-							echo '';
+							echo '<span class="cr-badge is-muted">-</span>';
 						}
 						?>
 						</td>
@@ -74,19 +76,23 @@ $this->Crstudentevents = TableRegistry::get('Crstudentevents');
 								{
 									if($totalStudentsEvent >= $datarecord->min_no)
 									{
-										echo $this->Html->link('<i class="fa fa-list"></i>', ['controller' => 'groups', 'action' => 'eventgroups',$datarecord->slug], [ 'escape' => false, 'title' => 'Event groups', 'class'=>'']);
+										echo $this->Html->link('<i class="fa fa-list"></i> Manage', ['controller' => 'groups', 'action' => 'eventgroups',$datarecord->slug], [ 'escape' => false, 'title' => 'Event groups', 'class'=>'cr-action-link']);
 									}
 									else
 									{
-										echo '<i title="Min/max students criteria does not match. Add/remove more students in this event then you can create groups." class="fa fa-question-circle"></i>';
+										echo '<span class="cr-action-icon is-disabled" title="Min/max students criteria does not match. Add/remove more students in this event then you can create groups."><i class="fa fa-question-circle"></i></span>';
 									}
 									
 									// to check that if all students assigned to a group or not
 									
 									if($studentNotGrouped >0)
 									{
-										echo '<i title="Some of the students might not assigned to groups." class="fa fa-info-circle" style="color:red;"></i>';
+										echo '<span class="cr-action-icon is-alert" title="Some of the students might not assigned to groups."><i class="fa fa-info-circle"></i></span>';
 									}
+								}
+								else
+								{
+									echo '<span class="cr-badge is-muted">-</span>';
 								}
 								
 							}

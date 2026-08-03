@@ -96,25 +96,31 @@
         }
         .s247-admin-accordion .panel-heading {
             padding: 0;
-            background: linear-gradient(180deg, #f8fbff 0%, #f2f7ff 100%);
+            background: transparent;
             border-color: #d9e3f3;
         }
         .s247-admin-accordion .panel-title {
+            margin: 0;
             font-size: 15px;
             font-weight: 700;
         }
         .s247-admin-accordion .panel-title a {
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             padding: 12px 14px;
             color: #22365f;
+            background: linear-gradient(180deg, #f8fbff 0%, #f2f7ff 100%);
         }
         .s247-admin-accordion .panel-title a:hover,
         .s247-admin-accordion .panel-title a:focus {
             text-decoration: none;
-            background: rgba(255, 255, 255, 0.35);
+            background: linear-gradient(180deg, #f8fbff 0%, #f2f7ff 100%);
         }
         .s247-admin-accordion .panel-title .fa {
             transition: transform 0.18s ease;
+            margin-left: 12px;
+            float: none;
         }
         .s247-admin-accordion .panel-title a.collapsed .fa {
             transform: rotate(-90deg);
@@ -705,13 +711,13 @@
                 <div class="panel panel-default s247-admin-preview">
                 <div class="panel-heading" role="tab" id="s247-view-heading-preview">
                     <h4 class="panel-title">
-                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#s247-view-accordion" href="#s247-view-preview" aria-expanded="false" aria-controls="s247-view-preview">
+                        <a role="button" data-toggle="collapse" data-parent="#s247-view-accordion" href="#s247-view-preview" aria-expanded="true" aria-controls="s247-view-preview">
                             Public Page Preview Content
                             <i class="fa fa-chevron-down pull-right"></i>
                         </a>
                     </h4>
                 </div>
-                <div id="s247-view-preview" class="panel-collapse collapse" role="tabpanel" aria-labelledby="s247-view-heading-preview">
+                <div id="s247-view-preview" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="s247-view-heading-preview">
                 <div class="panel-body">
                 <p><?php echo h($applicationIntro); ?></p>
 

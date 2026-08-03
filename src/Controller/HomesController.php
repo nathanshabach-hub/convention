@@ -70,34 +70,13 @@ class HomesController extends AppController {
         $season_id = $this->getCurrentSeason();
         $seasonD = $this->Seasons->find()->where(['Seasons.id' => $season_id])->first();
         $this->set('season_id',$season_id);
-        
-        $conventionIDS         = array();
-        $conventionIDS[]     = 0;
-        
-        // We need to show conventions those are linked with current season
-        $conventionSeasons = $this->Conventionseasons->find()->where(['Conventionseasons.season_id' => $season_id,'Conventionseasons.season_year' => $seasonD->season_year])->order(['Conventionseasons.id' => 'ASC'])->all();
-        foreach($conventionSeasons as $convs)
-        {
-            if(!in_array($convs->convention_id,(array)$conventionIDS))
-            {
-                $conventionIDS[]     = $convs->convention_id;
-            }
+
+        $userId = (int)$this->request->session()->read('user_id');
+        if ($userId > 0 && $this->request->session()->read('user_type') === 'School') {
+            $this->set('conventionDD', $this->getSchoolConventionsForCurrentSeason($userId, $season_id, $seasonD ? $seasonD->season_year : null));
+        } else {
+            $this->set('conventionDD', $this->getCurrentSeasonConventions($season_id, $seasonD ? $seasonD->season_year : null));
         }
-        //$this->prx($conventionIDS);
-        
-        $conventionIDSImploded = implode(",",$conventionIDS);
-        
-        // to get conventions
-        $condConvention = array();
-        $condConvention[] = "(Conventions.id IN ($conventionIDSImploded))";
-        $condConvention[] = "(Conventions.status  = '1')";
-        $conventionDD = $this->Conventions->find()
-            ->where($condConvention)
-            ->order(['Conventions.name' => 'ASC'])
-            ->all()
-            ->combine('id', 'name')
-            ->toArray();
-        $this->set('conventionDD', $conventionDD);
         
     }
     

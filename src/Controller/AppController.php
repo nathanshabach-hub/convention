@@ -96,31 +96,22 @@ class AppController extends Controller{
 			// to get lists of registered conventions for this season
 			$season_id = $this->getCurrentSeason();
 			$seasonD = $this->Seasons->find()->where(['Seasons.id' => $season_id])->first();
+			$seasonYear = $seasonD ? $seasonD->season_year : null;
 			//$this->prx($seasonD);
 			$userD = $this->Users->find()->where(['Users.id' => $user_id])->first();
 			
-			$conventionIDSHeader = array();
-			$conventionIDSHeader[] 	= 0;
+			$userConvHeaderDD = [];
 			
-			$userConvHeaderDD = array();
-			
-			// now get convention id for school admin
-			if($user_type == "School")
-			{
-				$conventionregistrations = $this->Conventionregistrations->find()->where(['Conventionregistrations.user_id' => $user_id,'Conventionregistrations.season_id' => $season_id,'Conventionregistrations.season_year' => $seasonD->season_year])->order(['Conventionregistrations.id' => 'ASC'])->all();
-				foreach($conventionregistrations as $convreg)
-				{
-					if(!in_array($convreg->convention_id,(array)$conventionIDSHeader))
-					{
-						$conventionIDSHeader[] 	= $convreg->convention_id;
-					}
-				}
+			if ($user_type == "School") {
+				$userConvHeaderDD = $this->getSchoolConventionsForCurrentSeason($user_id, $season_id, $seasonYear);
 			}
 			
 			// now get convention id for teacher
 			if($user_type == "Teacher_Parent")
 			{
-				$conventionregistrationteachers = $this->Conventionregistrationteachers->find()->where(['Conventionregistrationteachers.user_id' => $userD->school_id,'Conventionregistrationteachers.teacher_id' => $user_id,'Conventionregistrationteachers.season_id' => $season_id,'Conventionregistrationteachers.season_year' => $seasonD->season_year])->order(['Conventionregistrationteachers.id' => 'ASC'])->all();
+				$conventionIDSHeader = array();
+				$conventionIDSHeader[] 	= 0;
+				$conventionregistrationteachers = $this->Conventionregistrationteachers->find()->where(['Conventionregistrationteachers.user_id' => $userD->school_id,'Conventionregistrationteachers.teacher_id' => $user_id,'Conventionregistrationteachers.season_id' => $season_id,'Conventionregistrationteachers.season_year' => $seasonYear])->order(['Conventionregistrationteachers.id' => 'ASC'])->all();
 				foreach($conventionregistrationteachers as $convregt)
 				{
 					if(!in_array($convregt->convention_id,(array)$conventionIDSHeader))
@@ -128,12 +119,15 @@ class AppController extends Controller{
 						$conventionIDSHeader[] 	= $convregt->convention_id;
 					}
 				}
+				$userConvHeaderDD = $this->buildConventionDropdownByIds($conventionIDSHeader, $seasonYear);
 			}
 			
 			// now get convention id for judge + supervisor as a judge
 			if($user_type == "Judge" || $this->request->session()->read("current_session_profile_type")  == "Judge")
 			{
-				$conventionregistrations = $this->Conventionregistrations->find()->where(['Conventionregistrations.user_id' => $user_id,'Conventionregistrations.season_id' => $season_id,'Conventionregistrations.season_year' => $seasonD->season_year,'Conventionregistrations.status' => 1])->order(['Conventionregistrations.id' => 'ASC'])->all();
+				$conventionIDSHeader = array();
+				$conventionIDSHeader[] 	= 0;
+				$conventionregistrations = $this->Conventionregistrations->find()->where(['Conventionregistrations.user_id' => $user_id,'Conventionregistrations.season_id' => $season_id,'Conventionregistrations.season_year' => $seasonYear,'Conventionregistrations.status' => 1])->order(['Conventionregistrations.id' => 'ASC'])->all();
 				foreach($conventionregistrations as $convreg)
 				{
 					if(!in_array($convreg->convention_id,(array)$conventionIDSHeader))
@@ -141,23 +135,9 @@ class AppController extends Controller{
 						$conventionIDSHeader[] 	= $convreg->convention_id;
 					}
 				}
+				$userConvHeaderDD = $this->buildConventionDropdownByIds($conventionIDSHeader, $seasonYear);
 			}
 			
-			
-			//$this->prx($conventionIDSHeader);
-			
-			$conventionIDSHeaderImploded = implode(",",$conventionIDSHeader);
-			
-			// to get conventions
-			$condConventionH = array();
-			$condConventionH[] = "(Conventions.id IN ($conventionIDSHeaderImploded))";
-			//$condConventionH[] = "(Conventions.status  = '1')";
-			$userConvHeaderDD = $this->Conventions->find()
-				->where($condConventionH)
-				->order(['Conventions.name' => 'ASC'])
-				->all()
-				->combine('id', 'name')
-				->toArray();
 			$this->set('userConvHeaderDD', $userConvHeaderDD);
 			
 		}
@@ -423,14 +403,124 @@ class AppController extends Controller{
 	}
 	
 	public function getCurrentSeason(){
-        /* $currYear = date("Y");
-		$seasonD = $this->Seasons->find()->where(['Seasons.season_year' => $currYear])->first();
-		return $seasonD->id; */
-		
-		// need to get last active season
-		$seasonD = $this->Seasons->find()->where(['Seasons.status' => 1])->order(['Seasons.season_year' => 'DESC'])->first();
-		return $seasonD->id;
+		$today = date('Y-m-d');
+
+		$activeSeason = $this->Conventionseasons->find()
+			->contain(['Seasons'])
+			->where([
+				'Seasons.status' => 1,
+				'Conventionseasons.registration_start_date <=' => $today,
+				'Conventionseasons.registration_end_date >=' => $today,
+			])
+			->order(['Seasons.season_year' => 'DESC', 'Seasons.id' => 'DESC'])
+			->first();
+
+		if ($activeSeason && !empty($activeSeason->season_id)) {
+			return (int)$activeSeason->season_id;
+		}
+
+		$seasonD = $this->Seasons->find()->where(['Seasons.status' => 1])->order(['Seasons.season_year' => 'DESC', 'Seasons.id' => 'DESC'])->first();
+		return $seasonD ? (int)$seasonD->id : 0;
     }
+
+    public function getCurrentSeasonConventions($seasonId = null, $seasonYear = null) {
+        $seasonId = (int)($seasonId ?: $this->getCurrentSeason());
+        if ($seasonId <= 0) {
+            return [];
+        }
+
+        $seasonD = $this->Seasons->find()->where(['Seasons.id' => $seasonId])->first();
+        $seasonYear = $seasonYear ?? ($seasonD ? $seasonD->season_year : null);
+
+        $conventionIds = [];
+        $conventionIds[] = 0;
+
+        $conventionSeasons = $this->Conventionseasons->find()
+            ->where([
+                'Conventionseasons.season_id' => $seasonId,
+                'Conventionseasons.season_year' => $seasonYear,
+            ])
+            ->order(['Conventionseasons.id' => 'ASC'])
+            ->all();
+
+        foreach ($conventionSeasons as $conventionSeason) {
+            if (!in_array((int)$conventionSeason->convention_id, $conventionIds, true)) {
+                $conventionIds[] = (int)$conventionSeason->convention_id;
+            }
+        }
+
+		return $this->buildConventionDropdownByIds($conventionIds, $seasonYear);
+    }
+
+    public function getSchoolConventionsForCurrentSeason($userId = null, $seasonId = null, $seasonYear = null) {
+        $userId = (int)($userId ?: $this->request->session()->read('user_id'));
+        $seasonId = (int)($seasonId ?: $this->getCurrentSeason());
+        if ($userId <= 0 || $seasonId <= 0) {
+            return [];
+        }
+
+        $seasonD = $this->Seasons->find()->where(['Seasons.id' => $seasonId])->first();
+        $seasonYear = $seasonYear ?? ($seasonD ? $seasonD->season_year : null);
+
+        $registeredConventionIds = [];
+        $registeredConventionIds[] = 0;
+
+        $conventionRegistrations = $this->Conventionregistrations->find()
+            ->where([
+                'Conventionregistrations.user_id' => $userId,
+                'Conventionregistrations.season_id' => $seasonId,
+                'Conventionregistrations.season_year' => $seasonYear,
+            ])
+            ->order(['Conventionregistrations.id' => 'ASC'])
+            ->all();
+
+        foreach ($conventionRegistrations as $conventionRegistration) {
+            if (!in_array((int)$conventionRegistration->convention_id, $registeredConventionIds, true)) {
+                $registeredConventionIds[] = (int)$conventionRegistration->convention_id;
+            }
+        }
+
+        if (count($registeredConventionIds) <= 1) {
+            return $this->getCurrentSeasonConventions($seasonId, $seasonYear);
+        }
+
+		return $this->buildConventionDropdownByIds($registeredConventionIds, $seasonYear);
+    }
+
+	private function buildConventionDropdownByIds(array $conventionIds = [], $seasonYear = null) {
+		$normalizedConventionIds = [];
+		foreach ($conventionIds as $conventionId) {
+			$conventionId = (int)$conventionId;
+			if ($conventionId > 0 && !in_array($conventionId, $normalizedConventionIds, true)) {
+				$normalizedConventionIds[] = $conventionId;
+			}
+		}
+
+		if (count($normalizedConventionIds) === 0) {
+			return [];
+		}
+
+		$conventionIdsImploded = implode(',', $normalizedConventionIds);
+		$condConvention = [];
+		$condConvention[] = "(Conventions.id IN ($conventionIdsImploded))";
+		$condConvention[] = "(Conventions.status = '1')";
+
+		$conventionRows = $this->Conventions->find()
+			->where($condConvention)
+			->order(['Conventions.name' => 'ASC'])
+			->all();
+
+		$dropdown = [];
+		foreach ($conventionRows as $conventionRow) {
+			$label = $conventionRow->name;
+			if (!empty($seasonYear)) {
+				$label .= ' (' . $seasonYear . ')';
+			}
+			$dropdown[(int)$conventionRow->id] = $label;
+		}
+
+		return $dropdown;
+	}
 
 	private function applySlotConstraintsForConflict($conventionSD, $schedulingD, $eventId, $roomId, $playTime, $candidateDate, $candidateStartTime)
 	{

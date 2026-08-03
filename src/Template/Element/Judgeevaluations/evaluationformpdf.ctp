@@ -1,4 +1,28 @@
-<div class="m-4">
+<style>
+@media print {
+	.judge-eval-wrap {
+		margin: 8px 12px !important;
+	}
+
+	.judge-eval-table {
+		margin-bottom: 0 !important;
+	}
+
+	.judge-eval-table td,
+	.judge-eval-table th {
+		padding: 4px 7px !important;
+		font-size: 13px !important;
+		line-height: 1.3 !important;
+	}
+
+	.judge-eval-comments {
+		font-size: 12px !important;
+		line-height: 1.25 !important;
+	}
+}
+</style>
+
+<div class="m-4 judge-eval-wrap">
 	
 	
 	<!--<div class="page-break spacer-after-break"></br></div>-->
@@ -34,9 +58,23 @@
 		<?php
 		if($eventrec->event_judging_type == 'general')
 		{
+			$judgeEvaluationMarks = array();
+
+			if (!empty($judgeEvaluationD->Judgeevaluationmarks)) {
+				$judgeEvaluationMarks = $judgeEvaluationD->Judgeevaluationmarks;
+			} elseif (!empty($judgeEvaluationD->judgeevaluationmarks)) {
+				$judgeEvaluationMarks = $judgeEvaluationD->judgeevaluationmarks;
+			}
+
+			if (empty($judgeEvaluationMarks)) {
+				$judgeEvaluationMarks = $this->Judgeevaluationmarks->find()
+					->where(['Judgeevaluationmarks.judgeevaluation_id' => $judgeEvaluationD->id])
+					->order(['Judgeevaluationmarks.id' => 'ASC'])
+					->all();
+			}
 		?>
 		<div class="table-responsive">
-			<table class="table table-bordered table-hover align-middle">
+			<table class="table table-bordered table-hover align-middle judge-eval-table">
 				<tbody>
 					<tr>
 						<td colspan="4"><b>
@@ -53,7 +91,7 @@
 						</b></td>
 					</tr>
 					<tr>
-						<td colspan="4"><b>Comments</b>: <?php echo $judgeEvaluationD->comments ? $judgeEvaluationD->comments : 'N/A'; ?></td>
+						<td colspan="4" class="judge-eval-comments"><b>Comments</b>: <?php echo $judgeEvaluationD->comments ? $judgeEvaluationD->comments : 'N/A'; ?></td>
 					</tr>
 					<tr>
 						<td>#</td>
@@ -63,14 +101,14 @@
 					</tr>
 					<?php
 					$cntrQ = 1;
-					foreach($judgeEvaluationD->Judgeevaluationmarks as $judgevalmark)
+					foreach($judgeEvaluationMarks as $judgevalmark)
 					{
 						$questionD = $this->Evaluationquestions->find()->where(["Evaluationquestions.id" => $judgevalmark->question_id])->first();
 					?>
 
 					<tr>
 						<td><?php echo $cntrQ; ?></td>
-						<td><?php echo $questionD->question; ?></td>
+						<td><?php echo $questionD ? $questionD->question : ''; ?></td>
 						<td><?php echo $judgevalmark->question_marks_possible; ?></td>
 						<td><?php echo $judgevalmark->question_marks_obtained; ?></td>
 					</tr>
@@ -86,10 +124,6 @@
 						<td><?php echo $judgeEvaluationD->total_marks_obtained; ?></td>
 					</tr>
 
-					<tr>
-						<td colspan="4">&nbsp;</td>
-					</tr>
-
 				</tbody>
 			</table>
 		</div>
@@ -99,7 +133,7 @@
 		{
 		?>
 		<div class="table-responsive">
-			<table class="table table-bordered table-hover align-middle">
+			<table class="table table-bordered table-hover align-middle judge-eval-table">
 				<tr>
 					<td colspan="4"><b>
 					<?php
@@ -135,7 +169,7 @@
 		{
 		?>
 		<div class="table-responsive">
-			<table class="table table-bordered table-hover align-middle">
+			<table class="table table-bordered table-hover align-middle judge-eval-table">
 				<tr>
 					<td colspan="3"><b>
 					<?php
@@ -205,7 +239,7 @@
 			$all_kicks = json_decode($judgeEvaluationD->soccer_kick_all_kicks);
 		?>
 		<div class="table-responsive">
-			<table class="table table-bordered table-hover align-middle">
+			<table class="table table-bordered table-hover align-middle judge-eval-table">
 				<tr>
 					<td colspan="4"><b>
 					<?php
@@ -266,7 +300,7 @@
 		{
 		?>
 		<div class="table-responsive">
-			<table class="table table-bordered table-hover align-middle">
+			<table class="table table-bordered table-hover align-middle judge-eval-table">
 				<tr>
 					<td colspan="2"><b>
 					<?php
