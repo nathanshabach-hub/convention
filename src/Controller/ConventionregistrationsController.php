@@ -3027,6 +3027,13 @@ class ConventionregistrationsController extends AppController {
 			return $this->redirect(['controller' => 'users', 'action' => 'dashboard']);
 		}
 
+		$user_id = $this->request->session()->read("user_id");
+		$userDetails = null;
+		if (!empty($user_id)) {
+			$userDetails = $this->Users->find()->where(['Users.id' => $user_id])->first();
+		}
+		$this->set('userDetails', $userDetails);
+
 		$conventionRegD = $this->Conventionregistrations->find()
 			->where(['Conventionregistrations.id' => $this->request->session()->read("sess_selected_convention_registration_id")])
 			->contain(['Conventions'])
@@ -3048,6 +3055,13 @@ class ConventionregistrationsController extends AppController {
 			return $this->redirect(['controller' => 'users', 'action' => 'dashboard']);
 		}
 
+		$user_id = $this->request->session()->read("user_id");
+		$userDetails = null;
+		if (!empty($user_id)) {
+			$userDetails = $this->Users->find()->where(['Users.id' => $user_id])->first();
+		}
+		$this->set('userDetails', $userDetails);
+
 		$conventionRegD = $this->Conventionregistrations->find()
 			->where(['Conventionregistrations.id' => $this->request->session()->read("sess_selected_convention_registration_id")])
 			->contain(['Conventions'])
@@ -3068,6 +3082,13 @@ class ConventionregistrationsController extends AppController {
 			$this->Flash->error('Please choose convention registration first.');
 			return $this->redirect(['controller' => 'users', 'action' => 'dashboard']);
 		}
+
+		$user_id = $this->request->session()->read("user_id");
+		$userDetails = null;
+		if (!empty($user_id)) {
+			$userDetails = $this->Users->find()->where(['Users.id' => $user_id])->first();
+		}
+		$this->set('userDetails', $userDetails);
 
 		$conventionRegD = $this->Conventionregistrations->find()
 			->where(['Conventionregistrations.id' => $this->request->session()->read("sess_selected_convention_registration_id")])

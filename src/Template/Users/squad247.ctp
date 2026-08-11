@@ -749,7 +749,9 @@ if ($conventionSubtitle === '') {
                     </p>
                     <div class="s247-form-grid">
                         <div class="full">
-                            <label class="s247-inline-check"><span><input type="checkbox" id="s247_bluecard_current" style="width:auto; margin-right:6px;">I have a current Blue Card</span></label>
+                            <p style="margin:0 0 8px; color:#394760; font-size:13px;"><strong>Required:</strong> choose one option below, or upload your Blue Card application form.</p>
+                            <label class="s247-inline-check"><span><input type="checkbox" id="s247_bluecard_current" data-required-group="bluecard" style="width:auto; margin-right:6px;">I have a current Blue Card</span></label>
+                            <label class="s247-inline-check" style="margin-top:8px;"><span><input type="checkbox" id="s247_bluecard_outside" data-required-group="bluecard" style="width:auto; margin-right:6px;"> <strong>I am applying for a 24/7 squad outside of Australia &amp; NZ (Blue Card not required)</strong></span></label>
                         </div>
                         <div class="s247-bluecard-current-field">
                             <label>Blue Card Number</label>
@@ -761,7 +763,7 @@ if ($conventionSubtitle === '') {
                         </div>
                         <div class="full s247-bluecard-upload-field">
                             <label>Upload your Blue Card application form (if not already held)</label>
-                            <input type="file">
+                            <input type="file" data-required-group="bluecard">
                         </div>
                     </div>
                     </div>
@@ -783,10 +785,10 @@ if ($conventionSubtitle === '') {
                         </div>
                         <div class="full s247-first-time-fields">
                             <p style="margin:0 0 8px;"><strong>If this is your first time applying, please attach the following:</strong></p>
-                            <label>1. A current portrait photo of yourself</label>
-                            <input type="file">
-                            <label style="margin-top:8px;">2. A reference from your Principal and/or Pastor</label>
-                            <input type="file">
+                            <label>1. A current portrait photo of yourself <span class="s247-required">*</span></label>
+                            <input type="file" data-required="1">
+                            <label style="margin-top:8px;">2. A reference from your Principal and/or Pastor <span class="s247-required">*</span></label>
+                            <input type="file" data-required="1">
                             <label style="margin-top:8px;">3. Your personal testimony of salvation</label>
                             <textarea placeholder="Your testimony"></textarea>
                             <label style="margin-top:8px;">4. A description of your church background and beliefs</label>
@@ -806,7 +808,9 @@ if ($conventionSubtitle === '') {
                     <div class="s247-section">
                     <div class="s247-form-grid">
                         <div class="full">
-                            <label class="s247-inline-check"><span><input type="checkbox" style="width:auto; margin-right:6px;">I have special dietary requirements or allergies</span></label>
+                            <p style="margin:0 0 8px; color:#394760; font-size:13px;"><strong>Required:</strong> please select one option.</p>
+                            <label class="s247-inline-check"><span><input type="checkbox" id="s247_has_dietary_requirements" data-required-group="dietary" style="width:auto; margin-right:6px;">I have special dietary requirements or allergies</span></label>
+                            <label class="s247-inline-check" style="margin-top:8px;"><span><input type="checkbox" id="s247_no_dietary_requirements" data-required-group="dietary" style="width:auto; margin-right:6px;">No dietary requirements</span></label>
                         </div>
                         <div class="full">
                             <label>Please state your requirements</label>
@@ -916,8 +920,21 @@ if ($conventionSubtitle === '') {
     }
 
     var blueCardCheckbox = document.getElementById('s247_bluecard_current');
+    var blueCardOutsideCheckbox = document.getElementById('s247_bluecard_outside');
     function syncBlueCardFields() {
         if (!blueCardCheckbox) return;
+
+        var isOutsideAuNz = !!(blueCardOutsideCheckbox && blueCardOutsideCheckbox.checked);
+        if (isOutsideAuNz && blueCardCheckbox.checked) {
+            blueCardCheckbox.checked = false;
+        }
+
+        if (isOutsideAuNz) {
+            setDisplay(document.querySelectorAll('.s247-bluecard-current-field'), false);
+            setDisplay(document.querySelectorAll('.s247-bluecard-upload-field'), false);
+            return;
+        }
+
         var hasCard = !!blueCardCheckbox.checked;
         setDisplay(document.querySelectorAll('.s247-bluecard-current-field'), hasCard);
         setDisplay(document.querySelectorAll('.s247-bluecard-upload-field'), !hasCard);
@@ -925,6 +942,8 @@ if ($conventionSubtitle === '') {
 
     var historyNew = document.getElementById('s247_history_new');
     var historyServed = document.getElementById('s247_history_served');
+    var hasDietaryRequirementsCheckbox = document.getElementById('s247_has_dietary_requirements');
+    var noDietaryRequirementsCheckbox = document.getElementById('s247_no_dietary_requirements');
     function syncHistoryFields() {
         var served = historyServed && historyServed.checked;
         setDisplay(document.querySelectorAll('.s247-served-year'), served);
@@ -932,8 +951,21 @@ if ($conventionSubtitle === '') {
         setDisplay(document.querySelectorAll('.s247-first-time-fields'), !served);
     }
 
+    function syncDietaryChecks(changedId) {
+        if (!hasDietaryRequirementsCheckbox || !noDietaryRequirementsCheckbox) return;
+        if (changedId === 's247_has_dietary_requirements' && hasDietaryRequirementsCheckbox.checked) {
+            noDietaryRequirementsCheckbox.checked = false;
+        }
+        if (changedId === 's247_no_dietary_requirements' && noDietaryRequirementsCheckbox.checked) {
+            hasDietaryRequirementsCheckbox.checked = false;
+        }
+    }
+
     if (blueCardCheckbox) {
         blueCardCheckbox.addEventListener('change', syncBlueCardFields);
+        if (blueCardOutsideCheckbox) {
+            blueCardOutsideCheckbox.addEventListener('change', syncBlueCardFields);
+        }
         syncBlueCardFields();
     }
 
@@ -1008,6 +1040,30 @@ if ($conventionSubtitle === '') {
         return (el.value || '').trim() !== '';
     }
 
+    function isBlueCardRequirementMet() {
+        if (!form) return true;
+
+        var outsideChecked = !!(blueCardOutsideCheckbox && blueCardOutsideCheckbox.checked);
+        var currentChecked = !!(blueCardCheckbox && blueCardCheckbox.checked);
+        if (outsideChecked || currentChecked) {
+            return true;
+        }
+
+        var blueCardUpload = form.querySelector('.s247-bluecard-upload-field input[type="file"]');
+        if (blueCardUpload && !isConditionallyHidden(blueCardUpload)) {
+            return isFieldComplete(blueCardUpload);
+        }
+
+        return false;
+    }
+
+    function isDietaryRequirementMet() {
+        if (!form) return true;
+        var dietaryChecks = form.querySelectorAll('input[data-required-group="dietary"]');
+        if (!dietaryChecks.length) return true;
+        return Array.prototype.some.call(dietaryChecks, function(chk){ return chk.checked; });
+    }
+
     function updateProgress() {
         var totalRequired = 0;
         var totalComplete = 0;
@@ -1028,6 +1084,16 @@ if ($conventionSubtitle === '') {
                 sectionRequired++;
                 var anyChecked = Array.prototype.some.call(conventionChecks, function(chk){ return chk.checked; });
                 if (anyChecked) sectionComplete++;
+            }
+
+            if (item.id === 's247-step-3') {
+                sectionRequired++;
+                if (isBlueCardRequirementMet()) sectionComplete++;
+            }
+
+            if (item.id === 's247-step-5') {
+                sectionRequired++;
+                if (isDietaryRequirementMet()) sectionComplete++;
             }
 
             totalRequired += sectionRequired;
@@ -1053,6 +1119,9 @@ if ($conventionSubtitle === '') {
     });
     document.addEventListener('change', function(e) {
         if (e.target && e.target.closest('.s247-form')) {
+            if (e.target.id === 's247_has_dietary_requirements' || e.target.id === 's247_no_dietary_requirements') {
+                syncDietaryChecks(e.target.id);
+            }
             syncBlueCardFields();
             syncHistoryFields();
             updateProgress();
@@ -1123,9 +1192,55 @@ if ($conventionSubtitle === '') {
         return payload;
     }
 
+    function validateRequiredFields() {
+        if (!form) return true;
+
+        var missingFieldLabel = '';
+        var requiredFields = form.querySelectorAll('[data-required="1"]');
+        Array.prototype.some.call(requiredFields, function(field) {
+            if (isConditionallyHidden(field)) return false;
+            if (isFieldComplete(field)) return false;
+            missingFieldLabel = getFieldLabel(field) || 'required field';
+            return true;
+        });
+
+        if (!missingFieldLabel) {
+            var conventionChecks = form.querySelectorAll('input[data-required-group="conventions"]');
+            if (conventionChecks.length) {
+                var anyChecked = Array.prototype.some.call(conventionChecks, function(chk){ return chk.checked; });
+                if (!anyChecked) {
+                    missingFieldLabel = 'Convention(s) Applying For';
+                }
+            }
+        }
+
+        if (!missingFieldLabel && !isBlueCardRequirementMet()) {
+            missingFieldLabel = 'Blue Card section (select Current Blue Card, or Outside AU/NZ, or upload Blue Card application form)';
+        }
+
+        if (!missingFieldLabel && !isDietaryRequirementMet()) {
+            missingFieldLabel = 'Dietary Requirements (select one option)';
+        }
+
+        if (!missingFieldLabel) {
+            return true;
+        }
+
+        if (submitStatus) {
+            submitStatus.textContent = 'Please complete: ' + missingFieldLabel;
+        }
+        return false;
+    }
+
     if (form) {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
+
+            if (!validateRequiredFields()) {
+                updateProgress();
+                return;
+            }
+
             if (submitStatus) submitStatus.textContent = 'Submitting...';
 
             var body = new FormData();

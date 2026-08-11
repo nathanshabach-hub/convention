@@ -69,6 +69,7 @@
 .pf-inline-input {
 	display: inline-block;
 	min-width: 120px;
+	text-align: center;
 	width: 24%;
 }
 
@@ -96,6 +97,26 @@
 		<button class="btn btn-primary" onclick="window.print()"><i class="fa fa-print"></i> Print / Save PDF</button>
 	</div>
 	<form>
+	<?php
+	$convName = '';
+	if (!empty($conventionRegD->Conventions['name'])) {
+		$convName = $conventionRegD->Conventions['name'];
+	} elseif (!empty($conventionRegD->Conventions['convention_name'])) {
+		$convName = $conventionRegD->Conventions['convention_name'];
+	}
+
+	$schoolName = '';
+	if (!empty($userDetails->school_name)) {
+		$schoolName = $userDetails->school_name;
+	} elseif (!empty($userDetails->first_name) || !empty($userDetails->last_name)) {
+		$schoolName = trim(($userDetails->first_name ?? '') . ' ' . ($userDetails->last_name ?? ''));
+	}
+
+	$seasonYear = !empty($conventionRegD->season_year) ? $conventionRegD->season_year : date('Y');
+	$phoneValue = !empty($userDetails->phone_no) ? $userDetails->phone_no : (!empty($userDetails->mobile_no) ? $userDetails->mobile_no : '');
+	$signatory = $schoolName;
+	$positionValue = 'Admin';
+	?>
 
 	<h1 class="pf-title">Permission For Participation Form - Schools</h1>
 	<p class="pf-note">Schools using the A.C.E. program should keep a signed participation form for each participating student.</p>
@@ -103,7 +124,7 @@
 	<table class="pf-table">
 		<tr>
 			<td style="width:140px;"><strong>School Name:</strong></td>
-			<td><input type="text" class="pf-input" value="<?php echo !empty($conventionRegD->Conventions['convention_name']) ? h($conventionRegD->Conventions['convention_name']) : ''; ?>"></td>
+			<td><input type="text" class="pf-input" value="<?php echo h($schoolName); ?>"></td>
 		</tr>
 	</table>
 
@@ -111,7 +132,7 @@
 	<table class="pf-table">
 		<tr>
 			<td style="width:42px;"></td>
-			<td>All attending students from the above school have parent/guardian permission and consent to attend and participate in convention events of the <input type="text" class="pf-input pf-inline-input"> (year <input type="text" class="pf-input pf-inline-input">).</td>
+			<td>All attending students from the above school have parent/guardian permission and consent to attend and participate in convention events of the <input type="text" class="pf-input pf-inline-input" value="<?php echo h($convName); ?>"> (year <input type="text" class="pf-input pf-inline-input" value="<?php echo h($seasonYear); ?>">).</td>
 		</tr>
 		<tr>
 			<td></td>
@@ -146,23 +167,23 @@
 	<table class="pf-table">
 		<tr>
 			<th style="width:220px;">First Aid Officer:</th>
-			<td><input type="text" class="pf-input"></td>
+			<td><input type="text" class="pf-input" value="<?php echo h($signatory); ?>"></td>
 			<th style="width:200px;">Training Updated:</th>
-			<td><input type="text" class="pf-input"></td>
+			<td><input type="text" class="pf-input" value="<?php echo h(date('d/m/Y')); ?>"></td>
 		</tr>
 		<tr>
 			<th>School Signatories:</th>
-			<td colspan="3"><input type="text" class="pf-input"></td>
+			<td colspan="3"><input type="text" class="pf-input" value="<?php echo h($signatory); ?>"></td>
 		</tr>
 		<tr>
 			<th>Position:</th>
-			<td colspan="3"><input type="text" class="pf-input"></td>
+			<td colspan="3"><input type="text" class="pf-input" value="<?php echo h($positionValue); ?>"></td>
 		</tr>
 		<tr>
 			<th>Phone:</th>
-			<td><input type="text" class="pf-input"></td>
+			<td><input type="text" class="pf-input" value="<?php echo h($phoneValue); ?>"></td>
 			<th>Date:</th>
-			<td><input type="text" class="pf-input"></td>
+			<td><input type="text" class="pf-input" value="<?php echo h(date('d/m/Y')); ?>"></td>
 		</tr>
 	</table>
 	</form>

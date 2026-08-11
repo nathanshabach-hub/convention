@@ -404,6 +404,136 @@ class AdminsController extends AppController {
         }
 
         if ($this->request->is('post')) {
+            $formMode = trim((string)$this->request->getData('s247_mode'));
+            if ($formMode === 'manual_add') {
+                $manual = (array)$this->request->getData('Manual247', []);
+
+                $toText = static function ($value) {
+                    return trim((string)$value);
+                };
+
+                $fullName = $toText($manual['full_name'] ?? '');
+                $age = $toText($manual['age'] ?? '');
+                $gender = $toText($manual['gender'] ?? '');
+                $country = $toText($manual['country'] ?? '');
+                $phone = $toText($manual['phone'] ?? '');
+                $email = $toText($manual['email'] ?? '');
+                $schoolHssp = $toText($manual['school_hssp'] ?? '');
+
+                $conventions = isset($manual['conventions']) && is_array($manual['conventions']) ? $manual['conventions'] : [];
+                $conventions = array_values(array_filter(array_map(function ($item) use ($toText) {
+                    return $toText($item);
+                }, $conventions), function ($item) {
+                    return $item !== '';
+                }));
+                $conventionsText = implode(', ', $conventions);
+
+                $reasonsToAttend = $toText($manual['reasons_to_attend'] ?? '');
+                $conventionExperience = $toText($manual['convention_experience'] ?? '');
+
+                $hasBlueCard = !empty($manual['has_blue_card']);
+                $blueCardNumber = $toText($manual['blue_card_number'] ?? '');
+                $blueCardExpiryDate = $toText($manual['blue_card_expiry_date'] ?? '');
+                $blueCardApplicationProvided = $toText($manual['blue_card_application_provided'] ?? '');
+
+                $serviceHistory = $toText($manual['service_history'] ?? 'new');
+                $servedYear = $toText($manual['served_year'] ?? '');
+                $currentTestimony = $toText($manual['current_testimony'] ?? '');
+                $salvationTestimony = $toText($manual['salvation_testimony'] ?? '');
+                $churchBackground = $toText($manual['church_background'] ?? '');
+                $portraitPhotoProvided = $toText($manual['portrait_photo_provided'] ?? '');
+                $principalPastorReferenceProvided = $toText($manual['principal_pastor_reference_provided'] ?? '');
+
+                $hasDietaryRequirements = !empty($manual['has_dietary_requirements']);
+                $dietaryRequirements = $toText($manual['dietary_requirements'] ?? '');
+
+                $applicantSignatureName = $toText($manual['applicant_signature_name'] ?? '');
+                $applicantSignatureDate = $toText($manual['applicant_signature_date'] ?? '');
+                $parentGuardianName = $toText($manual['parent_guardian_name'] ?? '');
+                $parentGuardianConfirmation = $toText($manual['parent_guardian_confirmation'] ?? '');
+                $parentGuardianDate = $toText($manual['parent_guardian_date'] ?? '');
+
+                $position = $toText($manual['position'] ?? '');
+                $notes = $toText($manual['notes'] ?? '');
+                $submittedAt = trim((string)($manual['submitted_at'] ?? ''));
+
+                if ($fullName === '' || empty($conventions)) {
+                    $this->Flash->error('Please provide at least Full Name and one Convention selection for manual entry.');
+                } else {
+                    $rawFields = [
+                        ['label' => 'Full Name', 'value' => $fullName],
+                        ['label' => 'Age', 'value' => $age],
+                        ['label' => 'Gender', 'value' => $gender],
+                        ['label' => 'Country', 'value' => $country],
+                        ['label' => 'Phone', 'value' => $phone],
+                        ['label' => 'Email', 'value' => $email],
+                        ['label' => 'A.C.E. School / HSSP you attend(ed) as a student', 'value' => $schoolHssp],
+                        ['label' => 'Convention(s) Applying For', 'value' => $conventionsText],
+                        ['label' => 'Please state your reasons for wanting to attend', 'value' => $reasonsToAttend],
+                        ['label' => 'Convention experience and items you are willing to perform', 'value' => $conventionExperience],
+                        ['label' => 'I have a current Blue Card', 'value' => $hasBlueCard ? 'Yes' : 'No'],
+                        ['label' => 'Blue Card Number', 'value' => $blueCardNumber],
+                        ['label' => 'Blue Card Expiry Date', 'value' => $blueCardExpiryDate],
+                        ['label' => 'Blue Card application form provided', 'value' => $blueCardApplicationProvided],
+                        ['label' => 'Squad Service History', 'value' => $serviceHistory === 'served' ? 'I have served as a 24/7 Squad Member before' : 'I have not previously served as a 24/7 Squad Member'],
+                        ['label' => 'If you have served before, what year?', 'value' => $servedYear],
+                        ['label' => 'A current portrait photo of yourself provided', 'value' => $portraitPhotoProvided],
+                        ['label' => 'A reference from your Principal and/or Pastor provided', 'value' => $principalPastorReferenceProvided],
+                        ['label' => 'Your personal testimony of salvation', 'value' => $salvationTestimony],
+                        ['label' => 'A description of your church background and beliefs', 'value' => $churchBackground],
+                        ['label' => 'A current testimony of your walk with the Lord', 'value' => $currentTestimony],
+                        ['label' => 'I have special dietary requirements or allergies', 'value' => $hasDietaryRequirements ? 'Yes' : 'No'],
+                        ['label' => 'Please state your requirements', 'value' => $dietaryRequirements],
+                        ['label' => "Applicant's Full Name (acts as your signature/confirmation)", 'value' => $applicantSignatureName],
+                        ['label' => 'Declaration Date', 'value' => $applicantSignatureDate],
+                        ['label' => 'Parent/Guardian Name', 'value' => $parentGuardianName],
+                        ['label' => 'Parent/Guardian Confirmation (acts as signature)', 'value' => $parentGuardianConfirmation],
+                        ['label' => 'Parent/Guardian Date', 'value' => $parentGuardianDate],
+                        ['label' => 'Position', 'value' => $position],
+                        ['label' => 'Admin Notes', 'value' => $notes],
+                    ];
+
+                    $fields = [];
+                    foreach ($rawFields as $row) {
+                        $label = trim((string)($row['label'] ?? ''));
+                        $value = trim((string)($row['value'] ?? ''));
+                        if ($label === '' || $value === '') {
+                            continue;
+                        }
+                        $fields[] = ['label' => $label, 'value' => $value];
+                    }
+
+                    $payload = [
+                        'fields' => $fields,
+                        'files' => [],
+                        'manual_entry' => true,
+                    ];
+
+                    $parsedSubmittedAt = $submittedAt !== '' ? strtotime($submittedAt) : false;
+                    if ($parsedSubmittedAt === false) {
+                        $submittedAt = date('Y-m-d H:i:s');
+                    } else {
+                        $submittedAt = date('Y-m-d H:i:s', $parsedSubmittedAt);
+                    }
+
+                    $submission = [
+                        'submitted_at' => $submittedAt,
+                        'ip_address' => (string)$this->request->clientIp(),
+                        'payload' => $payload,
+                    ];
+
+                    $submissions = $this->loadSquad247Submissions();
+                    array_unshift($submissions, $submission);
+
+                    if ($this->saveSquad247Submissions($submissions)) {
+                        $this->Flash->success('Manual 24/7 application added successfully.');
+                        return $this->redirect(['action' => 'squad247']);
+                    }
+
+                    $this->Flash->error('Unable to save manual 24/7 application right now. Please try again.');
+                }
+            }
+
             $posted = (array)$this->request->getData('Squad247', []);
 
             $normalizeRows = static function (array $rows, $firstKey, $secondKey) {

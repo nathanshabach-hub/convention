@@ -17,6 +17,57 @@
             color: #6e7d99;
             font-size: 13px;
         }
+        .s247-quick-nav {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .s247-quick-link {
+            display: block;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid #d9e3f3;
+            text-decoration: none;
+            background: #fff;
+        }
+        .s247-quick-link:hover,
+        .s247-quick-link:focus {
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(26, 47, 84, 0.1);
+        }
+        .s247-quick-link-title {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+        .s247-quick-link-meta {
+            display: block;
+            font-size: 11px;
+            color: #6c7b95;
+        }
+        .s247-quick-link.is-edit {
+            border-color: #c9d9f5;
+            background: linear-gradient(180deg, #f8fbff 0%, #f0f6ff 100%);
+        }
+        .s247-quick-link.is-edit .s247-quick-link-title {
+            color: #244781;
+        }
+        .s247-quick-link.is-preview {
+            border-color: #f1dfbe;
+            background: linear-gradient(180deg, #fffaf2 0%, #fff5e8 100%);
+        }
+        .s247-quick-link.is-preview .s247-quick-link-title {
+            color: #8d5b08;
+        }
+        .s247-quick-link.is-submissions {
+            border-color: #c7e8d4;
+            background: linear-gradient(180deg, #f4fff8 0%, #ebfff3 100%);
+        }
+        .s247-quick-link.is-submissions .s247-quick-link-title {
+            color: #1f6a3f;
+        }
         .s247-admin-editor {
             border: 1px solid #d9e3f3;
             border-radius: 8px;
@@ -129,21 +180,66 @@
             background: #fff;
             padding: 14px;
         }
-        .s247-admin-accordion .panel-collapse {
+        .s247-admin-accordion .s247-collapse {
             display: none;
         }
-        .s247-admin-accordion .panel-collapse.in {
+        .s247-admin-accordion .s247-collapse.is-open {
             display: block;
         }
         .s247-admin-preview ul,
         .s247-admin-preview p {
             line-height: 1.5;
         }
+        .s247-admin-preview {
+            border-color: #efd8b0;
+        }
+        .s247-admin-preview .panel-heading {
+            border-color: #efd8b0;
+        }
+        .s247-admin-preview .panel-title {
+            text-align: center;
+        }
+        .s247-admin-preview .panel-title a {
+            background: linear-gradient(180deg, #fffaf2 0%, #fff4e5 100%);
+            color: #7f550c;
+        }
+        .s247-admin-preview .panel-title a:hover,
+        .s247-admin-preview .panel-title a:focus {
+            background: linear-gradient(180deg, #fffaf2 0%, #fff4e5 100%);
+        }
         .s247-admin-preview h4 {
             color: #1f3560;
             font-weight: 700;
             margin-top: 16px;
             margin-bottom: 8px;
+        }
+        .s247-preview-launcher {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 12px;
+            flex-wrap: wrap;
+            text-align: center;
+        }
+        .s247-preview-launcher p {
+            margin: 0;
+            color: #5b6980;
+            font-size: 13px;
+        }
+        .s247-admin-submissions {
+            border-color: #c8e5d2;
+        }
+        .s247-admin-submissions .panel-heading {
+            border-color: #c8e5d2;
+        }
+        .s247-admin-submissions .panel-title a {
+            background: linear-gradient(180deg, #f4fff8 0%, #ebfff3 100%);
+            color: #1f6a3f;
+        }
+        .s247-admin-submissions .panel-title a:hover,
+        .s247-admin-submissions .panel-title a:focus {
+            background: linear-gradient(180deg, #f4fff8 0%, #ebfff3 100%);
         }
         .s247-admin-submissions .table thead th {
             background: #f5f8ff;
@@ -292,6 +388,41 @@
             color: #2d3f60;
             font-size: 14px;
         }
+        .s247-preview-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(12, 21, 39, 0.72);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1045;
+            padding: 16px;
+        }
+        .s247-preview-modal.is-open {
+            display: flex;
+        }
+        .s247-preview-modal-dialog {
+            width: min(1100px, 100%);
+            max-height: 92vh;
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 18px 35px rgba(10, 18, 33, 0.45);
+            display: flex;
+            flex-direction: column;
+        }
+        .s247-preview-modal-body {
+            padding: 16px;
+            overflow: auto;
+            color: #2d3f60;
+            line-height: 1.55;
+        }
+        .s247-preview-modal-body h4 {
+            color: #1f3560;
+            font-weight: 700;
+            margin-top: 16px;
+            margin-bottom: 8px;
+        }
         .s247-submissions-list {
             display: flex;
             flex-direction: column;
@@ -391,8 +522,171 @@
             color: #7a879f;
             font-size: 12px;
         }
+        .s247-manual-entry-box {
+            border: 1px solid #d7e3f6;
+            border-radius: 10px;
+            background: linear-gradient(180deg, #fcfdff 0%, #f7faff 100%);
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+        .s247-manual-entry-toggle {
+            width: 100%;
+            border: 0;
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            text-align: left;
+            cursor: pointer;
+        }
+        .s247-manual-entry-toggle:hover,
+        .s247-manual-entry-toggle:focus {
+            background: rgba(49, 92, 170, 0.05);
+            outline: none;
+        }
+        .s247-manual-entry-toggle .fa {
+            color: #34598f;
+            transition: transform 0.18s ease;
+        }
+        .s247-manual-entry-box.is-open .s247-manual-entry-toggle .fa {
+            transform: rotate(180deg);
+        }
+        .s247-manual-entry-panel {
+            display: none;
+            padding: 0 14px 14px;
+            border-top: 1px solid #dbe6f7;
+        }
+        .s247-manual-entry-box.is-open .s247-manual-entry-panel {
+            display: block;
+        }
+        .s247-manual-entry-title {
+            margin: 0;
+            font-size: 14px;
+            color: #234272;
+            font-weight: 700;
+        }
+        .s247-manual-entry-subtitle {
+            margin: 6px 0 12px;
+            color: #627693;
+            font-size: 12px;
+        }
+        .s247-manual-steps {
+            margin: 0;
+        }
+        .s247-manual-step {
+            border: 1px solid #dbe6f7;
+            border-radius: 8px;
+            background: #fff;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+        .s247-manual-step summary {
+            cursor: pointer;
+            list-style: none;
+            padding: 10px 12px;
+            font-weight: 700;
+            color: #274572;
+            border-bottom: 1px solid transparent;
+            border-left: 4px solid #d5e2f7;
+        }
+        .s247-manual-step[open] summary {
+            border-bottom-color: #dbe6f7;
+            background: #f8fbff;
+        }
+        .s247-manual-step:nth-child(1) summary { border-left-color: #4a79c5; }
+        .s247-manual-step:nth-child(2) summary { border-left-color: #3fa56c; }
+        .s247-manual-step:nth-child(3) summary { border-left-color: #e0a946; }
+        .s247-manual-step:nth-child(4) summary { border-left-color: #8b76d1; }
+        .s247-manual-step:nth-child(5) summary { border-left-color: #2f9aa0; }
+        .s247-manual-step:nth-child(6) summary { border-left-color: #d2645f; }
+        .s247-manual-step:nth-child(7) summary { border-left-color: #6f7b88; }
+        .s247-manual-step summary::-webkit-details-marker {
+            display: none;
+        }
+        .s247-manual-step-body {
+            padding: 10px;
+        }
+        .s247-manual-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 0;
+        }
+        .s247-manual-field {
+            background: #fff;
+            border: 1px solid #dbe6f7;
+            border-radius: 8px;
+            padding: 10px;
+        }
+        .s247-manual-field.full {
+            grid-column: 1 / -1;
+        }
+        .s247-manual-field label {
+            display: block;
+            margin: 0 0 6px;
+            color: #233d67;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .s247-manual-checkgrid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 8px;
+        }
+        .s247-manual-checkgrid label,
+        .s247-manual-inline-check label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+            color: #29436e;
+            margin: 0;
+        }
+        .s247-manual-inline-check {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            padding-top: 4px;
+        }
+        .s247-manual-checkgrid input[type="checkbox"],
+        .s247-manual-inline-check input[type="checkbox"],
+        .s247-manual-inline-check input[type="radio"] {
+            width: auto;
+            margin: 0;
+        }
+        .s247-manual-field .required-mark {
+            color: #c0392b;
+            font-weight: 700;
+        }
+        .s247-manual-entry-box .form-control {
+            border-color: #c9d8f0;
+            border-radius: 6px;
+            min-height: 36px;
+            box-shadow: none;
+            color: #243d63;
+        }
+        .s247-manual-entry-box .form-control:focus {
+            border-color: #4b73ba;
+            box-shadow: 0 0 0 2px rgba(75, 115, 186, 0.12);
+        }
+        .s247-manual-entry-actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+        .s247-manual-entry-box .help-block {
+            margin: 4px 0 0;
+            color: #6f7f98;
+            font-size: 12px;
+        }
         @media (max-width: 900px) {
             .s247-submission-grid {
+                grid-template-columns: 1fr;
+            }
+            .s247-quick-nav {
+                grid-template-columns: 1fr;
+            }
+            .s247-manual-grid {
                 grid-template-columns: 1fr;
             }
         }
@@ -496,25 +790,40 @@
                 $feesHiddenIdx = array_diff(array_keys($fees), $feesVisibleIdx);
                 ?>
 
-                <div class="box box-default s247-admin-editor">
+                <div class="s247-quick-nav">
+                    <a class="s247-quick-link is-edit" href="#s247-editor-area">
+                        <span class="s247-quick-link-title">Edit Public Content</span>
+                        <span class="s247-quick-link-meta">Text, dates, and fees</span>
+                    </a>
+                    <a class="s247-quick-link is-preview js-open-preview-modal" href="javascript:void(0);">
+                        <span class="s247-quick-link-title">Check Public Preview</span>
+                        <span class="s247-quick-link-meta">Open preview popup</span>
+                    </a>
+                    <a class="s247-quick-link is-submissions" href="#s247-submissions-area">
+                        <span class="s247-quick-link-title">Review Applications</span>
+                        <span class="s247-quick-link-meta">Add manual entry or inspect submissions</span>
+                    </a>
+                </div>
+
+                <div class="box box-default s247-admin-editor" id="s247-editor-area">
                     <div class="box-header with-border">
                         <h3 class="box-title">Content Editor</h3>
                     </div>
                     <?php echo $this->Form->create(null, ['url' => ['controller' => 'admins', 'action' => 'squad247'], 'class' => 'form-horizontal']); ?>
                     <div class="box-body">
-                        <div class="s247-admin-hint">Use one bullet point per line in list-based fields. Changes update the public 24/7 page immediately after saving.</div>
+                        <div class="s247-admin-hint">Not sure where to start? Edit the fields below, put each list item on its own line, then click Save 24/7 Details. Changes go live immediately.</div>
 
                         <div class="panel-group s247-admin-accordion" id="s247-editor-accordion" role="tablist" aria-multiselectable="true">
                             <div class="panel panel-default">
                                 <div class="panel-heading" role="tab" id="s247-editor-heading-primary">
                                     <h4 class="panel-title">
-                                        <a role="button" data-toggle="collapse" data-parent="#s247-editor-accordion" href="#s247-editor-primary" aria-expanded="true" aria-controls="s247-editor-primary">
+                                        <a role="button" href="#s247-editor-primary" aria-expanded="false" aria-controls="s247-editor-primary">
                                             Primary Settings
                                             <i class="fa fa-chevron-down pull-right"></i>
                                         </a>
                                     </h4>
                                 </div>
-                                <div id="s247-editor-primary" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="s247-editor-heading-primary">
+                                <div id="s247-editor-primary" class="panel-collapse s247-collapse" role="tabpanel" aria-labelledby="s247-editor-heading-primary">
                                     <div class="panel-body">
 
                             <div class="form-group">
@@ -537,13 +846,13 @@
                             <div class="panel panel-default">
                                 <div class="panel-heading" role="tab" id="s247-editor-heading-copy">
                                     <h4 class="panel-title">
-                                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#s247-editor-accordion" href="#s247-editor-copy" aria-expanded="false" aria-controls="s247-editor-copy">
-                                            Application Copy
+                                        <a class="collapsed" role="button" href="#s247-editor-copy" aria-expanded="false" aria-controls="s247-editor-copy">
+                                            Application Info
                                             <i class="fa fa-chevron-down pull-right"></i>
                                         </a>
                                     </h4>
                                 </div>
-                                <div id="s247-editor-copy" class="panel-collapse collapse" role="tabpanel" aria-labelledby="s247-editor-heading-copy">
+                                <div id="s247-editor-copy" class="panel-collapse s247-collapse" role="tabpanel" aria-labelledby="s247-editor-heading-copy">
                                     <div class="panel-body">
                             <div class="form-group">
                                 <label class="col-sm-3 control-label">Application Intro</label>
@@ -600,13 +909,13 @@
                             <div class="panel panel-default">
                                 <div class="panel-heading" role="tab" id="s247-editor-heading-dates">
                                     <h4 class="panel-title">
-                                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#s247-editor-accordion" href="#s247-editor-dates" aria-expanded="false" aria-controls="s247-editor-dates">
+                                        <a class="collapsed" role="button" href="#s247-editor-dates" aria-expanded="false" aria-controls="s247-editor-dates">
                                             Convention Dates and Fees
                                             <i class="fa fa-chevron-down pull-right"></i>
                                         </a>
                                     </h4>
                                 </div>
-                                <div id="s247-editor-dates" class="panel-collapse collapse" role="tabpanel" aria-labelledby="s247-editor-heading-dates">
+                                <div id="s247-editor-dates" class="panel-collapse s247-collapse" role="tabpanel" aria-labelledby="s247-editor-heading-dates">
                                     <div class="panel-body">
                             <?php if ($hasConventionFilter) { ?>
                                 <div class="alert alert-info" style="margin-bottom:10px;">
@@ -708,94 +1017,250 @@
                 </div>
 
                 <div class="panel-group s247-admin-accordion" id="s247-view-accordion" role="tablist" aria-multiselectable="true">
-                <div class="panel panel-default s247-admin-preview">
-                <div class="panel-heading" role="tab" id="s247-view-heading-preview">
-                    <h4 class="panel-title">
-                        <a role="button" data-toggle="collapse" data-parent="#s247-view-accordion" href="#s247-view-preview" aria-expanded="true" aria-controls="s247-view-preview">
-                            Public Page Preview Content
-                            <i class="fa fa-chevron-down pull-right"></i>
-                        </a>
-                    </h4>
+                <div class="panel panel-default s247-admin-preview" id="s247-preview-area">
+                <div class="panel-heading" id="s247-view-heading-preview">
+                    <h4 class="panel-title">Public Page Preview Content</h4>
                 </div>
-                <div id="s247-view-preview" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="s247-view-heading-preview">
                 <div class="panel-body">
-                <p><?php echo h($applicationIntro); ?></p>
-
-                <div class="row" style="margin-bottom:10px;">
-                    <div class="col-sm-6">
-                        <ul>
-                            <?php foreach ($regionsLeft as $row) { ?>
-                                <li><?php echo h(($row['name'] ?? '') . ': ' . ($row['dates'] ?? '')); ?></li>
-                            <?php } ?>
-                        </ul>
-                    </div>
-                    <div class="col-sm-6">
-                        <ul>
-                            <?php foreach ($regionsRight as $row) { ?>
-                                <li><?php echo h(($row['name'] ?? '') . ': ' . ($row['dates'] ?? '')); ?></li>
-                            <?php } ?>
-                        </ul>
+                    <div class="s247-preview-launcher">
+                        <p>Open a popup preview to see the same content users read on the public 24/7 page.</p>
+                        <button type="button" class="btn btn-warning js-open-preview-modal"><i class="fa fa-external-link"></i> Open Preview Popup</button>
                     </div>
                 </div>
-
-                <h4>Successful Applicants will meet the following requirements:</h4>
-                <ul>
-                    <?php foreach ($successRequirements as $line) { ?>
-                        <li><?php echo h($line); ?></li>
-                    <?php } ?>
-                </ul>
-
-                <h4>The successful applicants will need to:</h4>
-                <ul>
-                    <?php foreach ($successfulNeedTo as $line) { ?>
-                        <li><?php echo h($line); ?></li>
-                    <?php } ?>
-                </ul>
-
-                <div class="alert alert-warning" style="margin-top:12px;">
-                    <strong>Important note:</strong> <?php echo h($importantNote); ?>
                 </div>
 
-                <p style="margin:0;"><strong><?php echo h($applicationsDeadline); ?></strong></p>
-
-                <h4>Convention Fees</h4>
-                <ul>
-                    <?php foreach ($fees as $feeRow) { ?>
-                        <li><?php echo h(($feeRow['name'] ?? '') . ': ' . ($feeRow['amount'] ?? '')); ?></li>
-                    <?php } ?>
-                </ul>
-
-                <h4>Applicant Must Provide</h4>
-                <ul>
-                    <?php foreach ($applicantMustProvide as $line) { ?>
-                        <li><?php echo h($line); ?></li>
-                    <?php } ?>
-                </ul>
-
-                <h4>Blue Card / Working With Children Requirement</h4>
-                <p><?php echo h($blueCardRequirement); ?></p>
-
-                <p style="margin-bottom:0;"><strong>Payment Options:</strong> <?php echo h($paymentOptions); ?></p>
-                </div>
-                </div>
-                </div>
-
-                <div class="panel panel-default s247-admin-submissions">
+                <div class="panel panel-default s247-admin-submissions" id="s247-submissions-area">
                 <div class="panel-heading" role="tab" id="s247-view-heading-submissions">
                     <h4 class="panel-title">
-                        <a role="button" data-toggle="collapse" data-parent="#s247-view-accordion" href="#s247-view-submissions" aria-expanded="true" aria-controls="s247-view-submissions">
+                        <a role="button" href="#s247-view-submissions" aria-expanded="false" aria-controls="s247-view-submissions">
                             Submitted 24/7 Applications
                             <i class="fa fa-chevron-down pull-right"></i>
                         </a>
                     </h4>
                 </div>
-                <div id="s247-view-submissions" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="s247-view-heading-submissions">
+                <div id="s247-view-submissions" class="panel-collapse s247-collapse" role="tabpanel" aria-labelledby="s247-view-heading-submissions">
                 <div class="panel-body">
                 <?php if (!empty($selectedSquad247ConventionName)) { ?>
                     <div class="alert alert-info" style="margin-bottom:10px;">
                         Showing submissions for: <strong><?php echo h($selectedSquad247ConventionName); ?></strong>
                     </div>
                 <?php } ?>
+
+                <div class="s247-manual-entry-box" id="s247-manual-entry-box">
+                    <button type="button" class="s247-manual-entry-toggle" id="s247-manual-entry-toggle" aria-expanded="false" aria-controls="s247-manual-entry-panel">
+                        <span class="s247-manual-entry-title">Add Application Manually</span>
+                        <i class="fa fa-chevron-down" aria-hidden="true"></i>
+                    </button>
+                    <div class="s247-manual-entry-panel" id="s247-manual-entry-panel">
+                        <p class="s247-manual-entry-subtitle">Use this section to add offline or phone applications directly into the 24/7 submissions list.</p>
+                        <?php echo $this->Form->create(null, ['url' => ['controller' => 'Admins', 'action' => 'squad247'], 'class' => 's247-manual-form']); ?>
+                        <input type="hidden" name="s247_mode" value="manual_add">
+
+                        <div class="s247-manual-steps">
+                            <details class="s247-manual-step" open>
+                                <summary>1. Personal Details</summary>
+                                <div class="s247-manual-step-body">
+                                    <div class="s247-manual-grid">
+                                        <div class="s247-manual-field">
+                                            <label>Full Name <span class="required-mark">*</span></label>
+                                            <input type="text" name="Manual247[full_name]" class="form-control" required>
+                                        </div>
+                                        <div class="s247-manual-field">
+                                            <label>Age</label>
+                                            <input type="number" min="1" name="Manual247[age]" class="form-control" placeholder="Age">
+                                        </div>
+                                        <div class="s247-manual-field full">
+                                            <label>Gender</label>
+                                            <div class="s247-manual-inline-check">
+                                                <label><input type="radio" name="Manual247[gender]" value="Male" checked>Male</label>
+                                                <label><input type="radio" name="Manual247[gender]" value="Female">Female</label>
+                                            </div>
+                                        </div>
+                                        <div class="s247-manual-field">
+                                            <label>Country</label>
+                                            <input type="text" name="Manual247[country]" class="form-control" placeholder="Country">
+                                        </div>
+                                        <div class="s247-manual-field">
+                                            <label>Phone</label>
+                                            <input type="text" name="Manual247[phone]" class="form-control" placeholder="Phone">
+                                        </div>
+                                        <div class="s247-manual-field full">
+                                            <label>Email</label>
+                                            <input type="email" name="Manual247[email]" class="form-control" placeholder="Email">
+                                        </div>
+                                        <div class="s247-manual-field full">
+                                            <label>A.C.E. School / HSSP you attend(ed) as a student</label>
+                                            <input type="text" name="Manual247[school_hssp]" class="form-control" placeholder="School / HSSP">
+                                        </div>
+                                    </div>
+                                </div>
+                            </details>
+
+                            <details class="s247-manual-step">
+                                <summary>2. Convention(s) Applying For</summary>
+                                <div class="s247-manual-step-body">
+                                    <div class="s247-manual-grid">
+                                        <div class="s247-manual-field full">
+                                            <label>Convention(s) <span class="required-mark">*</span></label>
+                                            <div class="s247-manual-checkgrid">
+                                                <?php foreach ($fees as $feeRow) {
+                                                    $convLabel = trim((string)(($feeRow['name'] ?? '') . ' (' . ($feeRow['amount'] ?? '') . ')'));
+                                                    if ($convLabel === '()') { continue; }
+                                                ?>
+                                                    <label><input type="checkbox" name="Manual247[conventions][]" value="<?php echo h($convLabel); ?>"> <?php echo h($convLabel); ?></label>
+                                                <?php } ?>
+                                            </div>
+                                        </div>
+                                        <div class="s247-manual-field full">
+                                            <label>Please state your reasons for wanting to attend</label>
+                                            <textarea name="Manual247[reasons_to_attend]" class="form-control" rows="3" placeholder="Your reasons"></textarea>
+                                        </div>
+                                        <div class="s247-manual-field full">
+                                            <label>Convention experience and items you are willing to perform</label>
+                                            <textarea name="Manual247[convention_experience]" class="form-control" rows="3" placeholder="Convention experience and items willing to perform"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </details>
+
+                            <details class="s247-manual-step">
+                                <summary>3. Blue Card (Australian / NZ Conventions only)</summary>
+                                <div class="s247-manual-step-body">
+                                    <div class="s247-manual-grid">
+                                        <div class="s247-manual-field full">
+                                            <label class="s247-manual-inline-check">
+                                                <span><input type="checkbox" name="Manual247[has_blue_card]" value="1">I have a current Blue Card</span>
+                                            </label>
+                                        </div>
+                                        <div class="s247-manual-field">
+                                            <label>Blue Card Number</label>
+                                            <input type="text" name="Manual247[blue_card_number]" class="form-control" placeholder="Blue Card Number">
+                                        </div>
+                                        <div class="s247-manual-field">
+                                            <label>Blue Card Expiry Date</label>
+                                            <input type="text" name="Manual247[blue_card_expiry_date]" class="form-control" placeholder="Blue Card Expiry Date">
+                                        </div>
+                                        <div class="s247-manual-field full">
+                                            <label>Blue Card application form provided (notes)</label>
+                                            <input type="text" name="Manual247[blue_card_application_provided]" class="form-control" placeholder="e.g. Uploaded separately / Not required">
+                                        </div>
+                                    </div>
+                                </div>
+                            </details>
+
+                            <details class="s247-manual-step">
+                                <summary>4. Squad Service History</summary>
+                                <div class="s247-manual-step-body">
+                                    <div class="s247-manual-grid">
+                                        <div class="s247-manual-field full">
+                                            <label>Service History</label>
+                                            <div class="s247-manual-inline-check">
+                                                <label><input type="radio" name="Manual247[service_history]" value="new" checked>I have not previously served as a 24/7 Squad Member</label>
+                                                <label><input type="radio" name="Manual247[service_history]" value="served">I have served as a 24/7 Squad Member before</label>
+                                            </div>
+                                        </div>
+                                        <div class="s247-manual-field">
+                                            <label>If you have served before, what year?</label>
+                                            <input type="text" name="Manual247[served_year]" class="form-control" placeholder="Year">
+                                        </div>
+                                        <div class="s247-manual-field">
+                                            <label>A current portrait photo of yourself provided (notes)</label>
+                                            <input type="text" name="Manual247[portrait_photo_provided]" class="form-control" placeholder="e.g. Yes / Pending / Shared separately">
+                                        </div>
+                                        <div class="s247-manual-field">
+                                            <label>A reference from your Principal and/or Pastor provided (notes)</label>
+                                            <input type="text" name="Manual247[principal_pastor_reference_provided]" class="form-control" placeholder="e.g. Yes / Pending / Shared separately">
+                                        </div>
+                                        <div class="s247-manual-field full">
+                                            <label>Your personal testimony of salvation</label>
+                                            <textarea name="Manual247[salvation_testimony]" class="form-control" rows="3" placeholder="Personal testimony"></textarea>
+                                        </div>
+                                        <div class="s247-manual-field full">
+                                            <label>A description of your church background and beliefs</label>
+                                            <textarea name="Manual247[church_background]" class="form-control" rows="3" placeholder="Church background and beliefs"></textarea>
+                                        </div>
+                                        <div class="s247-manual-field full">
+                                            <label>A current testimony of your walk with the Lord</label>
+                                            <textarea name="Manual247[current_testimony]" class="form-control" rows="3" placeholder="Current testimony"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </details>
+
+                            <details class="s247-manual-step">
+                                <summary>5. Dietary Requirements</summary>
+                                <div class="s247-manual-step-body">
+                                    <div class="s247-manual-grid">
+                                        <div class="s247-manual-field full">
+                                            <label class="s247-manual-inline-check">
+                                                <span><input type="checkbox" name="Manual247[has_dietary_requirements]" value="1">I have special dietary requirements or allergies</span>
+                                            </label>
+                                        </div>
+                                        <div class="s247-manual-field full">
+                                            <label>Please state your requirements</label>
+                                            <textarea name="Manual247[dietary_requirements]" class="form-control" rows="3" placeholder="Dietary requirements"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </details>
+
+                            <details class="s247-manual-step">
+                                <summary>6. Declaration</summary>
+                                <div class="s247-manual-step-body">
+                                    <div class="s247-manual-grid">
+                                        <div class="s247-manual-field full">
+                                            <label>Applicant's Full Name (acts as your signature/confirmation)</label>
+                                            <input type="text" name="Manual247[applicant_signature_name]" class="form-control" placeholder="Applicant's Full Name">
+                                        </div>
+                                        <div class="s247-manual-field">
+                                            <label>Date</label>
+                                            <input type="text" name="Manual247[applicant_signature_date]" class="form-control" placeholder="Date">
+                                        </div>
+                                        <div class="s247-manual-field">
+                                            <label>Parent/Guardian Name</label>
+                                            <input type="text" name="Manual247[parent_guardian_name]" class="form-control" placeholder="Parent/Guardian Name">
+                                        </div>
+                                        <div class="s247-manual-field">
+                                            <label>Parent/Guardian Confirmation (acts as signature)</label>
+                                            <input type="text" name="Manual247[parent_guardian_confirmation]" class="form-control" placeholder="Parent/Guardian Confirmation">
+                                        </div>
+                                        <div class="s247-manual-field">
+                                            <label>Parent/Guardian Date</label>
+                                            <input type="text" name="Manual247[parent_guardian_date]" class="form-control" placeholder="Date">
+                                        </div>
+                                    </div>
+                                </div>
+                            </details>
+
+                            <details class="s247-manual-step">
+                                <summary>7. Admin Entry Metadata</summary>
+                                <div class="s247-manual-step-body">
+                                    <div class="s247-manual-grid">
+                                        <div class="s247-manual-field">
+                                            <label>Position</label>
+                                            <input type="text" name="Manual247[position]" class="form-control" placeholder="e.g. Admin, Leader, Volunteer">
+                                        </div>
+                                        <div class="s247-manual-field">
+                                            <label>Submitted At (optional)</label>
+                                            <input type="text" name="Manual247[submitted_at]" class="form-control" placeholder="YYYY-MM-DD HH:MM:SS">
+                                            <p class="help-block">Leave blank to use current date/time.</p>
+                                        </div>
+                                        <div class="s247-manual-field full">
+                                            <label>Admin Notes</label>
+                                            <textarea name="Manual247[notes]" class="form-control" rows="3" placeholder="Optional notes"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </details>
+                        </div>
+
+                        <div class="s247-manual-entry-actions">
+                            <button type="submit" class="btn btn-success"><i class="fa fa-plus"></i> Add Manual Application</button>
+                        </div>
+                        <?php echo $this->Form->end(); ?>
+                    </div>
+                </div>
+
                 <?php if (!empty($squad247Submissions)) { ?>
                     <div class="s247-submissions-list">
                         <?php foreach (array_slice($squad247Submissions, 0, 10, true) as $index => $submission) { ?>
@@ -945,14 +1410,86 @@
     </div>
 </div>
 
+<div class="s247-preview-modal" id="s247-preview-modal" aria-hidden="true">
+    <div class="s247-preview-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="s247-preview-modal-title">
+        <div class="s247-file-modal-header">
+            <h4 class="s247-file-modal-title" id="s247-preview-modal-title">Public Page Preview Content</h4>
+            <button type="button" class="s247-file-modal-close" id="s247-preview-modal-close" aria-label="Close">&times;</button>
+        </div>
+        <div class="s247-preview-modal-body">
+            <p><?php echo h($applicationIntro); ?></p>
+
+            <div class="row" style="margin-bottom:10px;">
+                <div class="col-sm-6">
+                    <ul>
+                        <?php foreach ($regionsLeft as $row) { ?>
+                            <li><?php echo h(($row['name'] ?? '') . ': ' . ($row['dates'] ?? '')); ?></li>
+                        <?php } ?>
+                    </ul>
+                </div>
+                <div class="col-sm-6">
+                    <ul>
+                        <?php foreach ($regionsRight as $row) { ?>
+                            <li><?php echo h(($row['name'] ?? '') . ': ' . ($row['dates'] ?? '')); ?></li>
+                        <?php } ?>
+                    </ul>
+                </div>
+            </div>
+
+            <h4>Successful Applicants will meet the following requirements:</h4>
+            <ul>
+                <?php foreach ($successRequirements as $line) { ?>
+                    <li><?php echo h($line); ?></li>
+                <?php } ?>
+            </ul>
+
+            <h4>The successful applicants will need to:</h4>
+            <ul>
+                <?php foreach ($successfulNeedTo as $line) { ?>
+                    <li><?php echo h($line); ?></li>
+                <?php } ?>
+            </ul>
+
+            <div class="alert alert-warning" style="margin-top:12px;">
+                <strong>Important note:</strong> <?php echo h($importantNote); ?>
+            </div>
+
+            <p style="margin:0;"><strong><?php echo h($applicationsDeadline); ?></strong></p>
+
+            <h4>Convention Fees</h4>
+            <ul>
+                <?php foreach ($fees as $feeRow) { ?>
+                    <li><?php echo h(($feeRow['name'] ?? '') . ': ' . ($feeRow['amount'] ?? '')); ?></li>
+                <?php } ?>
+            </ul>
+
+            <h4>Applicant Must Provide</h4>
+            <ul>
+                <?php foreach ($applicantMustProvide as $line) { ?>
+                    <li><?php echo h($line); ?></li>
+                <?php } ?>
+            </ul>
+
+            <h4>Blue Card / Working With Children Requirement</h4>
+            <p><?php echo h($blueCardRequirement); ?></p>
+
+            <p style="margin-bottom:0;"><strong>Payment Options:</strong> <?php echo h($paymentOptions); ?></p>
+        </div>
+    </div>
+</div>
+
 <script>
 (function () {
+    function getAccordionLinks(group) {
+        return group.querySelectorAll('a[aria-controls][href^="#s247-"]');
+    }
+
     function updateAccordionState(group) {
-        var links = group.querySelectorAll('[data-toggle="collapse"]');
+        var links = getAccordionLinks(group);
         Array.prototype.forEach.call(links, function (link) {
             var targetSelector = link.getAttribute('href');
             var target = targetSelector ? document.querySelector(targetSelector) : null;
-            var isOpen = !!(target && target.classList.contains('in'));
+            var isOpen = !!(target && target.classList.contains('is-open'));
             link.classList.toggle('collapsed', !isOpen);
             link.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
         });
@@ -962,25 +1499,27 @@
         var groups = document.querySelectorAll('.s247-admin-accordion');
         Array.prototype.forEach.call(groups, function (group) {
             updateAccordionState(group);
-            var links = group.querySelectorAll('[data-toggle="collapse"]');
+            var links = getAccordionLinks(group);
             Array.prototype.forEach.call(links, function (link) {
+                // Disable Bootstrap's delegated collapse handler for this custom accordion.
+                link.removeAttribute('data-toggle');
+                link.removeAttribute('data-parent');
+
                 link.addEventListener('click', function (event) {
                     event.preventDefault();
+                    event.stopPropagation();
+                    if (typeof event.stopImmediatePropagation === 'function') {
+                        event.stopImmediatePropagation();
+                    }
+
                     var targetSelector = link.getAttribute('href');
                     var target = targetSelector ? document.querySelector(targetSelector) : null;
                     if (!target) {
                         return;
                     }
 
-                    var isOpen = target.classList.contains('in');
-                    var openPanels = group.querySelectorAll('.panel-collapse.in');
-                    Array.prototype.forEach.call(openPanels, function (panel) {
-                        panel.classList.remove('in');
-                    });
-
-                    if (!isOpen) {
-                        target.classList.add('in');
-                    }
+                    var isOpen = target.classList.contains('is-open');
+                    target.classList.toggle('is-open', !isOpen);
 
                     updateAccordionState(group);
                 });
@@ -1078,16 +1617,82 @@
         });
     }
 
+    function initPublicPreviewModal() {
+        var modal = document.getElementById('s247-preview-modal');
+        var closeBtn = document.getElementById('s247-preview-modal-close');
+        var openButtons = document.querySelectorAll('.js-open-preview-modal');
+        if (!modal) {
+            return;
+        }
+
+        var openModal = function () {
+            modal.classList.add('is-open');
+            modal.setAttribute('aria-hidden', 'false');
+        };
+
+        var closeModal = function () {
+            modal.classList.remove('is-open');
+            modal.setAttribute('aria-hidden', 'true');
+        };
+
+        Array.prototype.forEach.call(openButtons, function (btn) {
+            btn.addEventListener('click', function (event) {
+                event.preventDefault();
+                openModal();
+            });
+        });
+
+        if (closeBtn) {
+            closeBtn.addEventListener('click', closeModal);
+        }
+
+        modal.addEventListener('click', function (event) {
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && modal.classList.contains('is-open')) {
+                closeModal();
+            }
+        });
+    }
+
+    function initManualEntryAccordion() {
+        var box = document.getElementById('s247-manual-entry-box');
+        var toggle = document.getElementById('s247-manual-entry-toggle');
+        var panel = document.getElementById('s247-manual-entry-panel');
+        if (!box || !toggle || !panel) {
+            return;
+        }
+
+        var setOpenState = function (isOpen) {
+            box.classList.toggle('is-open', isOpen);
+            toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        };
+
+        setOpenState(box.classList.contains('is-open'));
+
+        toggle.addEventListener('click', function () {
+            setOpenState(!box.classList.contains('is-open'));
+        });
+    }
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function () {
             initAccordions();
             initFilePreview();
+            initPublicPreviewModal();
             initSubmissionDeleteButtons();
+            initManualEntryAccordion();
         });
     } else {
         initAccordions();
         initFilePreview();
+        initPublicPreviewModal();
         initSubmissionDeleteButtons();
+        initManualEntryAccordion();
     }
 })();
 </script>
