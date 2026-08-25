@@ -30,12 +30,16 @@
                     </thead>
                     <tbody>
                         <?php foreach ($nametags as $datarecord) { ?>
+                            <?php
+                                $studentFirstName = trim((string)($datarecord->student_display_name ?? trim((string)($datarecord->Students['first_name'] ?? '') . ' ' . (string)($datarecord->Students['middle_name'] ?? '') . ' ' . (string)($datarecord->Students['last_name'] ?? ''))));
+                                $studentLastName = trim((string)($datarecord->student_last_name ?? ($datarecord->Students['last_name'] ?? '')));
+                                $schoolName = trim((string)($datarecord->school_name ?? trim((string)($datarecord->Users['first_name'] ?? '') . ' ' . (string)($datarecord->Users['middle_name'] ?? '') . ' ' . (string)($datarecord->Users['last_name'] ?? ''))));
+                            ?>
                             <tr>
                                 <td data-title="Convention Season"><?php echo $convSeasD->Conventions['name'];?> (<?php echo $convSeasD->season_year;?>)</td>
-                                <td data-title="First Name"><?php echo $datarecord->Students['first_name'];?></td>
-                                <td data-title="Last Name"><?php echo $datarecord->Students['last_name'];?></td>
-                                <td data-title="School"><?php echo $datarecord->Users['first_name'];?>
-								</td>
+                                <td data-title="First Name"><?php echo h($studentFirstName);?></td>
+                                <td data-title="Last Name"><?php echo h($studentLastName);?></td>
+                                <td data-title="School"><?php echo h($schoolName);?></td>
                             </tr>
                         <?php } ?>
                     </tbody>

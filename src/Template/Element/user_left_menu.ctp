@@ -54,8 +54,8 @@ if ($this->request->session()->read("user_id") > 0 && ($this->request->session()
 				<li class="nav-item dash-item">
 					<?php echo $this->Html->link('Global Supervisors List', ['controller' => 'users', 'action' => 'teachers'], ['escape' => false, 'class' => 'nav-link ' . (isset($active_teachers) ? $active_teachers : '')]); ?>
 				</li>
-				<li class="nav-item dash-item ">
-					<?php echo $this->Html->link('Permission Forms', ['controller' => 'conventionregistrations', 'action' => 'permissionsforms'], ['escape' => false, 'class' => 'nav-link ' . (isset($active_cr_permissionforms) ? $active_cr_permissionforms : '')]); ?>
+				<li class="nav-item dash-item">
+					<?php echo $this->Html->link('Global Students List', ['controller' => 'users', 'action' => 'students'], ['escape' => false, 'class' => 'nav-link ' . (isset($active_students) ? $active_students : '')]); ?>
 				</li>
 				<li class="nav-item dash-item ">
 					<?php echo $this->Html->link('Convention Registrations', ['controller' => 'conventionregistrations', 'action' => 'myregistrations'], ['escape' => false, 'class' => 'nav-link ' . (isset($active_convention_registrations) ? $active_convention_registrations : '')]); ?>

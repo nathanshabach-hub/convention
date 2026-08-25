@@ -545,7 +545,13 @@ class UsersController extends AppController {
             }
         }
         
-        $settingsD = $this->Settings->find()->where(['Settings.id' => 1])->first();
+        $settingsD = null;
+        try {
+            $settingsD = $this->Settings->find()->where(['Settings.id' => 1])->first();
+        } catch (\Throwable $e) {
+            // Avoid dashboard hard-fail when local DB schema is missing optional settings columns.
+            $settingsD = null;
+        }
         $this->set('settingsD', $settingsD);
         
     }

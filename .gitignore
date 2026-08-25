@@ -4,3 +4,5 @@
 /logs/*
 /.local-mysql/
 /webroot/error_log
+/webroot/files/events_submissions.zip
+/webroot/files/events_submissions/Archive.zip

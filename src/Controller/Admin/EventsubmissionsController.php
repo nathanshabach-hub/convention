@@ -80,12 +80,17 @@ class EventsubmissionsController extends AppController {
             $this->render('index');
         } */
 		
-		$eventsubmissions = $this->Eventsubmissions->find()
+		$query = $this->Eventsubmissions->find()
 			->where($condition)
 			->contain(['Conventions','Students','Events','Uploadeduser'])
-			->order(['Eventsubmissions.id' => 'DESC'])
-			->limit(200)
-			->all();
+			->order(['Eventsubmissions.id' => 'DESC']);
+
+		// Keep broad listing capped, but allow full results when a specific registration is requested.
+		if (!$slug) {
+			$query->limit(200);
+		}
+
+		$eventsubmissions = $query->all();
 
 		$this->set('eventsubmissions', $eventsubmissions);
     }

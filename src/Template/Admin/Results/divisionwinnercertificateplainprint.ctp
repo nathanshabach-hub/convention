@@ -24,7 +24,6 @@ $coordinatorSignatureImg = HTTP_PATH.'/img/front/Llewellyn Graham.png';
             min-height: 100vh;
             box-sizing: border-box;
             padding: 30px 40px;
-            border: 1px solid #1a98d5;
             text-align: center;
         }
         .content-block {

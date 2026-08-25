@@ -171,8 +171,7 @@ class ConventionregistrationsController extends AppController {
 		}
         $this->set('userDetails', $userDetails);
 
-        $separator = array();
-        $condition = array();
+		$condition = array();
 		
 		if($this->request->session()->read("sess_selected_convention_registration_id")>0)
 		{
@@ -2552,16 +2551,12 @@ class ConventionregistrationsController extends AppController {
 			$this->set('conventionRegD', $conventionRegD);
 			//$this->prx($conventionRegD);
 			
-			//To list all events that selected for this conv season
-			if(!empty($conventionRegD->judges_event_ids))
-			{
-				$condition[] = "(Events.id IN ($conventionRegD->judges_event_ids))";
-			}
-			else
-			{
-				$condition[] = "(Events.id IN (0))";
-			}
-			$condition[] = "(Events.status  = '1')";
+			// To list only the events selected for this convention registration.
+			$judgeEventIds = array_filter(array_map('intval', preg_split('/[^0-9]+/', (string)$conventionRegD->judges_event_ids)));
+			$condition = [
+				'Events.id IN' => $judgeEventIds ?: [0],
+				'Events.status' => 1,
+			];
 			
 		}
 		else
@@ -2573,12 +2568,12 @@ class ConventionregistrationsController extends AppController {
 			$this->set('conventionRegD', $conventionRegD);
 			//echo $this->request->session()->read("sess_selected_convention_registration_id");exit;
 			
-			//To list all events that selecyed for this conv season
-			if(!empty($conventionRegD->judges_event_ids))
-			{
-				$condition[] = "(Events.id IN ($conventionRegD->judges_event_ids))";
-			}
-			$condition[] = "(Events.status  = '1')";
+			// To list only the events selected for this convention registration.
+			$judgeEventIds = array_filter(array_map('intval', preg_split('/[^0-9]+/', (string)$conventionRegD->judges_event_ids)));
+			$condition = [
+				'Events.id IN' => $judgeEventIds ?: [0],
+				'Events.status' => 1,
+			];
 		}
 		else
 		{
@@ -2981,7 +2976,7 @@ class ConventionregistrationsController extends AppController {
 		else
 		{
 			$this->Flash->error('Please choose convention registration first.');
-			$this->redirect(['controller' => 'users', 'action' => 'dashboard']);
+			return $this->redirect(['controller' => 'users', 'action' => 'dashboard']);
 		}
 		
 		$packageregistration = $this->Conventionregistrationstudents->find()->where($condition)->contain(['Conventions','Students'])->order(['Conventionregistrationstudents.season_year' => 'DESC'])->all();
@@ -3134,7 +3129,7 @@ class ConventionregistrationsController extends AppController {
 		else
 		{
 			$this->Flash->error('Please choose convention registration first.');
-			$this->redirect(['controller' => 'users', 'action' => 'dashboard']);
+			return $this->redirect(['controller' => 'users', 'action' => 'dashboard']);
 		}
 		
 		//echo $this->request->session()->read("sess_selected_convention_registration_id");

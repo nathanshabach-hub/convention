@@ -381,13 +381,14 @@ class AppController extends Controller{
 		if($conv_reg_id)
 		{
 			// to get conv reg details
-			$conventionRegD = $this->Conventionregistrations->find()->where(['Conventionregistrations.id' => $conv_reg_id])->contain(['Conventionseasons'])->first();
+			$conventionRegD = $this->Conventionregistrations->find()->where(['Conventionregistrations.id' => $conv_reg_id])->first();
 			//$this->prx($conventionRegD);
 			
-			if($conventionRegD->Conventionseasons['min_events_student']>0 && $conventionRegD->Conventionseasons['max_events_student']>0)
+			$conventionSeasonD = $this->Conventionseasons->find()->where(['Conventionseasons.id' => $conventionRegD->conventionseason_id])->first();
+			if($conventionSeasonD->min_events_student>0 && $conventionSeasonD->max_events_student>0)
 			{
-				$min_events_student = $conventionRegD->Conventionseasons['min_events_student'];
-				$max_events_student = $conventionRegD->Conventionseasons['max_events_student'];
+				$min_events_student = $conventionSeasonD->min_events_student;
+				$max_events_student = $conventionSeasonD->max_events_student;
 			}
 			else
 			{

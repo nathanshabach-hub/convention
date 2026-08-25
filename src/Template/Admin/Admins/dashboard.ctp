@@ -35,7 +35,18 @@
     ?>
     <section class="content">
         <div class="row">
-            
+            <?php if (!empty($hasScheduleRows)) { ?>
+            <div class="col-lg-3 col-xs-6">
+                <div class="small-box bg-red">
+                    <div class="inner">
+                        <h3><?php echo (int)$unscheduledEventsCount; ?></h3>
+                        <p>Unscheduled Events</p>
+                    </div>
+                    <div class="icon"><i class="fa fa-exclamation-triangle"></i></div>
+                    <?php echo $this->Html->link('More info <i class="fa fa-arrow-circle-right"></i>', ['controller' => 'admins', 'action' => 'unscheduledevents'], ['escape' => false, 'class' => 'small-box-footer']); ?>
+                </div>
+            </div>
+            <?php } ?>
             <div class="col-lg-3 col-xs-6">
                 <div class="small-box bg-navy">
                     <div class="inner">

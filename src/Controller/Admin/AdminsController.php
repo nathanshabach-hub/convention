@@ -29,6 +29,7 @@ class AdminsController extends AppController {
         $this->Emailtemplates = $this->loadModel('Emailtemplates');
         $this->Users = $this->loadModel('Users');
         $this->Seasons = $this->loadModel('Seasons');
+        $this->Conventionseasons = $this->loadModel('Conventionseasons');
         $this->Events = $this->loadModel('Events');
         $this->Conventions = $this->loadModel('Conventions');
         $this->Divisions = $this->loadModel('Divisions');
@@ -38,6 +39,8 @@ class AdminsController extends AppController {
         $this->Conventionregistrationstudents = $this->loadModel('Conventionregistrationstudents');
         $this->Conventionregistrationteachers = $this->loadModel('Conventionregistrationteachers');
         $this->Conventionseasonevents = $this->loadModel('Conventionseasonevents');
+		$this->Schedulingtimings = $this->loadModel('Schedulingtimings');
+        $this->Schedulings = $this->loadModel('Schedulings');
         $this->Crstudentevents = $this->loadModel('Crstudentevents');
         $this->Eventsubmissions = $this->loadModel('Eventsubmissions');
 		$this->Judgeevaluations = $this->loadModel('Judgeevaluations');
@@ -277,10 +280,17 @@ class AdminsController extends AppController {
 			
             $total_transactions = $this->Transactions->find()->where($condTr)->count();
             $this->set('total_transactions', $total_transactions);
+
+            $hasScheduleRows = $this->Schedulingtimings->find()
+                ->where(['Schedulingtimings.conventionseasons_id' => $convSD->id])
+                ->count() > 0;
+            $this->set('hasScheduleRows', $hasScheduleRows);
+            $this->set('unscheduledEventsCount', $hasScheduleRows ? count($this->getCategoryOneScheduleExceptions($convSD)) : 0);
         }
         else
         {
-            $total_seasons = $this->Seasons->find()->where(['1 = 1'])->count();
+            // `seasons` is legacy; use `conventionseasons` for active schema.
+            $total_seasons = $this->Conventionseasons->find()->where(['1 = 1'])->count();
             $this->set('total_seasons', $total_seasons);
 			
             $total_events = $this->Events->find()->where(['1 = 1'])->count();
@@ -316,6 +326,211 @@ class AdminsController extends AppController {
             $total_judges = $this->Users->find()->where($condJ)->count();
             $this->set('total_judges', $total_judges);
         }
+    }
+
+    public function unscheduledevents() {
+        $this->set('title', ADMIN_TITLE . 'Unscheduled Events');
+        $this->viewBuilder()->setLayout('admin');
+        $this->set('dashboard', '1');
+
+        $seasonId = (int)$this->request->getSession()->read('sess_admin_header_season_id');
+        if ($seasonId <= 0) {
+            $this->Flash->error('Please select a convention season first.');
+            return $this->redirect(['action' => 'dashboard']);
+        }
+
+        $convSD = $this->Conventionseasons->find()
+            ->where(['Conventionseasons.id' => $seasonId])
+            ->contain(['Conventions'])
+            ->first();
+        if (!$convSD) {
+            $this->Flash->error('Selected convention season was not found.');
+            return $this->redirect(['action' => 'dashboard']);
+        }
+
+        $this->set('convSD', $convSD);
+        $scheduleExceptionItems = $this->getCategoryOneScheduleExceptions($convSD);
+        $this->set('scheduleExceptionItems', $scheduleExceptionItems);
+        $this->set('schedulingWarnings', $this->getLatestSchedulingWarnings($convSD, $scheduleExceptionItems));
+    }
+
+    private function getLatestSchedulingWarnings($convSD, array $scheduleExceptionItems): array {
+        $warnings = [];
+        $categoryOne = (array)$this->request->getSession()->read('Scheduling.runWarnings.category1');
+        $ungrouped = (int)($categoryOne['ungrouped'] ?? 0);
+        $skipped = (int)($categoryOne['skipped'] ?? 0);
+        if ($ungrouped === 0 && $skipped === 0) {
+            $ungrouped = count(array_filter($scheduleExceptionItems, function ($item) {
+                return strpos((string)$item['reason'], 'Students not grouped') !== false;
+            }));
+            $skipped = count($scheduleExceptionItems);
+        }
+        if ($ungrouped > 0) {
+            $warnings[] = 'Category 1 used Ungrouped fallback for '.$ungrouped.' registration/event entry(ies) where group name was missing.';
+        }
+        if ($skipped > 0) {
+            $warnings[] = 'Category 1 skipped '.$skipped.' registration/event group entry(ies) because no matching event submission was found.';
+        }
+
+        $latestSchedule = $this->Schedulings->find()
+            ->where(['Schedulings.conventionseasons_id' => $convSD->id])
+            ->order(['Schedulings.modified' => 'DESC', 'Schedulings.id' => 'DESC'])
+            ->first();
+        if (!$latestSchedule || empty($latestSchedule->start_date)) {
+            return $warnings;
+        }
+
+        $startDate = date('Y-m-d', strtotime((string)$latestSchedule->start_date));
+        $numberOfDays = max(1, (int)($latestSchedule->number_of_days ?? 1));
+        $endDate = date('Y-m-d', strtotime($startDate.' +'.($numberOfDays - 1).' day'));
+        $categoryTwoWarnings = (array)$this->request->getSession()->read('Scheduling.runWarnings.category2');
+        foreach ($categoryTwoWarnings as $eventNumber => $eventWarning) {
+            $fallback = (int)($eventWarning['fallback'] ?? 0);
+            $overflow = (int)($eventWarning['overflow'] ?? 0);
+            if ($fallback > 0) {
+                $warnings[] = 'Category 2 fallback placed '.$fallback.' remaining match(es) for event '.$eventNumber.'.';
+            }
+            if ($overflow > 0) {
+                $warnings[] = 'Category 2 overflow placed '.$overflow.' remaining match(es) for event '.$eventNumber.' on days after the configured window.';
+            }
+        }
+
+        $overflowCount = $this->Schedulingtimings->find()
+            ->where([
+                'Schedulingtimings.conventionseasons_id' => $convSD->id,
+                'Schedulingtimings.schedule_category' => 2,
+                'Schedulingtimings.sch_date_time >' => $endDate.' 23:59:59',
+            ])
+            ->count();
+        if ($overflowCount > 0) {
+            $warnings[] = 'Scheduling reached the configured convention window from '.date('D j M Y', strtotime($startDate)).' to '.date('D j M Y', strtotime($endDate)).'. Some items could not be placed inside the selected Number of Days.';
+        }
+
+        return array_values(array_unique($warnings));
+    }
+
+    private function getCategoryOneScheduleExceptions($convSD): array {
+        $conventionRegistrations = $this->Conventionregistrations->find()
+            ->select(['id', 'user_id'])
+            ->where(['Conventionregistrations.conventionseason_id' => $convSD->id])
+            ->all();
+        $registrationSchoolIds = [];
+        foreach ($conventionRegistrations as $conventionRegistration) {
+            $registrationSchoolIds[(int)$conventionRegistration->id] = (int)$conventionRegistration->user_id;
+        }
+
+        $schoolNames = [];
+        $schoolIds = array_values(array_unique(array_filter($registrationSchoolIds)));
+        if (count($schoolIds) > 0) {
+            $schools = $this->Users->find()->select(['id', 'first_name'])->where(['Users.id IN' => $schoolIds])->all();
+            foreach ($schools as $school) {
+                $schoolNames[(int)$school->id] = (string)$school->first_name;
+            }
+        }
+
+        $categoryOneEvents = $this->Events->find()
+            ->select(['id', 'event_id_number', 'event_name'])
+            ->where([
+                'Events.needs_schedule' => '1',
+                'Events.group_event_yes_no' => '1',
+                'Events.event_kind_id' => 'Sequential',
+                'Events.has_to_be_consecutive' => '1',
+            ])
+            ->all();
+        $eventDetails = [];
+        foreach ($categoryOneEvents as $event) {
+            $eventDetails[(int)$event->id] = $event;
+        }
+        if (count($eventDetails) === 0) {
+            return [];
+        }
+
+        $registrationEvents = $this->Crstudentevents->find()
+            ->select(['conventionregistration_id', 'event_id', 'group_name', 'student_id'])
+            ->where([
+                'Crstudentevents.conventionseason_id' => $convSD->id,
+                'Crstudentevents.convention_id' => $convSD->convention_id,
+                'Crstudentevents.event_id IN' => array_keys($eventDetails),
+            ])
+            ->all();
+        $studentIds = [];
+        foreach ($registrationEvents as $registrationEvent) {
+            if ((int)$registrationEvent->student_id > 0) {
+                $studentIds[] = (int)$registrationEvent->student_id;
+            }
+        }
+        $studentNames = [];
+        if (count($studentIds) > 0) {
+            $students = $this->Users->find()
+                ->select(['id', 'first_name', 'last_name'])
+                ->where(['Users.id IN' => array_values(array_unique($studentIds))])
+                ->all();
+            foreach ($students as $student) {
+                $studentNames[(int)$student->id] = trim((string)($student->first_name . ' ' . $student->last_name));
+            }
+        }
+
+        $exceptions = [];
+        $exceptionIndexes = [];
+        foreach ($registrationEvents as $registrationEvent) {
+            $registrationId = (int)$registrationEvent->conventionregistration_id;
+            $eventId = (int)$registrationEvent->event_id;
+            $schoolId = $registrationSchoolIds[$registrationId] ?? 0;
+            $event = $eventDetails[$eventId] ?? null;
+            if ($schoolId <= 0 || !$event) {
+                continue;
+            }
+
+            $groupName = trim((string)$registrationEvent->group_name);
+            $exceptionKey = $registrationId . '|' . $eventId . '|' . ($groupName === '' ? 'Ungrouped' : $groupName);
+            $studentName = $studentNames[(int)$registrationEvent->student_id] ?? '';
+
+            $submissionConditions = [
+                'Eventsubmissions.conventionregistration_id' => $registrationId,
+                'Eventsubmissions.conventionseason_id' => $convSD->id,
+                'Eventsubmissions.convention_id' => $convSD->convention_id,
+                'Eventsubmissions.season_id' => $convSD->season_id,
+                'Eventsubmissions.season_year' => $convSD->season_year,
+                'Eventsubmissions.event_id' => $eventId,
+                'Eventsubmissions.user_id' => $schoolId,
+            ];
+            if ($groupName === '') {
+                $submissionConditions[] = "(Eventsubmissions.group_name = 'Ungrouped' OR Eventsubmissions.group_name IS NULL OR TRIM(Eventsubmissions.group_name) = '')";
+            } else {
+                $submissionConditions['Eventsubmissions.group_name'] = $groupName;
+            }
+
+            $hasMatchingSubmission = $this->Eventsubmissions->find()->where($submissionConditions)->count() > 0;
+            if ($groupName === '' || !$hasMatchingSubmission) {
+                if (isset($exceptionIndexes[$exceptionKey])) {
+                    if ($studentName !== '' && !in_array($studentName, $exceptions[$exceptionIndexes[$exceptionKey]]['students'], true)) {
+                        $exceptions[$exceptionIndexes[$exceptionKey]]['students'][] = $studentName;
+                    }
+                    continue;
+                }
+
+                $reasons = [];
+                if ($groupName === '') {
+                    $reasons[] = 'Students not grouped';
+                }
+                if (!$hasMatchingSubmission) {
+                    $reasons[] = 'Missing matching upload';
+                }
+                $exceptions[] = [
+                    'school' => $schoolNames[$schoolId] ?? 'Unassigned school',
+                    'event' => trim((string)($event->event_id_number . ' ' . $event->event_name)),
+                    'participant' => $groupName !== '' ? 'Group ' . $groupName : 'Not grouped',
+                    'reason' => implode('; ', $reasons),
+                    'students' => $studentName !== '' ? [$studentName] : [],
+                ];
+                $exceptionIndexes[$exceptionKey] = count($exceptions) - 1;
+            }
+        }
+
+        usort($exceptions, function ($left, $right) {
+            return [$left['school'], $left['event'], $left['participant']] <=> [$right['school'], $right['event'], $right['participant']];
+        });
+        return $exceptions;
     }
 
     public function squad247() {

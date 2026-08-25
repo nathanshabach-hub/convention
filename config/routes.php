@@ -31,9 +31,14 @@ return static function (RouteBuilder $routes): void {
     $routes->connect('/admin/seasons/:action/*', ['prefix' => 'Admin', 'controller' => 'Seasons']);
 
     // Admin routing
+    // Route legacy admin entry points directly to admin login to avoid cached 301 redirects.
+    $routes->connect('/admin', ['prefix' => 'Admin', 'controller' => 'Admins', 'action' => 'login']);
+    $routes->connect('/admin/', ['prefix' => 'Admin', 'controller' => 'Admins', 'action' => 'login']);
+    $routes->connect('/admin/admins', ['prefix' => 'Admin', 'controller' => 'Admins', 'action' => 'login']);
     $routes->prefix('admin', function (RouteBuilder $routes) {
         $routes->connect('/', ['controller' => 'admins', 'action' => 'login']);
         $routes->connect('/admins', ['controller' => 'admins', 'action' => 'login']);
+        $routes->connect('/admins/login', ['controller' => 'admins', 'action' => 'login']);
         $routes->connect('/admins/changeusername', ['controller' => 'admins', 'action' => 'changeUsername']);
         $routes->fallbacks('DashedRoute');
     });
@@ -43,6 +48,7 @@ return static function (RouteBuilder $routes): void {
     });
 
     // Front end routing
+    // Public root should load the site home page; the portal login remains a dedicated route.
     $routes->connect('/', ['controller' => 'homes', 'action' => 'index']);
     //$routes->connect('/pages/*', ['controller' => 'Pages', 'action' => 'display']);
     //$routes->connect('/termsAndCondition', ['controller' => 'Pages', 'action' => 'termsAndCondition']);

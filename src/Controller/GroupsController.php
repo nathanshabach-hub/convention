@@ -166,6 +166,7 @@ class GroupsController extends AppController {
 					$stGArr[$stgroup->group_name][] = $stgroup->student_id;
 				}
 			}
+			$this->ensureAutomaticGroupSubmissions($eventD, $conventionRegD, array_keys($stGArr));
 			$this->set('stGArr', $stGArr);
 			
 		}
@@ -235,6 +236,45 @@ class GroupsController extends AppController {
 			$this->redirect(['controller' => 'groups', 'action' => 'eventgroups',$event_slug]);
         }
     }
+
+	private function ensureAutomaticGroupSubmissions($eventD, $conventionRegD, array $groupNames): void {
+		if ((int)$eventD->auto_submission !== 1 || (int)$eventD->group_event_yes_no !== 1) {
+			return;
+		}
+
+		foreach ($groupNames as $groupName) {
+			$groupName = trim((string)$groupName);
+			if ($groupName === '') {
+				continue;
+			}
+
+			$submissionExists = $this->Eventsubmissions->find()->where([
+				'Eventsubmissions.event_id' => $eventD->id,
+				'Eventsubmissions.conventionregistration_id' => $conventionRegD->id,
+				'Eventsubmissions.group_name' => $groupName,
+			])->count() > 0;
+			if ($submissionExists) {
+				continue;
+			}
+
+			$submission = $this->Eventsubmissions->newEntity([]);
+			$submission->slug = 'event-submission-'.$conventionRegD->id.'-'.time().'-'.rand(100, 1000000);
+			$submission->conventionregistration_id = $conventionRegD->id;
+			$submission->conventionseason_id = $conventionRegD->conventionseason_id;
+			$submission->convention_id = $conventionRegD->convention_id;
+			$submission->user_id = $conventionRegD->user_id;
+			$submission->season_id = $conventionRegD->season_id;
+			$submission->season_year = $conventionRegD->season_year;
+			$submission->event_id = $eventD->id;
+			$submission->event_id_number = $eventD->event_id_number;
+			$submission->student_id = 0;
+			$submission->group_name = $groupName;
+			$submission->uploaded_by_user_id = $conventionRegD->user_id;
+			$submission->created = date('Y-m-d H:i:s');
+			$submission->modified = date('Y-m-d H:i:s');
+			$this->Eventsubmissions->save($submission);
+		}
+	}
 	
 	public function removestudentfromgroup($event_slug = null,$student_id = null) {
 		

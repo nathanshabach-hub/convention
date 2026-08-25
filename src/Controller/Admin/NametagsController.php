@@ -37,7 +37,63 @@ class NametagsController extends AppController {
 		$this->loadModel('Conventionregistrationteachers');
 		$this->loadModel('Conventionseasonevents');
 		$this->loadModel('Conventionseasons');
+		$this->loadModel('Users');
 		$this->loadModel('Visitors');
+    }
+
+    private function hydrateNameTagUsers($nametags): void
+    {
+        $studentIds = [];
+        $schoolIds = [];
+
+        foreach ($nametags as $record) {
+            if (!empty($record->student_id)) {
+                $studentIds[] = $record->student_id;
+            }
+            if (!empty($record->user_id)) {
+                $schoolIds[] = $record->user_id;
+            }
+        }
+
+		$studentUsers = [];
+		if (!empty($studentIds)) {
+			foreach ($this->Users->find()
+				->select(['id', 'first_name', 'middle_name', 'last_name'])
+				->where(['Users.id IN' => array_unique($studentIds)])
+				->all() as $user) {
+				$studentUsers[(int)$user->id] = $user;
+			}
+		}
+
+		$schoolUsers = [];
+		if (!empty($schoolIds)) {
+			foreach ($this->Users->find()
+				->select(['id', 'first_name', 'middle_name', 'last_name'])
+				->where(['Users.id IN' => array_unique($schoolIds)])
+				->all() as $user) {
+				$schoolUsers[(int)$user->id] = $user;
+			}
+		}
+
+        foreach ($nametags as $record) {
+            $studentUser = $studentUsers[$record->student_id] ?? null;
+            $schoolUser = $schoolUsers[$record->user_id] ?? null;
+
+            $record->student_first_name = $studentUser ? $studentUser->first_name : '';
+            $record->student_middle_name = $studentUser ? $studentUser->middle_name : '';
+            $record->student_last_name = $studentUser ? $studentUser->last_name : '';
+            $record->student_display_name = trim(implode(' ', array_filter([
+                $record->student_first_name,
+                $record->student_middle_name,
+                $record->student_last_name,
+            ])));
+
+			$record->school_name = $schoolUser ? trim(implode(' ', array_filter([
+				(string)$schoolUser->first_name,
+				(string)$schoolUser->middle_name,
+				(string)$schoolUser->last_name,
+			]))) : '';
+        }
     }
 
     public function students() {
@@ -71,6 +127,7 @@ class NametagsController extends AppController {
 		}
 		
 		$nametags = $this->Conventionregistrationstudents->find()->where($condition)->contain(['Students','Users'])->order(['Conventionregistrationstudents.id' => 'DESC'])->all();
+		$this->hydrateNameTagUsers($nametags);
 		$this->set('nametags', $nametags);
 		
 		//$this->prx($nametags);
@@ -97,6 +154,7 @@ class NametagsController extends AppController {
 		
 		
 		$nametags = $this->Conventionregistrationstudents->find()->where($condition)->contain(['Students','Users'])->order(['Conventionregistrationstudents.id' => 'DESC'])->all();
+		$this->hydrateNameTagUsers($nametags);
 		$this->set('nametags', $nametags);
 		
 		//$this->prx($nametags);

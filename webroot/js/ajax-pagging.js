@@ -20,6 +20,7 @@
             $('#loaderID').show();
             $('#listID').load(thisHref, function () {
                 $(this).fadeTo(200, 1);
+                $('#loaderID').hide();
             });
             return false;
         });
@@ -36,6 +37,9 @@
             data: $('#adminSearch').serialize(),
             success: function (result) {
                 $('#listID').html(result);
+            },
+            complete: function () {
+                $('#loaderID').hide();
             }
         });
         return false;
@@ -52,6 +56,9 @@
             data: $('#adminSearch').serialize(),
             success: function (result) {
                 $('#listID').html(result);
+            },
+            complete: function () {
+                $('#loaderID').hide();
             }
         });
         return false;
@@ -67,6 +74,9 @@
             data: $('#actionFrom').serialize(),
             success: function (result) {
                 $('#listID').html(result);
+            },
+            complete: function () {
+                $('#loaderID').hide();
             }
         });
         return false;

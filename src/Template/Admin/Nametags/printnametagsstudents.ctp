@@ -95,8 +95,12 @@ foreach ($pages as $pageNametags) {
         <?php foreach ($filledPage as $datarecord) { ?>
             <?php if ($datarecord) { ?>
                 <div class="name-card">
-                    <h4><?php echo h(trim($datarecord->Students['first_name'] . ' ' . $datarecord->Students['last_name'])); ?></h4>
-                    <p><?php echo h($datarecord->Users['first_name']); ?></p>
+                    <?php
+                        $studentName = trim((string)($datarecord->student_display_name ?? trim((string)($datarecord->Students['first_name'] ?? '') . ' ' . (string)($datarecord->Students['middle_name'] ?? '') . ' ' . (string)($datarecord->Students['last_name'] ?? ''))));
+                        $schoolName = trim((string)($datarecord->school_name ?? trim((string)($datarecord->Users['first_name'] ?? '') . ' ' . (string)($datarecord->Users['middle_name'] ?? '') . ' ' . (string)($datarecord->Users['last_name'] ?? ''))));
+                    ?>
+                    <h4><?php echo h($studentName); ?></h4>
+                    <p><?php echo h($schoolName); ?></p>
                     <p><?php echo h($convSeasD->Conventions['name']); ?><br><?php echo h($convSeasD->season_year); ?></p>
                     <?php echo $this->Html->image('front/scce_logo_tags.jpg'); ?>
                 </div>

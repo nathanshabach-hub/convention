@@ -12,7 +12,7 @@ if (!function_exists('sdGetSportRoundLabel')) {
 		if ($round === $totalRounds) {
 			return 'Final';
 		}
-		if ($round === $totalRounds - 1 && $totalRounds > 2) {
+		if ($round === $totalRounds - 1 && $totalRounds > 1) {
 			return 'Semi Final';
 		}
 		if ($round === $totalRounds - 2 && $totalRounds > 3) {

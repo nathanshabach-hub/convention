@@ -126,19 +126,74 @@ class EventsubmissionsController extends AppController {
 		{
 			$condition[] = "(Eventsubmissions.uploaded_by_user_id = '".$user_id."')";
 		}
+
+		$selectedRegistrationId = (int)$this->request->session()->read("sess_selected_convention_registration_id");
+		$conventionRegD = $this->Conventionregistrations->find()->where(['Conventionregistrations.id' => $selectedRegistrationId])->contain(["Conventionseasons"])->first();
+		if ($conventionRegD) {
+			$this->syncAutomaticGroupSubmissions($conventionRegD);
+		}
 		
 		$eventsubmissions = $this->Eventsubmissions->find()->where($condition)->contain(['Events','Students'])->order(['Eventsubmissions.id' => 'DESC'])->all();
 		$this->set('eventsubmissions',$eventsubmissions);
 		//$this->prx($condition);
 		
 		// to check if result released or not
-		$sess_selected_convention_registration_id = $this->request->session()->read("sess_selected_convention_registration_id");
-			
-		// to get convention registration details
-		$conventionRegD = $this->Conventionregistrations->find()->where(['Conventionregistrations.id' => $sess_selected_convention_registration_id])->contain(["Conventionseasons"])->first();
-		$this->set('results_release', $conventionRegD->Conventionseasons['results_release']);
+		$this->set('results_release', $conventionRegD ? $conventionRegD->Conventionseasons['results_release'] : 0);
 		
     }
+
+	private function syncAutomaticGroupSubmissions($conventionRegD): void {
+		$groupedEventRows = $this->Crstudentevents->find()
+			->select(['event_id', 'group_name'])
+			->where([
+				'Crstudentevents.conventionregistration_id' => $conventionRegD->id,
+				'Crstudentevents.convention_id' => $conventionRegD->convention_id,
+				'Crstudentevents.season_id' => $conventionRegD->season_id,
+				'Crstudentevents.season_year' => $conventionRegD->season_year,
+				'Crstudentevents.group_name IS NOT' => null,
+				'Crstudentevents.group_name !=' => '',
+			])
+			->group(['Crstudentevents.event_id', 'Crstudentevents.group_name'])
+			->all();
+
+		foreach ($groupedEventRows as $groupedEventRow) {
+			$event = $this->Events->find()->where([
+				'Events.id' => $groupedEventRow->event_id,
+				'Events.auto_submission' => 1,
+				'Events.group_event_yes_no' => 1,
+			])->first();
+			if (!$event) {
+				continue;
+			}
+
+			$groupName = trim((string)$groupedEventRow->group_name);
+			$submissionExists = $this->Eventsubmissions->find()->where([
+				'Eventsubmissions.conventionregistration_id' => $conventionRegD->id,
+				'Eventsubmissions.event_id' => $event->id,
+				'Eventsubmissions.group_name' => $groupName,
+			])->count() > 0;
+			if ($submissionExists) {
+				continue;
+			}
+
+			$submission = $this->Eventsubmissions->newEntity([]);
+			$submission->slug = 'event-submission-'.$conventionRegD->id.'-'.time().'-'.rand(100, 1000000);
+			$submission->conventionregistration_id = $conventionRegD->id;
+			$submission->conventionseason_id = $conventionRegD->conventionseason_id;
+			$submission->convention_id = $conventionRegD->convention_id;
+			$submission->user_id = $conventionRegD->user_id;
+			$submission->season_id = $conventionRegD->season_id;
+			$submission->season_year = $conventionRegD->season_year;
+			$submission->event_id = $event->id;
+			$submission->event_id_number = $event->event_id_number;
+			$submission->student_id = 0;
+			$submission->group_name = $groupName;
+			$submission->uploaded_by_user_id = $conventionRegD->user_id;
+			$submission->created = date('Y-m-d H:i:s');
+			$submission->modified = date('Y-m-d H:i:s');
+			$this->Eventsubmissions->save($submission);
+		}
+	}
 	
 	public function submitnewevent() {
 		

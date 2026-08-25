@@ -103,149 +103,98 @@ if (!empty($schedulingD->lunch_time_start) && !empty($schedulingD->lunch_time_en
 $smallProgramEditable = isset($smallProgramEditable) ? (bool)$smallProgramEditable : false;
 
 /**
- * Helper function to consolidate Male & Female event pairs AND same-base-name events with different suffixes
+ * Helper function to consolidate Male & Female event pairs while preserving
+ * distinct age/category variants such as U16 and OPEN.
  * Examples:
  * - ["Event (Male) U16", "Event (Female) U16"] → ["Event M & F U16"]
- * - ["Female Duet OPEN", "Female Duet U16"] → ["Female Duet U16 & OPEN"]
- * - ["Expressive Reading M & F OPEN", "Expressive Reading M & F U16"] → ["Expressive Reading M & F U16 & OPEN"]
+ * - ["Event (Male) OPEN", "Event (Female) OPEN"] → ["Event M & F OPEN"]
+ * - U16 and OPEN entries remain distinct and are not merged together.
  */
 function consolidateEventNames($eventNames) {
     if (empty($eventNames)) {
         return array();
     }
-    
-    // Step 1: Consolidate Male/Female pairs
-    $maleFemaleMerged = array();
+
+    $eventNames = array_values(array_filter(array_map(function($eventName) {
+        return trim((string)$eventName);
+    }, $eventNames), function($eventName) {
+        return $eventName !== '';
+    }));
+
+    $byKey = array();
+    foreach ($eventNames as $eventName) {
+        $key = null;
+        $baseName = null;
+        $suffix = null;
+
+        if (preg_match('/^(.*?)\s+\((Male|Female)\)\s*(.*)$/i', $eventName, $matches)) {
+            $baseName = trim((string)($matches[1] ?? ''));
+            $suffix = trim((string)($matches[3] ?? ''));
+            $key = $baseName . '|' . $suffix;
+            $byKey[$key]['baseName'] = $baseName;
+            $byKey[$key]['suffix'] = $suffix;
+            $byKey[$key]['genders'][strtoupper((string)($matches[2] ?? ''))] = true;
+        } elseif (preg_match('/^(.*?)\s+M\s*&\s*F\s*(.*)$/i', $eventName, $matches)) {
+            $baseName = trim((string)($matches[1] ?? ''));
+            $suffix = trim((string)($matches[2] ?? ''));
+            $key = $baseName . '|' . $suffix;
+            $byKey[$key]['baseName'] = $baseName;
+            $byKey[$key]['suffix'] = $suffix;
+            $byKey[$key]['combined'] = true;
+        }
+
+        if ($key !== null && $baseName !== null) {
+            $byKey[$key]['entries'][] = $eventName;
+        }
+    }
+
     $processed = array();
-    
+    $output = array();
+
     foreach ($eventNames as $eventName) {
         if (isset($processed[$eventName])) {
             continue;
         }
-        
-        // Check if this event contains " (Male)" or " (Female)"
-        $maleMatch = preg_match('/\s+\(Male\)\s*(.*)$/i', $eventName, $maleMatches);
-        $femaleMatch = preg_match('/\s+\(Female\)\s*(.*)$/i', $eventName, $femaleMatches);
-        
-        if ($maleMatch || $femaleMatch) {
-            // Extract the base event name and suffix
-            $baseName = preg_replace('/\s+\((Male|Female)\)\s*.*$/i', '', $eventName);
-            $suffix = '';
-            
-            if ($maleMatch) {
-                $suffix = trim($maleMatches[1] ?? '');
-            } elseif ($femaleMatch) {
-                $suffix = trim($femaleMatches[1] ?? '');
-            }
-            
-            // Check if both male and female versions exist
-            $hasMale = false;
-            $hasFemale = false;
-            foreach ($eventNames as $en) {
-                if (preg_match('/^' . preg_quote($baseName) . '\s+\(Male\)/i', $en)) {
-                    $hasMale = true;
-                }
-                if (preg_match('/^' . preg_quote($baseName) . '\s+\(Female\)/i', $en)) {
-                    $hasFemale = true;
-                }
-            }
-            
-            if ($hasMale && $hasFemale) {
-                // Both male and female versions exist - consolidate to "Event M & F [suffix]"
-                $consolidatedName = $baseName . ' M & F';
-                if (!empty($suffix)) {
-                    $consolidatedName .= ' ' . $suffix;
-                }
-                $maleFemaleMerged[] = $consolidatedName;
-                
-                // Mark all variants as processed
-                foreach ($eventNames as $en) {
-                    if (preg_match('/^' . preg_quote($baseName) . '\s+\((Male|Female)\)/i', $en)) {
-                        $processed[$en] = true;
-                    }
-                }
-            } else {
-                // Only one gender version exists - keep as-is
-                $maleFemaleMerged[] = $eventName;
-                $processed[$eventName] = true;
-            }
-        } else {
-            // Not a male/female event - keep for suffix consolidation
-            $maleFemaleMerged[] = $eventName;
-            $processed[$eventName] = true;
+
+        $key = null;
+        $baseName = null;
+        $suffix = null;
+
+        if (preg_match('/^(.*?)\s+\((Male|Female)\)\s*(.*)$/i', $eventName, $matches)) {
+            $baseName = trim((string)($matches[1] ?? ''));
+            $suffix = trim((string)($matches[3] ?? ''));
+            $key = $baseName . '|' . $suffix;
+        } elseif (preg_match('/^(.*?)\s+M\s*&\s*F\s*(.*)$/i', $eventName, $matches)) {
+            $baseName = trim((string)($matches[1] ?? ''));
+            $suffix = trim((string)($matches[2] ?? ''));
+            $key = $baseName . '|' . $suffix;
         }
+
+        if ($key !== null && isset($byKey[$key])) {
+            $meta = $byKey[$key];
+            $hasMale = !empty($meta['genders']['M']);
+            $hasFemale = !empty($meta['genders']['F']);
+            $hasCombined = !empty($meta['combined']);
+
+            if (($hasMale && $hasFemale) || $hasCombined) {
+                $merged = (string)($meta['baseName'] ?? $baseName) . ' M & F';
+                if (!empty($meta['suffix'])) {
+                    $merged .= ' ' . $meta['suffix'];
+                }
+                $output[] = $merged;
+
+                foreach (($meta['entries'] ?? array()) as $candidate) {
+                    $processed[$candidate] = true;
+                }
+                continue;
+            }
+        }
+
+        $output[] = $eventName;
+        $processed[$eventName] = true;
     }
-    
-    // Step 2: Consolidate same-base-name events with different suffixes
-    // Find suffix patterns like "U16", "OPEN" at the end
-    $suffixMerged = array();
-    $suffixProcessed = array();
-    
-    foreach ($maleFemaleMerged as $eventName) {
-        if (isset($suffixProcessed[$eventName])) {
-            continue;
-        }
-        
-        // Try to extract suffix: last word if it's all uppercase or has numbers
-        $matches = array();
-        if (preg_match('/^(.+?)\s+([A-Z0-9]+)$/', $eventName, $matches)) {
-            $baseName = trim($matches[1]);
-            $suffix1 = trim($matches[2]);
-            
-            // Look for other events with same base name but different suffix
-            $suffixVariants = array($suffix1);
-            foreach ($maleFemaleMerged as $otherEvent) {
-                if ($otherEvent === $eventName || isset($suffixProcessed[$otherEvent])) {
-                    continue;
-                }
-                
-                $otherMatches = array();
-                if (preg_match('/^(.+?)\s+([A-Z0-9]+)$/', $otherEvent, $otherMatches)) {
-                    $otherBase = trim($otherMatches[1]);
-                    $otherSuffix = trim($otherMatches[2]);
-                    
-                    // Check if base names match (case-insensitive)
-                    if (strtolower($baseName) === strtolower($otherBase) && $otherSuffix !== $suffix1) {
-                        $suffixVariants[] = $otherSuffix;
-                        $suffixProcessed[$otherEvent] = true;
-                    }
-                }
-            }
-            
-            if (count($suffixVariants) > 1) {
-                // Multiple suffixes found - consolidate
-                // Sort suffixes: U16 first, then OPEN, then others alphabetically
-                usort($suffixVariants, function($a, $b) {
-                    $aUpper = strtoupper($a);
-                    $bUpper = strtoupper($b);
-                    
-                    // U16 comes first
-                    if ($aUpper === 'U16' && $bUpper !== 'U16') return -1;
-                    if ($aUpper !== 'U16' && $bUpper === 'U16') return 1;
-                    
-                    // Then OPEN
-                    if ($aUpper === 'OPEN' && $bUpper !== 'OPEN') return -1;
-                    if ($aUpper !== 'OPEN' && $bUpper === 'OPEN') return 1;
-                    
-                    // Then alphabetically
-                    return strcmp($aUpper, $bUpper);
-                });
-                
-                $consolidatedName = $baseName . ' ' . implode(' & ', $suffixVariants);
-                $suffixMerged[] = $consolidatedName;
-            } else {
-                // Single suffix or no consolidation needed
-                $suffixMerged[] = $eventName;
-            }
-        } else {
-            // No suffix pattern - keep as-is
-            $suffixMerged[] = $eventName;
-        }
-        
-        $suffixProcessed[$eventName] = true;
-    }
-    
-    return $suffixMerged;
+
+    return $output;
 }
 ?>
 

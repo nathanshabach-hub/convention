@@ -112,6 +112,7 @@ private $scheduleWindowWarningShown = false;
 		
         $this->set('convention_season_slug', $convention_season_slug);
 		$this->request->getSession()->delete('Scheduling.windowWarningShown');
+		$this->request->getSession()->delete('Scheduling.runWarnings');
 		$this->scheduleWindowWarningShown = false;
 		$this->clearSchedulingtimings($convention_season_slug);
 		
@@ -285,7 +286,7 @@ private $scheduleWindowWarningShown = false;
 
 							$submissionKey = $convreg->id.'|'.$eventIDCS.'|'.$convreg->user_id.'|'.$groupName;
 							if (!array_key_exists($submissionKey, $submissionExistsCache)) {
-								$submissionCount = $this->Eventsubmissions->find()->where([
+								$submissionConditions = [
 									'Eventsubmissions.conventionregistration_id' => $convreg->id,
 									'Eventsubmissions.conventionseason_id' => $conventionSD->id,
 									'Eventsubmissions.convention_id' => $conventionSD->convention_id,
@@ -293,8 +294,13 @@ private $scheduleWindowWarningShown = false;
 									'Eventsubmissions.season_year' => $conventionSD->season_year,
 									'Eventsubmissions.event_id' => $eventIDCS,
 									'Eventsubmissions.user_id' => $convreg->user_id,
-									'Eventsubmissions.group_name' => $groupName,
-								])->count();
+								];
+								if ($groupName === 'Ungrouped') {
+									$submissionConditions[] = "(Eventsubmissions.group_name = 'Ungrouped' OR Eventsubmissions.group_name IS NULL OR TRIM(Eventsubmissions.group_name) = '')";
+								} else {
+									$submissionConditions['Eventsubmissions.group_name'] = $groupName;
+								}
+								$submissionCount = $this->Eventsubmissions->find()->where($submissionConditions)->count();
 								$submissionExistsCache[$submissionKey] = $submissionCount > 0;
 							}
 
@@ -477,6 +483,10 @@ private $scheduleWindowWarningShown = false;
 		{
 			$this->Flash->warning('Category 1 skipped '.$c1SkippedWithoutSubmission.' registration/event group entry(ies) because no matching event submission was found.');
 		}
+		$this->request->getSession()->write('Scheduling.runWarnings.category1', [
+			'ungrouped' => $c1UngroupedFallbackCount,
+			'skipped' => $c1SkippedWithoutSubmission,
+		]);
 		if($c1SaveFailures > 0)
 		{
 			$this->Flash->warning('Category 1 failed to save '.$c1SaveFailures.' row(s). First save error: '.$c1FirstSaveError);
@@ -833,6 +843,30 @@ private $scheduleWindowWarningShown = false;
 					$dataBye->sch_date_time				= $start_date.' 00:00:00';
 					$this->Schedulingtimings->save($dataBye);
 					$lastMatchNumber++;
+
+					if (count($arrNR) === 2 && ($currentRound > 1 || $countTotalMatR1Event > 1)) {
+						$thirdPlaceTiming = $this->Schedulingtimings->newEntity([]);
+						$thirdPlaceMatch = $this->Schedulingtimings->patchEntity($thirdPlaceTiming, []);
+						$thirdPlaceMatch->schedule_category			= 2;
+						$thirdPlaceMatch->conventionseasons_id		= $conventionSD->id;
+						$thirdPlaceMatch->convention_id				= $conventionSD->convention_id;
+						$thirdPlaceMatch->season_id					= $conventionSD->season_id;
+						$thirdPlaceMatch->season_year				= $conventionSD->season_year;
+						$thirdPlaceMatch->event_id					= $event_id_c2;
+						$thirdPlaceMatch->event_id_number			= $eventD->event_id_number;
+						$thirdPlaceMatch->user_id					= 0;
+						$thirdPlaceMatch->user_id_opponent			= 0;
+						$thirdPlaceMatch->room_id					= $roomIdForRound;
+						$thirdPlaceMatch->schtimeautoid1			= $first_id;
+						$thirdPlaceMatch->schtimeautoid2			= $second_id;
+						$thirdPlaceMatch->round_number				= $currentRound + 1;
+						$thirdPlaceMatch->match_number				= $lastMatchNumber;
+						$thirdPlaceMatch->is_bye					= 0;
+						$thirdPlaceMatch->created					= date('Y-m-d H:i:s');
+						$thirdPlaceMatch->sch_date_time				= $start_date.' 00:00:00';
+						$this->Schedulingtimings->save($thirdPlaceMatch);
+						$lastMatchNumber++;
+					}
 				}
 
 				// Odd player out — give them a bye into the next round
@@ -922,7 +956,11 @@ private $scheduleWindowWarningShown = false;
 				$condST = array();
 				$condST[] = "(Schedulingtimings.conventionseasons_id = '".$conventionSD->id."' AND Schedulingtimings.convention_id = '".$conventionSD->convention_id."' AND Schedulingtimings.season_id = '".$conventionSD->season_id."' AND Schedulingtimings.season_year = '".$conventionSD->season_year."')";
 				$condST[] = "(Schedulingtimings.schedule_category = '2' AND Schedulingtimings.is_bye = '0' AND Schedulingtimings.event_id = '".$event_id."')";
-				$schedulingT = $this->Schedulingtimings->find()->where($condST)->order(["Schedulingtimings.id" => "ASC"])->all();
+				$schedulingT = $this->Schedulingtimings->find()->where($condST)->order([
+					"Schedulingtimings.round_number" => "ASC",
+					"Schedulingtimings.match_number" => "DESC",
+					"Schedulingtimings.id" => "ASC",
+				])->all();
 				//$this->prx($schedulingT);
 				$windowExceeded = false;
 
@@ -1027,6 +1065,7 @@ private $scheduleWindowWarningShown = false;
 
 					if (!empty($fallbackResultC2['assignedCount'])) {
 						$this->Flash->warning('Category 2 fallback placed '.$fallbackResultC2['assignedCount'].' remaining match(es) for event '.$eventD->event_id_number.'.');
+						$this->request->getSession()->write('Scheduling.runWarnings.category2.'.$eventD->event_id_number.'.fallback', (int)$fallbackResultC2['assignedCount']);
 					}
 
 					$pendingRows = $fallbackResultC2['pendingRows'];
@@ -1045,6 +1084,7 @@ private $scheduleWindowWarningShown = false;
 
 					if (!empty($overflowResultC2['assignedCount'])) {
 						$this->Flash->warning('Category 2 overflow placed '.$overflowResultC2['assignedCount'].' remaining match(es) for event '.$eventD->event_id_number.' on days after the configured window.');
+						$this->request->getSession()->write('Scheduling.runWarnings.category2.'.$eventD->event_id_number.'.overflow', (int)$overflowResultC2['assignedCount']);
 					}
 
 					$pendingRows = $overflowResultC2['pendingRows'];
@@ -2528,9 +2568,17 @@ private $scheduleWindowWarningShown = false;
 		}
 
 		if ($eventTweak4 && !empty($eventTweak4->pinned_day)) {
-			$bands = array_values(array_filter($bands, function (array $band) use ($eventTweak4) {
-				return $band['day'] === $eventTweak4->pinned_day;
-			}));
+			$firstPinnedIndex = null;
+			foreach ($bands as $index => $band) {
+				if ($band['day'] === $eventTweak4->pinned_day) {
+					$firstPinnedIndex = $index;
+					break;
+				}
+			}
+
+			if ($firstPinnedIndex !== null) {
+				$bands = array_slice($bands, $firstPinnedIndex);
+			}
 		}
 
 		if ($eventTweak4 && !empty($eventTweak4->pinned_start_time)) {
@@ -3095,6 +3143,9 @@ private $scheduleWindowWarningShown = false;
 				$sports_day					= $schedulingsD->sports_day;
 				$sports_day_starting_time	= $this->normalizeWizardTime($schedulingsD->sports_day_starting_time);
 				$sports_day_finish_time		= $this->normalizeWizardTime($schedulingsD->sports_day_finish_time);
+				$hasAfterSportWindow = ((int)($schedulingsD->sports_day_having_events_after_sport_yes_no ?? 0) === 1);
+				$sports_day_other_starting_time = $this->normalizeWizardTime($schedulingsD->sports_day_other_starting_time ?? null);
+				$sports_day_other_finish_time = $this->normalizeWizardTime($schedulingsD->sports_day_other_finish_time ?? null);
 				
 				if($sports_day == $schDay)
 				{
@@ -3104,6 +3155,30 @@ private $scheduleWindowWarningShown = false;
 						$start_time 	= $sports_day_finish_time;
 						$finish_time 	= date("H:i:s", strtotime('+ '.$eventSetupRoundJudTime.' minutes', strtotime($sports_day_finish_time)));
 						$slotChanged = true;
+					}
+
+					if (
+						$hasAfterSportWindow &&
+						$this->isValidTimeRange($sports_day_other_starting_time, $sports_day_other_finish_time)
+					) {
+						// On sports day, post-sport events can only run inside the configured after-sport window.
+						if (strtotime($start_time) < strtotime($sports_day_other_starting_time)) {
+							$start_time = $sports_day_other_starting_time;
+							$finish_time = date("H:i:s", strtotime('+ '.$eventSetupRoundJudTime.' minutes', strtotime($start_time)));
+							$slotChanged = true;
+						}
+
+						if (strtotime($finish_time) > strtotime($sports_day_other_finish_time)) {
+							if (!$this->applyNextConventionDay($schDay, $schStartDate, $cntrDays, $schedulingsD)) {
+								$windowExhausted = true;
+								break;
+							}
+							$normal_starting_time = $this->normalizeWizardTime($schedulingsD->normal_starting_time);
+							$normal_finish_time = $this->normalizeWizardTime($schedulingsD->normal_finish_time);
+							$start_time = $normal_starting_time;
+							$finish_time = date("H:i:s", strtotime('+ '.$eventSetupRoundJudTime.' minutes', strtotime($normal_starting_time)));
+							$slotChanged = true;
+						}
 					}
 					
 					if(strtotime($finish_time)>=strtotime($normal_finish_time))
