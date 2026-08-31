@@ -19,6 +19,43 @@
 		font-size: 12px !important;
 		line-height: 1.25 !important;
 	}
+
+	.judge-eval-event-header {
+		margin-bottom: 12px !important;
+	}
+
+	.judge-eval-record {
+		margin-bottom: 18px !important;
+		break-inside: avoid-page;
+		page-break-inside: avoid;
+	}
+}
+
+.judge-eval-event-header {
+	display: flex;
+	justify-content: space-between;
+	gap: 24px;
+	border-bottom: 2px solid #d58aa5;
+	padding-bottom: 8px;
+	margin-bottom: 16px;
+}
+
+.judge-eval-event-header h2,
+.judge-eval-event-header p {
+	margin: 0;
+}
+
+.judge-eval-event-header h2 {
+	font-size: 20px;
+}
+
+.judge-eval-school {
+	text-align: right;
+}
+
+.judge-eval-judge {
+	font-size: 14px;
+	margin: 0 0 6px;
 }
 </style>
 
@@ -44,17 +81,40 @@
 			$condGrp = array();
 			$condGrp[] = "(Crstudentevents.conventionregistration_id = '".$conventionRegD->id."' )";
 			$condGrp[] = "(Crstudentevents.event_id = '".$eventrec->id."' )";
+			$condGrp[] = "(Crstudentevents.student_id = '".$convRegStudentD->student_id."' )";
 			$checkGroup = $this->Crstudentevents->find()->where($condGrp)->select(['group_name'])->first();
 			
-			$condJeval[] = "(Judgeevaluations.group_name = '".$checkGroup->group_name."' )";
+			if (!empty($checkGroup->group_name)) {
+				$condJeval[] = "(Judgeevaluations.group_name = '".$checkGroup->group_name."' )";
+			}
 		}
 		
-		$judgeEvaluationD = $this->Judgeevaluations->find()->where($condJeval)->contain(['Judgeevaluationmarks'])->first();
+		$judgeEvaluations = $this->Judgeevaluations->find()
+			->where($condJeval)
+			->contain(['Judgeevaluationmarks', 'Judge'])
+			->order(['Judgeevaluations.id' => 'ASC'])
+			->all();
 			
-		if($judgeEvaluationD)
+		if(!$judgeEvaluations->isEmpty())
 		{
 	?>
 	<div class="judge-evaluation-page">
+		<div class="judge-eval-event-header">
+			<div>
+				<h2><?php echo h($eventrec->event_name); ?></h2>
+				<p><?php echo h(trim($convRegStudentD->Students['first_name'].' '.$convRegStudentD->Students['middle_name'].' '.$convRegStudentD->Students['last_name'])); ?></p>
+			</div>
+			<p class="judge-eval-school"><?php echo h($convRegStudentD->Users['first_name']); ?></p>
+		</div>
+		<?php foreach($judgeEvaluations as $judgeEvaluationD) { ?>
+		<div class="judge-eval-record">
+			<?php
+			$judgeName = trim(
+				(string)($judgeEvaluationD->Judge['first_name'] ?? '').' '.
+				(string)($judgeEvaluationD->Judge['last_name'] ?? '')
+			);
+			?>
+			<p class="judge-eval-judge"><b>Judge:</b> <?php echo h($judgeName !== '' ? $judgeName : 'N/A'); ?></p>
 		<?php
 		if($eventrec->event_judging_type == 'general')
 		{
@@ -125,6 +185,36 @@
 					</tr>
 
 				</tbody>
+			</table>
+		</div>
+		<?php
+		}
+		else if($eventrec->event_judging_type == 'times')
+		{
+			$formattedTime = '';
+			if (!empty($judgeEvaluationD->time_score)) {
+				$formattedTime = is_object($judgeEvaluationD->time_score) && method_exists($judgeEvaluationD->time_score, 'format')
+					? $judgeEvaluationD->time_score->format('H:i:s.u')
+					: (string)$judgeEvaluationD->time_score;
+				$formattedTime = rtrim(rtrim($formattedTime, '0'), '.');
+			}
+			$status = (int)$judgeEvaluationD->did_not_attend === 1
+				? 'Did not attend'
+				: ((int)$judgeEvaluationD->withdraw_yes_no === 1 ? 'Withdrawn' : 'Completed');
+		?>
+		<div class="table-responsive">
+			<table class="table table-bordered table-hover align-middle judge-eval-table">
+				<tr>
+					<td colspan="2"><b>Event: <?php echo h($eventrec->event_name.' ('.$eventrec->event_id_number.')'); ?></b></td>
+				</tr>
+				<tr>
+					<td><b>Time</b></td>
+					<td><?php echo h($formattedTime !== '' ? $formattedTime : 'N/A'); ?></td>
+				</tr>
+				<tr>
+					<td><b>Status</b></td>
+					<td><?php echo h($status); ?></td>
+				</tr>
 			</table>
 		</div>
 		<?php
@@ -325,6 +415,8 @@
 		<?php
 		}
 		?>
+		</div>
+		<?php } ?>
 	</div>
 	<?php
 		}

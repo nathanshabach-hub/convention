@@ -8,6 +8,7 @@ $this->Judgeevaluations = TableRegistry::get('Judgeevaluations');
 $this->Judgeevaluationmarks = TableRegistry::get('Judgeevaluationmarks');
 $this->Evaluationquestions = TableRegistry::get('Evaluationquestions');
 $this->Eventsubmissions = TableRegistry::get('Eventsubmissions');
+$evaluationsOnly = ((int)$this->request->getQuery('evaluations_only', 0) === 1);
 ?>
 <?php if ((int)$this->request->getQuery('autoprint', 1) === 1): ?>
 <script type="text/javascript">
@@ -48,8 +49,8 @@ window.print();
 		break-before: page;
 		page-break-after: always;
 		break-after: page;
-		page-break-inside: avoid;
-		break-inside: avoid-page;
+		page-break-inside: auto;
+		break-inside: auto;
 	}
 
 	.judge-evaluation-page:last-child {
@@ -86,11 +87,12 @@ window.print();
 	font-style: normal;
 	}
 @page {
-	size: A4 landscape;
+	size: A4 <?php echo $evaluationsOnly ? 'portrait' : 'landscape'; ?>;
 	margin:0cm;
 }
 </style>
 
+<?php if (!$evaluationsOnly): ?>
 <!-- create first page with some details -->
 <div class="pack-page">
 	<?php echo $this->element('Judgeevaluations/firstpage'); ?>
@@ -107,10 +109,15 @@ window.print();
 <div class="pack-page">
 	<?php echo $this->element('Judgeevaluations/placecertificatepdf'); ?>
 </div>
+<?php endif; ?>
 
-<div class="pack-page">
+<?php if ($evaluationsOnly): ?>
 	<?php echo $this->element('Judgeevaluations/evaluationformpdf'); ?>
-</div>
+<?php else: ?>
+	<div class="pack-page">
+		<?php echo $this->element('Judgeevaluations/evaluationformpdf'); ?>
+	</div>
+<?php endif; ?>
 
 
 

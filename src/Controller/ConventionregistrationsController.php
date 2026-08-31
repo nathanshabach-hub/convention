@@ -545,6 +545,8 @@ class ConventionregistrationsController extends AppController {
 	public function downloadallresults() {
 		$helperServerPid = 0;
 		try {
+		$evaluationsOnly = ((string)$this->request->getQuery('package') === 'judges-evaluations');
+		$packageLabel = $evaluationsOnly ? 'Judges Evaluations' : 'Student Results';
 
 		$this->userLoginCheck();
 		$this->schoolAdminLoginCheck();
@@ -587,10 +589,10 @@ class ConventionregistrationsController extends AppController {
 		header('Pragma: no-cache');
 		header('Expires: 0');
 
-		echo '<!doctype html><html><head><meta charset="utf-8"><title>Generating Student Results ZIP</title>';
+		echo '<!doctype html><html><head><meta charset="utf-8"><title>Generating ' . $packageLabel . ' ZIP</title>';
 		echo '<style>body{font-family:Arial,sans-serif;background:#f5f7fb;margin:0;padding:24px;color:#1d2736}.card{max-width:760px;margin:0 auto;background:#fff;border:1px solid #d8e0ec;border-radius:10px;padding:20px;box-shadow:0 2px 8px rgba(8,24,49,.06)}h2{margin:0 0 10px 0;font-size:22px}.muted{color:#5b6b83;font-size:14px}.bar{height:14px;background:#e8eef7;border-radius:999px;overflow:hidden;margin:16px 0}.bar > div{height:100%;width:0;background:linear-gradient(90deg,#0f6c96,#0b8f59)}.log{border:1px solid #e2e8f2;border-radius:8px;background:#fbfdff;padding:10px;height:280px;overflow:auto;font-size:13px;line-height:1.4}.ok{color:#0b8f59}.warn{color:#c7860e}.err{color:#c23131}.done{margin-top:14px;padding:10px 12px;border-radius:8px;background:#edf8ef;border:1px solid #bfe2c5}</style>';
 		echo '</head><body><div class="card">';
-		echo '<h2>Generating Student Results ZIP</h2>';
+		echo '<h2>Generating ' . $packageLabel . ' ZIP</h2>';
 		echo '<div class="muted" id="statusText">Starting... (0/' . (int)$totalStudents . ')</div>';
 		echo '<div class="bar"><div id="progressBar"></div></div>';
 		echo '<div class="log" id="progressLog"></div>';
@@ -713,6 +715,9 @@ class ConventionregistrationsController extends AppController {
 
 			$pdfPath = $tmpRoot . DS . $safeName . '.pdf';
 			$printUrl = $baseUrl . '/judgeevaluations/indrespackprint/' . rawurlencode($studentSlug) . '?exp=' . $exp . '&sig=' . urlencode($sig) . '&autoprint=0';
+			if ($evaluationsOnly) {
+				$printUrl .= '&evaluations_only=1';
+			}
 
 			$cmdCore = escapeshellarg($chromeBinary)
 				. ' --headless --disable-gpu --no-sandbox --virtual-time-budget=10000'
@@ -746,7 +751,7 @@ class ConventionregistrationsController extends AppController {
 
 		$conventionName = preg_replace('/[^a-z0-9\-]+/', '-', strtolower($conventionReg->Conventions['name'] ?? 'results'));
 		$seasonYear = (string)($conventionReg->Conventionseasons['season_year'] ?? date('Y'));
-		$zipFilename = $conventionName . '-' . $seasonYear . '-student-results.zip';
+		$zipFilename = $conventionName . '-' . $seasonYear . ($evaluationsOnly ? '-judges-evaluations.zip' : '-student-results.zip');
 		$zipPath = $tmpRoot . DS . $zipFilename;
 
 		$zip = new \ZipArchive();

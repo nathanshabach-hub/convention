@@ -12,6 +12,7 @@
 				<div class="cr-students-actions" style="display:flex; gap:8px; margin-left:auto; flex-wrap:wrap; justify-content:flex-end;">
 					<?php echo $this->Html->link(' + Add Student', ['controller' => 'conventionregistrations', 'action' => 'addstudent'], ['escape' => false, 'class' => 'btn btn-primary', 'style' => 'float:none;']); ?>
 					<?php if (!empty($resultsReleased)): ?>
+					<?php echo $this->Html->link('<i class="fa fa-download"></i> Judges Evaluations', ['controller' => 'conventionregistrations', 'action' => 'downloadallresults', '?' => ['package' => 'judges-evaluations']], ['escape' => false, 'class' => 'btn btn-info', 'target' => '_blank', 'rel' => 'noopener', 'style' => 'float:none;']); ?>
 					<?php echo $this->Html->link('<i class="fa fa-download"></i> Download All Results', ['controller' => 'conventionregistrations', 'action' => 'downloadallresults'], ['escape' => false, 'class' => 'btn btn-success', 'target' => '_blank', 'rel' => 'noopener', 'style' => 'float:none;']); ?>
 					<?php endif; ?>
 				</div>
