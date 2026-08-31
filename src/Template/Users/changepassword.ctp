@@ -6,11 +6,10 @@ $(document).ready(function () {
 <div class="container-fluid p-0">
 	<div class="row">
 		<?php echo $this->element('user_left_menu'); ?>
-		<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-			<h2 class="mt-3">Change Password</h2>
+		<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 profile-edit-page change-password-page">
 			  
 			<!-- dashboard-section-3 start-->
-			<div class="dashboard-form">
+			<div class="dashboard-form profile-edit-form change-password-form">
 				<div class="ersu_message"> <?php echo $this->Flash->render() ?> </div>
 				<h2 class="form-title">Change Password</h2>
 				<?php echo $this->Form->create($users, ['id'=>'editprofile', 'type' => 'file', 'class' =>' ']); ?>

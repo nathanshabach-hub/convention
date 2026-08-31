@@ -46,6 +46,9 @@ class ConventionsController extends AppController {
 		$this->loadModel('Conventionrooms');
 		$this->loadModel('Conventionseasonroomevents');
 		$this->loadModel('Conventionregistrationstudents');
+		$this->loadModel('Judgeevaluations');
+		$this->loadModel('Crstudentevents');
+		$this->loadModel('Combinerequests');
     }
 
     public function index() {
@@ -2783,6 +2786,11 @@ class ConventionsController extends AppController {
 		{
 			//$this->prx($eventD);
 			$msgS = 'Qualifying criteria saved successfully.';
+			$currentRecord = trim((string)$this->request->getData('current_record'));
+			$this->Conventionseasonevents->updateAll(
+				['current_record' => $currentRecord !== '' ? $currentRecord : null],
+				['id' => $convSeasEventD->id]
+			);
 			
 			if($eventD->event_judging_type == 'times')
 			{
@@ -2832,9 +2840,13 @@ class ConventionsController extends AppController {
 				
 				$msgS = "Qualifying score saved successfully.";
 			}
+
+			if ($currentRecord !== '') {
+				$msgS .= ' Current record saved successfully.';
+			}
 			
 			$this->Flash->success($msgS);
-			$this->redirect(['controller' => 'conventions', 'action' => 'events',$slug_convention_season,$slug_convention]);
+			return $this->redirect(['controller' => 'conventions', 'action' => 'qualifyingdata', $slug_convention_season, $slug_convention, $event_slug]);
 		}
 		
         
@@ -2894,7 +2906,7 @@ class ConventionsController extends AppController {
 		//$this->prx($eventNI);
     }
 	
-	public function brokenrecordcertificatepdf($slug_convention_season=null,$slug_convention=null)
+	public function brokenrecordcertificatepdf($slug_convention_season=null,$slug_convention=null,$slug_event=null)
 	{
 		$this->viewBuilder()->disableAutoLayout();
 		
@@ -2921,19 +2933,102 @@ class ConventionsController extends AppController {
 		}
 		
 		
-		//$this->prx($this->request->getData());
-		
-		$event_id 			= $this->request->getData()['Conventionseasons']['event_id'];
-		$student_name 		= $this->request->getData()['Conventionseasons']['student_name'];
-		$school_name 		= $this->request->getData()['Conventionseasons']['school_name'];
-		
-		$eventD = $this->Events->find()->where(['Events.id' => $event_id])->first();
+		if ($slug_event !== null) {
+			$eventD = $this->Events->find()->where(['Events.slug' => $slug_event])->first();
+			if (!$eventD) {
+				$this->Flash->error('Event not found.');
+				return $this->redirect(['controller' => 'conventions', 'action' => 'events', $slug_convention_season, $slug_convention]);
+			}
+
+			$convSeasonEvent = $this->Conventionseasonevents->find()->where([
+				'Conventionseasonevents.conventionseasons_id' => $conventionSD->id,
+				'Conventionseasonevents.event_id' => $eventD->id,
+			])->first();
+			$currentRecord = trim((string)($convSeasonEvent->current_record ?? ''));
+			$parseTime = static function ($timeValue) {
+				if ($timeValue === null || $timeValue === '') {
+					return null;
+				}
+				if (is_object($timeValue) && method_exists($timeValue, 'format')) {
+					$timeValue = $timeValue->format('H:i:s.u');
+				}
+				if (!preg_match('/^(\d{1,2}):(\d{2}):(\d{2})(?:\.(\d{1,6}))?$/', trim((string)$timeValue), $matches)) {
+					return null;
+				}
+				$fraction = isset($matches[4]) ? str_pad(substr($matches[4], 0, 3), 3, '0') : '000';
+				return ((((int)$matches[1] * 60 + (int)$matches[2]) * 60 + (int)$matches[3]) * 1000) + (int)$fraction;
+			};
+
+			$winner = $this->Judgeevaluations->find()->where([
+				'Judgeevaluations.conventionseason_id' => $conventionSD->id,
+				'Judgeevaluations.convention_id' => $conventionSD->convention_id,
+				'Judgeevaluations.season_id' => $conventionSD->season_id,
+				'Judgeevaluations.season_year' => $conventionSD->season_year,
+				'Judgeevaluations.event_id' => $eventD->id,
+				'Judgeevaluations.withdraw_yes_no !=' => 1,
+				'Judgeevaluations.time_score IS NOT' => null,
+			])->order(['Judgeevaluations.time_score' => 'ASC'])->first();
+			if (!$winner || ($winnerTime = $parseTime($winner->time_score)) === null || ($recordTime = $parseTime($currentRecord)) === null || $winnerTime >= $recordTime) {
+				$this->Flash->error('This event does not have a verified broken record.');
+				return $this->redirect(['controller' => 'conventions', 'action' => 'events', $slug_convention_season, $slug_convention]);
+			}
+
+			$studentIds = [];
+			if (!empty($winner->group_name)) {
+				$studentIds = $this->Crstudentevents->find()->where([
+					'Crstudentevents.conventionseason_id' => $conventionSD->id,
+					'Crstudentevents.event_id' => $eventD->id,
+					'Crstudentevents.group_name' => $winner->group_name,
+					'Crstudentevents.student_id >' => 0,
+				])->extract('student_id')->toList();
+			}
+			if (empty($studentIds) && (int)$winner->student_id > 0) {
+				$studentIds[] = (int)$winner->student_id;
+			}
+			$studentIds = array_values(array_unique(array_map('intval', $studentIds)));
+			$students = empty($studentIds) ? [] : $this->Users->find()->where(['Users.id IN' => $studentIds])->all();
+			$studentNames = [];
+			foreach ($students as $student) {
+				$studentNames[] = trim((string)$student->first_name.' '.(string)$student->last_name);
+			}
+			$student_name = implode(', ', array_filter($studentNames));
+
+			$schoolIds = [(int)$winner->user_id];
+			$combinedRequests = $this->Combinerequests->find()->where([
+				'Combinerequests.conventionseason_id' => $conventionSD->id,
+				'Combinerequests.event_id' => $eventD->id,
+				'Combinerequests.status' => 1,
+				'OR' => [
+					'Combinerequests.user_id' => (int)$winner->user_id,
+					'Combinerequests.combine_with_user_id' => (int)$winner->user_id,
+				],
+			])->all();
+			foreach ($combinedRequests as $combinedRequest) {
+				$schoolIds[] = (int)$combinedRequest->user_id;
+				$schoolIds[] = (int)$combinedRequest->combine_with_user_id;
+			}
+			$schoolIds = array_values(array_unique(array_filter($schoolIds)));
+			$schools = $this->Users->find()->where(['Users.id IN' => $schoolIds])->all();
+			$schoolNames = [];
+			foreach ($schools as $school) {
+				$schoolNames[] = trim((string)$school->first_name);
+			}
+			$school_name = implode(' + ', array_filter($schoolNames));
+			if (count($schoolNames) > 1) {
+				$school_name .= ' Combined';
+			}
+		} else {
+			$event_id = $this->request->getData('Conventionseasons.event_id');
+			$student_name = $this->request->getData('Conventionseasons.student_name');
+			$school_name = $this->request->getData('Conventionseasons.school_name');
+			$eventD = $this->Events->find()->where(['Events.id' => $event_id])->first();
+		}
 		
 		
 		$arrCertData = array();
 		
 		$arrCertData['convention_name'] 	= $conventionD->name;
-		$arrCertData['seadon_year'] 		= $conventionSD->season_year;
+		$arrCertData['season_year'] 		= $conventionSD->season_year;
 		$arrCertData['student_name'] 		= $student_name;
 		$arrCertData['school_name'] 		= $school_name;
 		$arrCertData['event_name'] 			= $eventD->event_name;

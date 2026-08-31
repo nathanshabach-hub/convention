@@ -45,7 +45,7 @@ $this->Judgeevaluations = TableRegistry::get('Judgeevaluations');
 									<input type="number" name="result_position_<?php echo $datarecord->id; ?>" id="result_position_<?php echo $datarecord->id; ?>" value="<?php echo $datarecord->position;?>" />
 								</td>
 								
-                                <td data-title="School"><?php echo $datarecord->Users['first_name']; ?></td>
+                                <td data-title="School"><?php echo $datarecord->combined_school_name ?? $datarecord->Users['first_name']; ?></td>
                                 <td data-title="Student/Group">
 								<?php 
 								if($datarecord->student_id>0)

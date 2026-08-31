@@ -1847,364 +1847,103 @@ class AdminsController extends AppController {
         $this->set('title', ADMIN_TITLE . 'Convention Report');
         $this->set('report', '1');
 
-        $sess_admin_header_season_id = $this->request->getSession()->read("sess_admin_header_season_id");
-        $this->set('sess_admin_header_season_id', $sess_admin_header_season_id);
+        $selectedReportYear = $this->_resolveReportYearSelection();
 
-        if ($sess_admin_header_season_id <= 0) {
-            $this->Flash->error('Please select a convention season from the header.');
-            return $this->redirect(['action' => 'dashboard']);
-        }
-
-        $convSD = $this->Conventionseasons->find()
-            ->where(["Conventionseasons.id" => $sess_admin_header_season_id])
-            ->contain(['Conventions'])
-            ->first();
-
-        if (!$convSD) {
-            $this->Flash->error('Selected convention season was not found.');
-            return $this->redirect(['action' => 'dashboard']);
-        }
-
-        $this->set('conv_season', $convSD);
-
-        // Count registered schools
-        $total_schools = 0;
-        $listSchools = $this->Conventionregistrations->find()
-            ->where([
-                "convention_id" => $convSD->convention_id,
-                "season_id" => $convSD->season_id,
-                "season_year" => $convSD->season_year
-            ])
-            ->contain(['Users'])
+        $reportYearOptions = [];
+        $seasonYears = $this->Conventionseasons->find()
+            ->select(['season_year'])
+            ->where(['Conventionseasons.season_year IS NOT' => null])
+            ->group(['Conventionseasons.season_year'])
+            ->order(['Conventionseasons.season_year' => 'DESC'])
             ->all();
-        foreach ($listSchools as $school) {
-            if (isset($school->Users) && $school->Users['user_type'] == "School") {
-                $total_schools++;
-            }
-        }
-        $this->set('total_schools', $total_schools);
-
-        // Count registered students
-        $total_students = $this->Conventionregistrationstudents->find()
-            ->select(['student_id'])
-            ->where([
-                "convention_id" => $convSD->convention_id,
-                "season_id" => $convSD->season_id,
-                "season_year" => $convSD->season_year,
-                "student_id IS NOT" => null,
-                "student_id >" => 0,
-            ])
-            ->distinct(['student_id'])
-            ->count();
-        $this->set('total_students', $total_students);
-
-        // Count supervisors
-        $total_supervisors = $this->Conventionregistrationteachers->find()
-            ->where([
-                "convention_id" => $convSD->convention_id,
-                "season_id" => $convSD->season_id,
-                "season_year" => $convSD->season_year
-            ])
-            ->count();
-        $this->set('total_supervisors', $total_supervisors);
-
-        // Count judges
-        $total_judges = 0;
-        foreach ($listSchools as $school) {
-            if (isset($school->Users) && 
-                ($school->Users['user_type'] == "Judge" || $school->Users['user_type'] == "Teacher_Parent") && 
-                $school->Users['is_judge'] == 1) {
-                $total_judges++;
-            }
-        }
-        $this->set('total_judges', $total_judges);
-
-        // Count visitors
-        try {
-            $Visitors = $this->loadModel('Visitors');
-            $total_visitors = $Visitors->find()
-                ->where([
-                    "convention_id" => $convSD->convention_id,
-                    "season_id" => $convSD->season_id
-                ])
-                ->count();
-        } catch (\Exception $e) {
-            $total_visitors = 0;
-        }
-        $this->set('total_visitors', $total_visitors);
-
-        // Get all students with their event counts
-        $studentEventCounts = $this->Crstudentevents->find()
-            ->select(['student_id'])
-            ->where(["conventionseason_id" => $convSD->id])
-            ->group(['student_id'])
-            ->all();
-
-        $students_20_events = 0;
-        $students_11_15_events = 0;
-        $students_5_10_events = 0;
-
-        foreach ($studentEventCounts as $row) {
-            $eventCount = $this->Crstudentevents->find()
-                ->where([
-                    "conventionseason_id" => $convSD->id,
-                    "student_id" => $row->student_id
-                ])
-                ->select(['DISTINCT event_id'])
-                ->count();
-
-            if ($eventCount == 20) {
-                $students_20_events++;
-            } elseif ($eventCount >= 11 && $eventCount <= 15) {
-                $students_11_15_events++;
-            } elseif ($eventCount >= 5 && $eventCount <= 10) {
-                $students_5_10_events++;
+        foreach ($seasonYears as $seasonYearRow) {
+            $yearValue = (int)$seasonYearRow->season_year;
+            if ($yearValue > 0) {
+                $reportYearOptions[$yearValue] = (string)$yearValue;
             }
         }
 
-        $this->set('students_20_events', $students_20_events);
-        $this->set('students_11_15_events', $students_11_15_events);
-        $this->set('students_5_10_events', $students_5_10_events);
+        $this->set('reportYearOptions', $reportYearOptions);
+        $this->set('selectedReportYear', $selectedReportYear);
 
-        // Count 1st, 2nd, 3rd place winners
-        try {
-            $Resultpositions = $this->loadModel('Resultpositions');
-            
-            // 1st place winners
-            $first_place = $Resultpositions->find()
-                ->where([
-                    "position" => 1,
-                    "convention_id" => $convSD->convention_id
-                ])
-                ->count();
-            $this->set('first_place_winners', $first_place);
+        // Default values when no season is selected yet.
+        $this->set('conv_season', null);
+        $this->set('total_schools', 0);
+        $this->set('total_students', 0);
+        $this->set('total_supervisors', 0);
+        $this->set('total_judges', 0);
+        $this->set('total_visitors', 0);
+        $this->set('students_20_events', 0);
+        $this->set('students_11_15_events', 0);
+        $this->set('students_5_10_events', 0);
+        $this->set('first_place_winners', 0);
+        $this->set('second_place_winners', 0);
+        $this->set('third_place_winners', 0);
+        $this->set('silver_apple_count', 0);
+        $this->set('golden_awards_count', 0);
+        $this->set('total_entries', 0);
+        $this->set('hasReportData', false);
 
-            // 2nd place winners
-            $second_place = $Resultpositions->find()
-                ->where([
-                    "position" => 2,
-                    "convention_id" => $convSD->convention_id
-                ])
-                ->count();
-            $this->set('second_place_winners', $second_place);
-
-            // 3rd place winners
-            $third_place = $Resultpositions->find()
-                ->where([
-                    "position" => 3,
-                    "convention_id" => $convSD->convention_id
-                ])
-                ->count();
-            $this->set('third_place_winners', $third_place);
-        } catch (\Exception $e) {
-            $this->set('first_place_winners', 0);
-            $this->set('second_place_winners', 0);
-            $this->set('third_place_winners', 0);
+        if ($selectedReportYear <= 0) {
+            return;
         }
 
-        // Award counts - Silver Apple Award (events 336, 342)
-        $silver_apple = 0;
-        $golden_awards = 0;
-        
-        $silver_apple_students = $this->Conventionregistrationstudents->find()
-            ->where([
-                "convention_id" => $convSD->convention_id,
-                "season_id" => $convSD->season_id,
-                "season_year" => $convSD->season_year
-            ])
-            ->all();
-        
-        foreach ($silver_apple_students as $reg) {
-            $event_ids = !empty($reg->event_ids) ? explode(',', (string)$reg->event_ids) : [];
-            if (in_array('336', $event_ids) || in_array('342', $event_ids)) {
-                $silver_apple++;
-            }
-            
-            $golden_event_ids = ['331', '337', '332', '338', '333', '339', '334', '340', '335', '341'];
-            foreach ($event_ids as $eid) {
-                if (in_array(trim((string)$eid), $golden_event_ids)) {
-                    $golden_awards++;
-                    break;
-                }
-            }
-        }
-        
-        $this->set('silver_apple_count', $silver_apple);
-        $this->set('golden_awards_count', $golden_awards);
+        $this->request->getSession()->write('sess_admin_report_year', $selectedReportYear);
 
-        // Count total entries (event registrations)
-        $total_entries = $this->Crstudentevents->find()
-            ->where(["conventionseason_id" => $convSD->id])
-            ->count();
-        $this->set('total_entries', $total_entries);
+        $reportData = $this->_buildConventionYearReportData($selectedReportYear);
+        if (empty($reportData['hasReportData'])) {
+            $this->Flash->error('No report data found for the selected year.');
+            return;
+        }
+
+        $this->set('conv_season', $reportData['conv_season']);
+        $this->set('total_schools', $reportData['total_schools']);
+        $this->set('total_students', $reportData['total_students']);
+        $this->set('total_supervisors', $reportData['total_supervisors']);
+        $this->set('total_judges', $reportData['total_judges']);
+        $this->set('total_visitors', $reportData['total_visitors']);
+        $this->set('students_20_events', $reportData['students_20_events']);
+        $this->set('students_11_15_events', $reportData['students_11_15_events']);
+        $this->set('students_5_10_events', $reportData['students_5_10_events']);
+        $this->set('first_place_winners', $reportData['first_place_winners']);
+        $this->set('second_place_winners', $reportData['second_place_winners']);
+        $this->set('third_place_winners', $reportData['third_place_winners']);
+        $this->set('silver_apple_count', $reportData['silver_apple_count']);
+        $this->set('golden_awards_count', $reportData['golden_awards_count']);
+        $this->set('total_entries', $reportData['total_entries']);
+        $this->set('hasReportData', true);
     }
 
     public function downloadReport() {
-        $sess_admin_header_season_id = $this->request->getSession()->read("sess_admin_header_season_id");
-
-        if ($sess_admin_header_season_id <= 0) {
-            $this->Flash->error('Please select a convention season from the header.');
-            return $this->redirect(['action' => 'dashboard']);
+        $selectedReportYear = $this->_resolveReportYearSelection();
+        if ($selectedReportYear <= 0) {
+            $this->Flash->error('Please select a convention year first.');
+            return $this->redirect(['action' => 'report']);
         }
 
-        $convSD = $this->Conventionseasons->find()
-            ->where(["Conventionseasons.id" => $sess_admin_header_season_id])
-            ->contain(['Conventions'])
-            ->first();
-
-        if (!$convSD) {
-            $this->Flash->error('Selected convention season was not found.');
-            return $this->redirect(['action' => 'dashboard']);
+        $reportData = $this->_buildConventionYearReportData($selectedReportYear);
+        if (empty($reportData['hasReportData'])) {
+            $this->Flash->error('No report data found for the selected year.');
+            return $this->redirect(['action' => 'report', '?' => ['convention_year' => $selectedReportYear]]);
         }
 
-        // Gather all the report data (using same logic as report() method)
-        
-        // Count registered schools
-        $total_schools = 0;
-        $listSchools = $this->Conventionregistrations->find()
-            ->where([
-                "convention_id" => $convSD->convention_id,
-                "season_id" => $convSD->season_id,
-                "season_year" => $convSD->season_year
-            ])
-            ->contain(['Users'])
-            ->all();
-        foreach ($listSchools as $school) {
-            if (isset($school->Users) && $school->Users['user_type'] == "School") {
-                $total_schools++;
-            }
-        }
-
-        // Count registered students
-        $total_students = $this->Conventionregistrationstudents->find()
-            ->select(['student_id'])
-            ->where([
-                "convention_id" => $convSD->convention_id,
-                "season_id" => $convSD->season_id,
-                "season_year" => $convSD->season_year,
-                "student_id IS NOT" => null,
-                "student_id >" => 0,
-            ])
-            ->distinct(['student_id'])
-            ->count();
-
-        // Count supervisors
-        $total_supervisors = $this->Conventionregistrationteachers->find()
-            ->where([
-                "convention_id" => $convSD->convention_id,
-                "season_id" => $convSD->season_id,
-                "season_year" => $convSD->season_year
-            ])
-            ->count();
-
-        // Count judges
-        $total_judges = 0;
-        foreach ($listSchools as $school) {
-            if (isset($school->Users) && 
-                ($school->Users['user_type'] == "Judge" || $school->Users['user_type'] == "Teacher_Parent") && 
-                $school->Users['is_judge'] == 1) {
-                $total_judges++;
-            }
-        }
-
-        // Count visitors
-        try {
-            $Visitors = $this->loadModel('Visitors');
-            $total_visitors = $Visitors->find()
-                ->where([
-                    "convention_id" => $convSD->convention_id,
-                    "season_id" => $convSD->season_id
-                ])
-                ->count();
-        } catch (\Exception $e) {
-            $total_visitors = 0;
-        }
-
-        // Get student event distribution
-        $studentEventCounts = $this->Crstudentevents->find()
-            ->select(['student_id'])
-            ->where(["conventionseason_id" => $convSD->id])
-            ->group(['student_id'])
-            ->all();
-
-        $students_20_events = 0;
-        $students_11_15_events = 0;
-        $students_5_10_events = 0;
-
-        foreach ($studentEventCounts as $row) {
-            $eventCount = $this->Crstudentevents->find()
-                ->where([
-                    "conventionseason_id" => $convSD->id,
-                    "student_id" => $row->student_id
-                ])
-                ->select(['DISTINCT event_id'])
-                ->count();
-
-            if ($eventCount == 20) {
-                $students_20_events++;
-            } elseif ($eventCount >= 11 && $eventCount <= 15) {
-                $students_11_15_events++;
-            } elseif ($eventCount >= 5 && $eventCount <= 10) {
-                $students_5_10_events++;
-            }
-        }
-
-        // Count place winners
-        try {
-            $Resultpositions = $this->loadModel('Resultpositions');
-            
-            $first_place = $Resultpositions->find()
-                ->where(["position" => 1, "convention_id" => $convSD->convention_id])
-                ->count();
-            $second_place = $Resultpositions->find()
-                ->where(["position" => 2, "convention_id" => $convSD->convention_id])
-                ->count();
-            $third_place = $Resultpositions->find()
-                ->where(["position" => 3, "convention_id" => $convSD->convention_id])
-                ->count();
-        } catch (\Exception $e) {
-            $first_place = 0;
-            $second_place = 0;
-            $third_place = 0;
-        }
-
-        // Award counts
-        $silver_apple = 0;
-        $golden_awards = 0;
-        
-        $silver_apple_students = $this->Conventionregistrationstudents->find()
-            ->where([
-                "convention_id" => $convSD->convention_id,
-                "season_id" => $convSD->season_id,
-                "season_year" => $convSD->season_year
-            ])
-            ->all();
-        
-        foreach ($silver_apple_students as $reg) {
-            $event_ids = !empty($reg->event_ids) ? explode(',', (string)$reg->event_ids) : [];
-            if (in_array('336', $event_ids) || in_array('342', $event_ids)) {
-                $silver_apple++;
-            }
-            
-            $golden_event_ids = ['331', '337', '332', '338', '333', '339', '334', '340', '335', '341'];
-            foreach ($event_ids as $eid) {
-                if (in_array(trim((string)$eid), $golden_event_ids)) {
-                    $golden_awards++;
-                    break;
-                }
-            }
-        }
-
-        // Count total entries
-        $total_entries = $this->Crstudentevents->find()
-            ->where(["conventionseason_id" => $convSD->id])
-            ->count();
-
-        // Generate PDF with professional grayscale design
-        $pdf = $this->_generateProfessionalReportPDF($convSD, $first_place, $second_place, $third_place, 
-            $total_schools, $total_students, $total_supervisors, $total_judges, $total_visitors,
-            $students_20_events, $students_11_15_events, $students_5_10_events,
-            $silver_apple, $golden_awards, $total_entries);
+        $pdf = $this->_generateProfessionalReportPDF(
+            $reportData['conv_season'],
+            $reportData['first_place_winners'],
+            $reportData['second_place_winners'],
+            $reportData['third_place_winners'],
+            $reportData['total_schools'],
+            $reportData['total_students'],
+            $reportData['total_supervisors'],
+            $reportData['total_judges'],
+            $reportData['total_visitors'],
+            $reportData['students_20_events'],
+            $reportData['students_11_15_events'],
+            $reportData['students_5_10_events'],
+            $reportData['silver_apple_count'],
+            $reportData['golden_awards_count'],
+            $reportData['total_entries']
+        );
 
         // Output PDF for download
         $filename = 'convention_report_' . date('Y-m-d_His') . '.pdf';
@@ -2219,96 +1958,186 @@ class AdminsController extends AppController {
             return $this->redirect(['controller' => 'admins', 'action' => 'login']);
         }
 
-        // Get season from session
-        $season_id = $this->request->getSession()->read('sess_admin_header_season_id');
-        if (!$season_id) {
-            return $this->redirect(['controller' => 'admins', 'action' => 'dashboard']);
+        $selectedReportYear = $this->_resolveReportYearSelection();
+        if ($selectedReportYear <= 0) {
+            return $this->redirect(['controller' => 'admins', 'action' => 'report']);
         }
 
-        // Load required models
-        $this->loadModel('Conventionseasons');
-        $this->loadModel('Conventions');
-        $this->loadModel('Conventionregistrations');
-        $this->loadModel('Conventionregistrationstudents');
-        $this->loadModel('Conventionregistrationteachers');
-        $this->loadModel('Crstudentevents');
-
-        // Get convention season data
-        $convSD = $this->Conventionseasons->find()->where(["Conventionseasons.id" => $season_id])->contain(['Conventions'])->first();
-        if (!$convSD) {
-            return $this->redirect(['controller' => 'admins', 'action' => 'dashboard']);
+        $reportData = $this->_buildConventionYearReportData($selectedReportYear);
+        if (empty($reportData['hasReportData'])) {
+            return $this->redirect(['controller' => 'admins', 'action' => 'report', '?' => ['convention_year' => $selectedReportYear]]);
         }
 
-        // Get registrations
+        $pdf = $this->_generateProfessionalReportPDF(
+            $reportData['conv_season'],
+            $reportData['first_place_winners'],
+            $reportData['second_place_winners'],
+            $reportData['third_place_winners'],
+            $reportData['total_schools'],
+            $reportData['total_students'],
+            $reportData['total_supervisors'],
+            $reportData['total_judges'],
+            $reportData['total_visitors'],
+            $reportData['students_20_events'],
+            $reportData['students_11_15_events'],
+            $reportData['students_5_10_events'],
+            $reportData['silver_apple_count'],
+            $reportData['golden_awards_count'],
+            $reportData['total_entries']
+        );
+
+        // Output PDF inline for preview
+        $response = $this->response->withType('application/pdf');
+        $response = $response->withStringBody($pdf->Output('', 'S'));
+        return $response;
+    }
+
+    private function _resolveReportYearSelection(): int
+    {
+        $selectedYear = (int)$this->request->getQuery('convention_year', 0);
+        if ($selectedYear > 0) {
+            return $selectedYear;
+        }
+
+        $legacySeasonId = (int)$this->request->getQuery('convention_season_id', 0);
+        if ($legacySeasonId > 0) {
+            $legacySeason = $this->Conventionseasons->find()
+                ->select(['season_year'])
+                ->where(['Conventionseasons.id' => $legacySeasonId])
+                ->first();
+            if (!empty($legacySeason->season_year)) {
+                return (int)$legacySeason->season_year;
+            }
+        }
+
+        $sessionYear = (int)$this->request->getSession()->read('sess_admin_report_year');
+        if ($sessionYear > 0) {
+            return $sessionYear;
+        }
+
+        $sessionSeasonId = (int)$this->request->getSession()->read('sess_admin_header_season_id');
+        if ($sessionSeasonId > 0) {
+            $sessionSeason = $this->Conventionseasons->find()
+                ->select(['season_year'])
+                ->where(['Conventionseasons.id' => $sessionSeasonId])
+                ->first();
+            if (!empty($sessionSeason->season_year)) {
+                return (int)$sessionSeason->season_year;
+            }
+        }
+
+        return 0;
+    }
+
+    private function _buildConventionYearReportData(int $selectedYear): array
+    {
+        $empty = [
+            'hasReportData' => false,
+            'conv_season' => null,
+            'total_schools' => 0,
+            'total_students' => 0,
+            'total_supervisors' => 0,
+            'total_judges' => 0,
+            'total_visitors' => 0,
+            'students_20_events' => 0,
+            'students_11_15_events' => 0,
+            'students_5_10_events' => 0,
+            'first_place_winners' => 0,
+            'second_place_winners' => 0,
+            'third_place_winners' => 0,
+            'silver_apple_count' => 0,
+            'golden_awards_count' => 0,
+            'total_entries' => 0,
+        ];
+
+        if ($selectedYear <= 0) {
+            return $empty;
+        }
+
+        $seasonRows = $this->Conventionseasons->find()
+            ->select(['id', 'convention_id', 'season_year'])
+            ->where(['Conventionseasons.season_year' => $selectedYear])
+            ->all();
+
+        if ($seasonRows->isEmpty()) {
+            return $empty;
+        }
+
+        $seasonIds = [];
+        foreach ($seasonRows as $row) {
+            $seasonIds[] = (int)$row->id;
+        }
+
+        $convSeasonView = (object)[
+            'season_year' => $selectedYear,
+            'Conventions' => ['name' => 'All Conventions'],
+        ];
+
         $listSchools = $this->Conventionregistrations->find()
-            ->where([
-                "season_id" => $convSD->season_id,
-                "season_year" => $convSD->season_year,
-                "convention_id" => $convSD->convention_id
-            ])
+            ->where(['season_year' => $selectedYear])
             ->contain(['Users'])
             ->all();
 
-        // Count schools
-        $total_schools = count($listSchools);
-
-        // Count students
-        $total_students = $this->Conventionregistrationstudents->find()
-            ->where([
-                "convention_id" => $convSD->convention_id,
-                "season_id" => $convSD->season_id,
-                "season_year" => $convSD->season_year
-            ])
-            ->count();
-
-        // Count supervisors
-        $total_supervisors = $this->Conventionregistrationteachers->find()
-            ->where([
-                "convention_id" => $convSD->convention_id,
-                "season_id" => $convSD->season_id,
-                "season_year" => $convSD->season_year
-            ])
-            ->count();
-
-        // Count judges
+        $total_schools = 0;
         $total_judges = 0;
         foreach ($listSchools as $school) {
-            if (isset($school->Users) && 
-                ($school->Users['user_type'] == "Judge" || $school->Users['user_type'] == "Teacher_Parent") && 
+            if (isset($school->Users) && $school->Users['user_type'] == 'School') {
+                $total_schools++;
+            }
+            if (isset($school->Users) &&
+                ($school->Users['user_type'] == 'Judge' || $school->Users['user_type'] == 'Teacher_Parent') &&
                 $school->Users['is_judge'] == 1) {
                 $total_judges++;
             }
         }
 
-        // Count visitors
+        $total_students = $this->Conventionregistrationstudents->find()
+            ->select(['student_id'])
+            ->where([
+                'season_year' => $selectedYear,
+                'student_id IS NOT' => null,
+                'student_id >' => 0,
+            ])
+            ->distinct(['student_id'])
+            ->count();
+
+        $total_supervisors = $this->Conventionregistrationteachers->find()
+            ->where(['season_year' => $selectedYear])
+            ->count();
+
+        $total_visitors = 0;
         try {
             $Visitors = $this->loadModel('Visitors');
             $total_visitors = $Visitors->find()
-                ->where([
-                    "convention_id" => $convSD->convention_id,
-                    "season_id" => $convSD->season_id
-                ])
+                ->where(['season_year' => $selectedYear])
                 ->count();
         } catch (\Exception $e) {
             $total_visitors = 0;
         }
 
-        // Get student event distribution
-        $studentEventCounts = $this->Crstudentevents->find()
-            ->select(['student_id'])
-            ->where(["conventionseason_id" => $convSD->id])
-            ->group(['student_id'])
-            ->all();
-
         $students_20_events = 0;
         $students_11_15_events = 0;
         $students_5_10_events = 0;
 
+        $studentEventCounts = $this->Crstudentevents->find()
+            ->select(['student_id'])
+            ->where([
+                'conventionseason_id IN' => $seasonIds,
+                'student_id IS NOT' => null,
+                'student_id >' => 0,
+            ])
+            ->group(['student_id'])
+            ->all();
+
         foreach ($studentEventCounts as $row) {
+            if (empty($row->student_id)) {
+                continue;
+            }
+
             $eventCount = $this->Crstudentevents->find()
                 ->where([
-                    "conventionseason_id" => $convSD->id,
-                    "student_id" => $row->student_id
+                    'conventionseason_id IN' => $seasonIds,
+                    'student_id' => $row->student_id,
                 ])
                 ->select(['DISTINCT event_id'])
                 ->count();
@@ -2322,43 +2151,32 @@ class AdminsController extends AppController {
             }
         }
 
-        // Count place winners
+        $first_place = 0;
+        $second_place = 0;
+        $third_place = 0;
         try {
             $Resultpositions = $this->loadModel('Resultpositions');
-            
-            $first_place = $Resultpositions->find()
-                ->where(["position" => 1, "convention_id" => $convSD->convention_id])
-                ->count();
-            $second_place = $Resultpositions->find()
-                ->where(["position" => 2, "convention_id" => $convSD->convention_id])
-                ->count();
-            $third_place = $Resultpositions->find()
-                ->where(["position" => 3, "convention_id" => $convSD->convention_id])
-                ->count();
+            $first_place = $Resultpositions->find()->where(['position' => 1, 'season_year' => $selectedYear])->count();
+            $second_place = $Resultpositions->find()->where(['position' => 2, 'season_year' => $selectedYear])->count();
+            $third_place = $Resultpositions->find()->where(['position' => 3, 'season_year' => $selectedYear])->count();
         } catch (\Exception $e) {
             $first_place = 0;
             $second_place = 0;
             $third_place = 0;
         }
 
-        // Award counts
         $silver_apple = 0;
         $golden_awards = 0;
-        
         $silver_apple_students = $this->Conventionregistrationstudents->find()
-            ->where([
-                "convention_id" => $convSD->convention_id,
-                "season_id" => $convSD->season_id,
-                "season_year" => $convSD->season_year
-            ])
+            ->where(['season_year' => $selectedYear])
             ->all();
-        
+
         foreach ($silver_apple_students as $reg) {
             $event_ids = !empty($reg->event_ids) ? explode(',', (string)$reg->event_ids) : [];
             if (in_array('336', $event_ids) || in_array('342', $event_ids)) {
                 $silver_apple++;
             }
-            
+
             $golden_event_ids = ['331', '337', '332', '338', '333', '339', '334', '340', '335', '341'];
             foreach ($event_ids as $eid) {
                 if (in_array(trim((string)$eid), $golden_event_ids)) {
@@ -2368,21 +2186,28 @@ class AdminsController extends AppController {
             }
         }
 
-        // Count total entries
         $total_entries = $this->Crstudentevents->find()
-            ->where(["conventionseason_id" => $convSD->id])
+            ->where(['conventionseason_id IN' => $seasonIds])
             ->count();
 
-        // Generate PDF with professional grayscale design
-        $pdf = $this->_generateProfessionalReportPDF($convSD, $first_place, $second_place, $third_place, 
-            $total_schools, $total_students, $total_supervisors, $total_judges, $total_visitors,
-            $students_20_events, $students_11_15_events, $students_5_10_events,
-            $silver_apple, $golden_awards, $total_entries);
-
-        // Output PDF inline for preview
-        $response = $this->response->withType('application/pdf');
-        $response = $response->withStringBody($pdf->Output('', 'S'));
-        return $response;
+        return [
+            'hasReportData' => true,
+            'conv_season' => $convSeasonView,
+            'total_schools' => $total_schools,
+            'total_students' => $total_students,
+            'total_supervisors' => $total_supervisors,
+            'total_judges' => $total_judges,
+            'total_visitors' => $total_visitors,
+            'students_20_events' => $students_20_events,
+            'students_11_15_events' => $students_11_15_events,
+            'students_5_10_events' => $students_5_10_events,
+            'first_place_winners' => $first_place,
+            'second_place_winners' => $second_place,
+            'third_place_winners' => $third_place,
+            'silver_apple_count' => $silver_apple,
+            'golden_awards_count' => $golden_awards,
+            'total_entries' => $total_entries,
+        ];
     }
 
     private function _generateProfessionalReportPDF($convSD, $first_place, $second_place, $third_place, 

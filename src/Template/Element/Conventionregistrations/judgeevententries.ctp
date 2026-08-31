@@ -88,7 +88,12 @@ function submitBreach() {
 </script>
 
 <div class="admin_loader" id="loaderID"><?php echo $this->Html->image('loader_large_blue.gif');?></div>
-<?php if (!$eventsubmissions->isEmpty()) { ?> 
+<?php
+$rowsToRender = isset($eventsubmissionRows) && is_array($eventsubmissionRows)
+	? $eventsubmissionRows
+	: (isset($eventsubmissions) ? $eventsubmissions->toList() : []);
+?>
+<?php if (!empty($rowsToRender)) { ?>
     <div style="padding:0;">
         
         <?php echo $this->Form->create(null, ['id'=>'actionFrom', "method" => "Post"]);  ?>
@@ -126,7 +131,7 @@ function submitBreach() {
 						</tr>
 					</thead>
 					<tbody>
-						<?php foreach ($eventsubmissions as $datarecord) { ?>
+						<?php foreach ($rowsToRender as $datarecord) { ?>
 						<tr>
 						<td data-title="Student Name / Group">
 						
@@ -206,7 +211,7 @@ function submitBreach() {
 						}
 						?>
 						</td>
-						<td data-title="School"><?php echo $datarecord->Users['first_name']; ?></td>
+						<td data-title="School"><?php echo h($combinedSchoolLabels[(int)$datarecord->id] ?? $datarecord->Users['first_name']); ?></td>
 						<td data-title="Context"><?php echo ($datarecord->context_box) ? $datarecord->context_box : "N/A"; ?></td>
 						<td data-title="Submitted File">
 						<?php

@@ -150,6 +150,12 @@
 	color: #647b94;
 }
 
+.cr-badge.is-info {
+	background: #edf5ff;
+	border: 1px solid #c8dcf5;
+	color: #2c5c8c;
+}
+
 .cr-action-link {
 	background: #eef5ff;
 	border: 1px solid #c7dbf3;

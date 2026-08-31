@@ -36,11 +36,12 @@
 					</div>
 				</div>
 
-				<div class="cr-permforms-card">
+				<div class="cr-permforms-card" data-permission-form="adult_registration">
 					<div class="cr-permforms-card-head">
 						<h2>Adult Registration Form</h2>
 					</div>
 					<p>Adult registration and sponsorship responsibility declaration form.</p>
+					<div class="cr-permforms-submission-count">0 submissions</div>
 					<div class="cr-permforms-actions">
 						<?php echo $this->Html->link('<i class="fa fa-file-text"></i> Open Fillable Form', ['controller' => 'conventionregistrations', 'action' => 'permissionsformadult'], ['escape' => false, 'class' => 'btn btn-outline-primary btn-sm js-permform-popup', 'data-title' => 'Adult Registration Form']); ?>
 					</div>
@@ -52,6 +53,48 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+	function getPermissionFormSubmissionMap() {
+		try {
+			return JSON.parse(localStorage.getItem('acp_permission_form_submissions') || '{}');
+		} catch (error) {
+			return {};
+		}
+	}
+
+	function updatePermissionCardCount(formKey) {
+		var card = document.querySelector('[data-permission-form="' + formKey + '"]');
+		if (!card) {
+			return;
+		}
+
+		var counter = card.querySelector('.cr-permforms-submission-count');
+		if (!counter) {
+			return;
+		}
+
+		var counts = getPermissionFormSubmissionMap();
+		var count = parseInt(counts[formKey], 10) || 0;
+		counter.textContent = count === 1 ? '1 submission' : count + ' submissions';
+		counter.classList.toggle('has-submission', count > 0);
+	}
+
+	function syncPermissionFormCounts() {
+		var cards = document.querySelectorAll('[data-permission-form]');
+		cards.forEach(function (card) {
+			var formKey = card.getAttribute('data-permission-form');
+			if (formKey) {
+				updatePermissionCardCount(formKey);
+			}
+		});
+	}
+
+	function setPermissionSubmissionCount(formKey, count) {
+		var counts = getPermissionFormSubmissionMap();
+		counts[formKey] = count;
+		localStorage.setItem('acp_permission_form_submissions', JSON.stringify(counts));
+		updatePermissionCardCount(formKey);
+	}
+
 	var links = document.querySelectorAll('.js-permform-popup');
 	links.forEach(function (link) {
 		link.addEventListener('click', function (event) {
@@ -68,6 +111,17 @@ document.addEventListener('DOMContentLoaded', function () {
 			}
 		});
 	});
+
+	window.addEventListener('permissionFormSubmitted', function (event) {
+		var formKey = event && event.detail ? event.detail.formKey : null;
+		var count = event && event.detail ? parseInt(event.detail.count, 10) : 0;
+		if (!formKey || !count) {
+			return;
+		}
+		setPermissionSubmissionCount(formKey, count);
+	});
+
+	syncPermissionFormCounts();
 });
 </script>
 
@@ -77,6 +131,15 @@ document.addEventListener('DOMContentLoaded', function () {
 		radial-gradient(circle at 10% 0%, rgba(28, 36, 82, 0.08), transparent 30%),
 		linear-gradient(180deg, #f5f8fc 0%, #eef3f8 100%);
 	min-height: 100vh;
+}
+
+.cr-permforms-page > .row {
+	align-items: stretch;
+	min-height: 100vh;
+}
+
+.cr-permforms-page #sidebarMenu {
+	min-height: 100%;
 }
 
 .cr-permforms-main {
@@ -146,6 +209,25 @@ document.addEventListener('DOMContentLoaded', function () {
 	font-size: 13px;
 	line-height: 1.5;
 	margin: 0 0 12px;
+}
+
+.cr-permforms-submission-count {
+	background: #f0f5ff;
+	border: 1px solid #d7e4f7;
+	border-radius: 999px;
+	color: #1d4c82;
+	display: inline-block;
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.02em;
+	margin: 0 0 12px;
+	padding: 4px 10px;
+}
+
+.cr-permforms-submission-count.has-submission {
+	background: #e9f9ef;
+	border-color: #bfe6ce;
+	color: #246b3a;
 }
 
 .cr-permforms-actions .btn {

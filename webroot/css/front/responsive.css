@@ -58,6 +58,29 @@
 
 	}
 
+	.judge-registration-heading h2 {
+		font-size: 24px;
+	}
+
+	.judge-registration-name-row {
+		gap: 0;
+		flex-direction: column;
+	}
+
+	.judge-registration-name-field {
+		align-items: stretch;
+		flex-direction: column;
+	}
+
+	.judge-registration-name-field span,
+	.judge-registration-name-field input {
+		width: 100% !important;
+	}
+
+	.judge-registration-name-field span {
+		margin-bottom: 7px;
+	}
+
 	.lables {
 		flex-wrap: wrap;
 	}

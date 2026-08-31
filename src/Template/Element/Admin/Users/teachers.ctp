@@ -110,6 +110,13 @@ $this->Categories = TableRegistry::get('Categories');
                                 else
                                 {
                                 ?>
+                                <?php
+                                if ($user->activation_status) {
+                                    echo $this->Html->link('<i class="fa fa-unlock"></i>', ['controller' => 'users', 'action' => 'unverifyaccount', $user->slug, 'teachers'], ['escape' => false, 'title' => 'Mark as unverified', 'class' => 'btn btn-warning btn-xs admin-data-action-btn', 'confirm' => 'Mark this account as unverified?']);
+                                } else {
+                                    echo $this->Html->link('<i class="fa fa-check-circle"></i>', ['controller' => 'users', 'action' => 'verifyaccount', $user->slug, 'teachers'], ['escape' => false, 'title' => 'Mark as verified', 'class' => 'btn btn-success btn-xs admin-data-action-btn', 'confirm' => 'Mark this account as verified?']);
+                                }
+                                ?>
                                 
                                 <div id="loderstatus<?php echo $user->id; ?>" class="right_action_lo"><?php echo $this->Html->image("loading.gif"); ?></div>
                                 <span class="right_acdc" id="status<?php echo $user->id; ?>">

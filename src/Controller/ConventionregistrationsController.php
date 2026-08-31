@@ -172,6 +172,7 @@ class ConventionregistrationsController extends AppController {
         $this->set('userDetails', $userDetails);
 
 		$condition = array();
+		$separator = array();
 		
 		if($this->request->session()->read("sess_selected_convention_registration_id")>0)
 		{
@@ -2676,6 +2677,9 @@ class ConventionregistrationsController extends AppController {
 
 		$baseCondition = array();
 		$baseCondition[] = "(Eventsubmissions.convention_id = '".$conventionRegD->convention_id."')";
+		$baseCondition[] = "(Eventsubmissions.conventionseason_id = '".$conventionRegD->conventionseason_id."')";
+		$baseCondition[] = "(Eventsubmissions.season_id = '".$conventionRegD->season_id."')";
+		$baseCondition[] = "(Eventsubmissions.season_year = '".$conventionRegD->season_year."')";
 		$baseCondition[] = "(Eventsubmissions.event_id = '".$eventD->id."')";
 
 		if($eventD->group_event_yes_no == 1)
@@ -2695,7 +2699,86 @@ class ConventionregistrationsController extends AppController {
 		{
 			$eventsubmissions = $this->Eventsubmissions->find()->where($baseCondition)->contain(["Students","Users"])->order(['Eventsubmissions.id' => 'DESC'])->all();
 		}
+		if ((int)$eventD->group_event_yes_no === 1) {
+			$eventsubmissions = $this->Eventsubmissions->find()
+				->where($baseCondition)
+				->contain(["Students", "Users"])
+				->order(['Eventsubmissions.id' => 'DESC'])
+				->all();
+		}
 		$this->set('eventsubmissions',$eventsubmissions);
+
+		$eventsubmissionRows = [];
+		$combinedSchoolLabels = [];
+		if ((int)$eventD->group_event_yes_no === 1) {
+			$groupedRows = [];
+			foreach ($eventsubmissions as $submission) {
+				$groupName = trim((string)($submission->group_name ?? ''));
+				$memberIds = $this->Crstudentevents->find()
+					->select(['student_id'])
+					->where([
+						'Crstudentevents.conventionregistration_id' => (int)$submission->conventionregistration_id,
+						'Crstudentevents.event_id' => (int)$submission->event_id,
+						'Crstudentevents.group_name' => $groupName,
+						'Crstudentevents.student_id >' => 0,
+					])
+					->extract('student_id')
+					->map(static function ($studentId) {
+						return (int)$studentId;
+					})
+					->toList();
+				$memberIds = array_values(array_unique(array_filter($memberIds)));
+				sort($memberIds);
+				$memberSignature = !empty($memberIds) ? implode('-', $memberIds) : 'submission-'.$submission->id;
+				$groupKey = $groupName.'|'.$memberSignature;
+
+				if (!isset($groupedRows[$groupKey])) {
+					$groupedRows[$groupKey] = [
+						'primary' => $submission,
+						'school_names' => [],
+						'convention_registration_ids' => [],
+					];
+				}
+				$groupedRows[$groupKey]['convention_registration_ids'][] = (int)$submission->conventionregistration_id;
+				$schoolName = trim((string)($submission->Users['first_name'] ?? ''));
+				if ($schoolName !== '') {
+					$groupedRows[$groupKey]['school_names'][] = $schoolName;
+				}
+			}
+			foreach ($groupedRows as $groupedRow) {
+				$primary = $groupedRow['primary'];
+				$eventsubmissionRows[] = $primary;
+				$groupConventionRegistrationIds = array_values(array_unique(array_filter(array_map('intval', (array)$groupedRow['convention_registration_ids']))));
+				$groupSchoolRows = $this->Crstudentevents->find()
+					->contain(['Users'])
+					->where([
+						'Crstudentevents.conventionregistration_id IN' => $groupConventionRegistrationIds,
+						'Crstudentevents.conventionseason_id' => (int)$primary->conventionseason_id,
+						'Crstudentevents.convention_id' => (int)$primary->convention_id,
+						'Crstudentevents.season_id' => (int)$primary->season_id,
+						'Crstudentevents.season_year' => (int)$primary->season_year,
+						'Crstudentevents.event_id' => (int)$primary->event_id,
+						'Crstudentevents.group_name' => (string)$primary->group_name,
+						'Crstudentevents.student_id >' => 0,
+					])
+					->all();
+				$schoolNames = [];
+				foreach ($groupSchoolRows as $groupSchoolRow) {
+					$schoolName = trim((string)($groupSchoolRow->Users['first_name'] ?? ''));
+					if ($schoolName !== '') {
+						$schoolNames[] = $schoolName;
+					}
+				}
+				$schoolNames = array_values(array_unique(array_filter($schoolNames)));
+				if (count($schoolNames) > 1) {
+					$combinedSchoolLabels[(int)$primary->id] = implode(' + ', $schoolNames).' combined';
+				}
+			}
+		} else {
+			$eventsubmissionRows = $eventsubmissions->toList();
+		}
+		$this->set('eventsubmissionRows', $eventsubmissionRows);
+		$this->set('combinedSchoolLabels', $combinedSchoolLabels);
 		
 		// here to get conv reg slug for back button
 		$condBackButton = array();

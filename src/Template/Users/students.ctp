@@ -11,6 +11,7 @@
 			<div class="teachers-top-heading">
 				<span>Students List</span>
 					<?php echo $this->Html->link('+ Add New', ['controller' => 'users', 'action' => 'addstudent'], ['escape' => false, 'class' => 'btn btn-primary']); ?>
+					<?php echo $this->Html->link('Generate Code', ['controller' => 'users', 'action' => 'generateallstudentlogincodes'], ['class' => 'btn btn-secondary', 'confirm' => 'Generate login codes for all students who do not have one? Existing codes will not be changed.']); ?>
 			</div>
 			<!-- dashboard-section-2 start-->
 

@@ -17,10 +17,12 @@ $this->Crstudentevents = TableRegistry::get('Crstudentevents');
 							<th class="sorting_paging">Event Number</th>
 							<th class="sorting_paging">Event Name</th>
 							<th class="sorting_paging">Group Event?</th>
+							<th class="sorting_paging">Entry Type</th>
 							<th class="sorting_paging">Min</th>
 							<th class="sorting_paging">Max</th>
 							<th class="sorting_paging">Total Students</th>
 							<th class="sorting_paging">Students Not Grouped</th>
+							<th class="sorting_paging">Status</th>
 							<th class="sorting_paging"><i class=" fa fa-gavel"></i> Action</th>
 						</tr>
 					</thead>
@@ -31,6 +33,22 @@ $this->Crstudentevents = TableRegistry::get('Crstudentevents');
 						<td data-title="Event Name"><?php echo $datarecord->event_name;?></td>
 						<td data-title="Group Event?">
 							<span class="cr-badge <?php echo ($datarecord->group_event_yes_no == 1) ? 'is-yes' : 'is-no'; ?>"><?php echo ($datarecord->group_event_yes_no == 1) ? "Yes" : "No"; ?></span>
+						</td>
+						<td data-title="Entry Type">
+							<?php
+							$eventMin = (int)$datarecord->min_no;
+							$eventMax = (int)$datarecord->max_no;
+							if ($eventMin <= 1 && $eventMax <= 2) {
+								$entryType = 'Variable group';
+						} elseif ((int)$datarecord->team_event === 1 && $eventMax >= 8) {
+								$entryType = 'Large team';
+						} elseif ($eventMin > 1 && $eventMin === $eventMax) {
+								$entryType = 'Fixed team';
+						} else {
+								$entryType = 'Flexible team';
+							}
+							echo '<span class="cr-badge is-info">'.h($entryType).'</span>';
+							?>
 						</td>
 						<td data-title="Min"><?php echo $datarecord->min_no;?></td>
 						<td data-title="Max"><?php echo $datarecord->max_no;?></td>
@@ -52,6 +70,20 @@ $this->Crstudentevents = TableRegistry::get('Crstudentevents');
 						<?php
 						$condTS[] = "(Crstudentevents.group_name = '' OR Crstudentevents.group_name IS NULL)";
 						$studentNotGrouped = $this->Crstudentevents->find()->where($condTS)->count();
+						$groupedStudents = $this->Crstudentevents->find()->where(array_slice($condTS, 0, 5) + ['Crstudentevents.group_name !=' => ''])->all();
+						$groupCounts = [];
+						foreach ($groupedStudents as $groupedStudent) {
+							$groupName = trim((string)$groupedStudent->group_name);
+							if ($groupName !== '') {
+								$groupCounts[$groupName] = ($groupCounts[$groupName] ?? 0) + 1;
+							}
+						}
+						$incompleteGroupDeficit = 0;
+						foreach ($groupCounts as $groupCount) {
+							if ($groupCount < (int)$datarecord->min_no) {
+								$incompleteGroupDeficit = max($incompleteGroupDeficit, (int)$datarecord->min_no - $groupCount);
+							}
+						}
 						
 						if($datarecord->group_event_yes_no == 1)
 						{
@@ -60,6 +92,23 @@ $this->Crstudentevents = TableRegistry::get('Crstudentevents');
 						else
 						{
 							echo '<span class="cr-badge is-muted">-</span>';
+						}
+						?>
+						</td>
+
+						<td data-title="Status">
+						<?php
+						if ($datarecord->group_event_yes_no != 1) {
+							echo '<span class="cr-badge is-muted">Not applicable</span>';
+						} elseif ($totalStudentsEvent < $datarecord->min_no) {
+							$studentsNeeded = $datarecord->min_no - $totalStudentsEvent;
+							echo '<span class="cr-badge is-warning">Needs '.$studentsNeeded.' more</span>';
+						} elseif ($studentNotGrouped > 0) {
+							echo '<span class="cr-badge is-warning">Ready to group</span>';
+						} elseif ($incompleteGroupDeficit > 0) {
+							echo '<span class="cr-badge is-warning">Needs '.$incompleteGroupDeficit.' more</span>';
+						} else {
+							echo '<span class="cr-badge is-good">Complete</span>';
 						}
 						?>
 						</td>
@@ -74,7 +123,7 @@ $this->Crstudentevents = TableRegistry::get('Crstudentevents');
 								
 								if($datarecord->group_event_yes_no == 1)
 								{
-									if($totalStudentsEvent >= $datarecord->min_no)
+									if($totalStudentsEvent > 0)
 									{
 										echo $this->Html->link('<i class="fa fa-list"></i> Manage', ['controller' => 'groups', 'action' => 'eventgroups',$datarecord->slug], [ 'escape' => false, 'title' => 'Event groups', 'class'=>'cr-action-link']);
 									}
@@ -124,7 +173,7 @@ $('#group_events_table').dataTable({
     //"bPaginate": false,
     "bLengthChange": false,
 	"pageLength": 50,
-	order: [[6, 'desc']],
+	order: [[8, 'desc']],
     //"bFilter": true,
     //"bInfo": false,
     //"bAutoWidth": false

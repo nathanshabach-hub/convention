@@ -24,7 +24,7 @@
 				echo $this->Html->link('Randomize Result', ['controller'=>'results', 'action'=>'overallpositions',$slug_convention_season,$slug_convention], ['escape'=>false, 'class'=>'btn btn-default', 'target'=>'_blank']);
 				
 				echo $this->Html->link('<i class="fa fa-print"></i> Print', ['controller'=>'results', 'action'=>'overallpositionsprint',$slug_convention_season,$slug_convention], ['escape'=>false, 'class'=>'btn btn-default', 'target'=>'_blank']);
-                echo $this->Html->link('<i class="fa fa-download"></i> Download JSON', ['controller'=>'results', 'action'=>'overallpositionsjson',$slug_convention_season,$slug_convention], ['escape'=>false, 'class'=>'btn btn-default']);
+                echo $this->Html->link('<i class="fa fa-download"></i> Download JSON', ['controller'=>'results', 'action'=>'overallpositionsjson',$slug_convention_season,$slug_convention], ['escape'=>false, 'class'=>'btn btn-default', 'id'=>'download-overall-positions-json']);
                 echo $this->Html->link('<i class="fa fa-file-text-o"></i> Download CSV', ['controller'=>'results', 'action'=>'overallpositionscsv',$slug_convention_season,$slug_convention], ['escape'=>false, 'class'=>'btn btn-default']);
 				
 				?>
@@ -38,3 +38,32 @@
         </div>
     </section>
 </div>
+<script>
+var downloadLink = document.getElementById('download-overall-positions-json');
+if (downloadLink) {
+
+    downloadLink.addEventListener('click', function (event) {
+        event.preventDefault();
+        fetch(downloadLink.href, { credentials: 'same-origin' })
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error('Unable to download overall positions JSON.');
+                }
+                return response.blob();
+            })
+            .then(function (blob) {
+                var blobUrl = URL.createObjectURL(new Blob([blob], { type: 'application/json' }));
+                var fileLink = document.createElement('a');
+                fileLink.href = blobUrl;
+                fileLink.download = 'overall_positions_<?php echo preg_replace('/[^a-z0-9_]/i', '_', (string)$conventionD->name); ?>_<?php echo preg_replace('/[^a-z0-9_]/i', '_', (string)$conventionSD->season_year); ?>.json';
+                document.body.appendChild(fileLink);
+                fileLink.click();
+                fileLink.remove();
+                URL.revokeObjectURL(blobUrl);
+            })
+            .catch(function () {
+                window.location.assign(downloadLink.href);
+            });
+    });
+}
+</script>

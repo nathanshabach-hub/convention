@@ -25,7 +25,7 @@ $hasStudentOptions = !empty($studentDD);
 <style>
 .cr-groups-page {
 	background: radial-gradient(circle at 10% 0%, rgba(28, 36, 82, 0.08), transparent 28%), linear-gradient(180deg, #f5f8fc 0%, #eef3f8 100%);
-	min-height: 100vh;
+	min-height: auto !important;
 }
 .cr-groups-main {
 	padding-top: 14px;
@@ -215,6 +215,56 @@ $hasStudentOptions = !empty($studentDD);
 .cr-groups-form-card .form-group .input-multiple div {
 	width: 100%;
 }
+.cr-groups-student-roster {
+	background: #f8fbff;
+	border: 1px solid #c7d7e8;
+	border-radius: 12px;
+	display: grid;
+	gap: 8px;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	max-height: 280px;
+	overflow-y: auto;
+	padding: 10px;
+}
+.cr-groups-student-option {
+	align-items: center;
+	background: #fff;
+	border: 1px solid #e1eaf4;
+	border-radius: 8px;
+	color: #294866;
+	cursor: pointer;
+	display: flex;
+	font-size: 13px;
+	gap: 8px;
+	margin: 0;
+	min-height: 38px;
+	padding: 7px 9px;
+	width: 100% !important;
+}
+.cr-groups-student-option span {
+	flex: 1 1 auto;
+	line-height: 1.35;
+	min-width: 0;
+}
+.cr-groups-student-option input[type="checkbox"] {
+	appearance: auto;
+	flex: 0 0 16px;
+	height: 16px !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	width: 16px !important;
+}
+.cr-groups-student-option:hover {
+	background: #f1f7ff;
+	border-color: #a9c7e5;
+}
+.cr-groups-student-option input {
+	accent-color: #1f5f8f;
+	flex: 0 0 auto;
+	height: 16px;
+	margin: 0;
+	width: 16px;
+}
 .cr-groups-form-card .select2-container,
 .cr-groups-form-card .select2-container--default .select2-selection--multiple {
 	width: 100% !important;
@@ -234,6 +284,81 @@ $hasStudentOptions = !empty($studentDD);
 	height: 50.5556px;
 	line-height: 24px;
 	padding: 6px 12px !important;
+}
+.cr-next-group {
+	align-items: center;
+	background: #f4f8fd;
+	border: 1px solid #c7d7e8;
+	border-radius: 12px;
+	color: #244e77;
+	display: flex;
+	font-size: 16px;
+	font-weight: 700;
+	height: 50.5556px;
+	padding: 6px 12px;
+}
+.cr-groups-fill-in-card {
+	background: #fffaf0;
+	border: 1px solid #f0d79d;
+	border-radius: 14px;
+	color: #6f4c16;
+	display: grid;
+	gap: 18px;
+	grid-template-columns: minmax(180px, 0.7fr) minmax(0, 2fr);
+	margin-bottom: 16px;
+	padding: 16px 18px;
+}
+
+.cr-groups-fill-in-summary,
+.cr-groups-fill-in-list {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+.cr-groups-fill-in-summary {
+	justify-content: center;
+}
+.cr-groups-fill-in-card strong {
+	font-size: 14px;
+}
+.cr-groups-fill-in-card span {
+	font-size: 13px;
+}
+.cr-groups-fill-in-list {
+	border-left: 1px solid #efdcae;
+	gap: 8px;
+	max-height: 220px;
+	min-width: 0;
+	overflow-y: auto;
+	padding-left: 18px;
+}
+.cr-groups-fill-in-list strong {
+	margin-bottom: 2px;
+}
+.cr-groups-fill-in-candidates {
+	display: grid;
+	gap: 6px 10px;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.cr-groups-fill-in-candidate {
+	background: rgba(255, 255, 255, 0.72);
+	border: 1px solid #f0dfb8;
+	border-radius: 8px;
+	padding: 6px 8px;
+}
+@media (max-width: 767px) {
+	.cr-groups-fill-in-card {
+		grid-template-columns: 1fr;
+	}
+	.cr-groups-fill-in-list {
+		border-left: 0;
+		border-top: 1px solid #efdcae;
+		padding-left: 0;
+		padding-top: 14px;
+	}
+	.cr-groups-fill-in-candidates {
+		grid-template-columns: 1fr;
+	}
 }
 .cr-groups-form-card .select2-container--default.select2-container--focus .select2-selection--multiple {
 	border-color: #1f5f8f;
@@ -310,6 +435,34 @@ $hasStudentOptions = !empty($studentDD);
 .cr-groups-form-grid .form-group label {
 	margin-bottom: 8px;
 }
+.cr-groups-tools {
+	align-items: center;
+	background: #f7fbff;
+	border: 1px solid #d8e7f5;
+	border-radius: 12px;
+	display: flex;
+	gap: 12px;
+	justify-content: space-between;
+	margin-bottom: 16px;
+	padding: 12px 14px;
+}
+.cr-groups-tools p {
+	color: #58708b;
+	font-size: 13px;
+	margin: 0;
+}
+.cr-groups-tools strong {
+	color: #244e77;
+}
+.cr-groups-tools form {
+	margin: 0;
+}
+@media (max-width: 575px) {
+	.cr-groups-tools {
+		align-items: flex-start;
+		flex-direction: column;
+	}
+}
 @media (max-width: 991px) {
 	.cr-groups-title {
 		font-size: 28px !important;
@@ -323,6 +476,9 @@ $hasStudentOptions = !empty($studentDD);
 		padding: 14px;
 	}
 	.cr-groups-form-grid {
+		grid-template-columns: 1fr;
+	}
+	.cr-groups-student-roster {
 		grid-template-columns: 1fr;
 	}
 }
@@ -340,7 +496,7 @@ $hasStudentOptions = !empty($studentDD);
 </style>
 
 <div class="container-fluid p-0 cr-groups-page">
-	<div class="row">
+	<div class="row align-items-start">
 		<?php echo $this->element('user_left_menu'); ?>
 		<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 cr-groups-main">
 
@@ -379,21 +535,29 @@ $hasStudentOptions = !empty($studentDD);
 					<h2 class="form-title">Create Group</h2>
 					<p class="cr-groups-section-note">Event ID Number: <?php echo h($eventD->event_id_number); ?></p>
 				</div>
+				<?php if ((int)$eventD->group_event_yes_no === 1 && (int)$eventD->min_no <= 1 && (int)$eventD->max_no <= 2 && $hasStudentOptions) { ?>
+					<div class="cr-groups-tools">
+						<p><strong>Variable group event:</strong> create one-person groups for all currently ungrouped students.</p>
+						<?php echo $this->Form->create(null, ['url' => ['controller' => 'groups', 'action' => 'eventgroups', $event_slug], 'class' => 'cr-groups-tools-form']); ?>
+						<?php echo $this->Form->hidden('Groups.action', ['value' => 'auto_solo_groups']); ?>
+						<button type="submit" class="btn btn-secondary" onclick="return confirm('Create one-person groups for all ungrouped students?');">Auto-create solo groups</button>
+						<?php echo $this->Form->end(); ?>
+					</div>
+				<?php } ?>
 				<?php echo $this->Form->create(NULL, ['id' => 'addgroup', 'type' => 'file', 'class' => '', 'autocomplete' => 'off']); ?>
 				<div class="cr-groups-form-grid">
 					<div class="form-group">
-						<label for="name">Choose Student</label>
+						<label>Choose students for this group</label>
 						<div class="input-multiple">
 							<?php if ($hasStudentOptions) { ?>
-								<?php echo $this->Form->select('Groups.student_id', $studentDD, ['id' => 'student_id', 'label' => false, 'div' => false, 'class' => 'form-control required', 'autocomplete' => 'off', 'multiple' => 'multiple']); ?>
-								<script>
-									$(document).ready(function () {
-										$('#student_id').select2({
-											width: '100%',
-											placeholder: 'Search and choose students'
-										});
-									});
-								</script>
+								<div class="cr-groups-student-roster">
+									<?php foreach ($studentDD as $studentId => $studentLabel) { ?>
+										<label class="cr-groups-student-option">
+											<input type="checkbox" name="Groups[student_id][]" value="<?php echo (int)$studentId; ?>">
+											<span><?php echo h($studentLabel); ?></span>
+										</label>
+									<?php } ?>
+								</div>
 							<?php } else { ?>
 								<div class="cr-groups-empty-state">
 									<i class="fa fa-info-circle"></i>
@@ -404,9 +568,16 @@ $hasStudentOptions = !empty($studentDD);
 					</div>
 
 					<div class="form-group">
-						<label for="name">Group</label>
-
-						<?php echo $this->Form->input('Groups.group_name', ['label' => false, 'type' => 'number', 'div' => false, 'class' => 'form-control required', 'placeholder' => 'Group']); ?>
+						<label for="group_name">Group number</label>
+						<?php echo $this->Form->control('Groups.group_name', [
+							'id' => 'group_name',
+							'label' => false,
+							'type' => 'number',
+							'min' => 1,
+							'required' => true,
+							'value' => $nextGroupName,
+							'class' => 'form-control required',
+						]); ?>
 					</div>
 				</div>
 
@@ -418,6 +589,27 @@ $hasStudentOptions = !empty($studentDD);
 				</div>
 				<?php echo $this->Form->end(); ?>
 			</div>
+
+						<?php if (!empty($showFillInPanel)) { ?>
+				<div class="cr-groups-fill-in-card">
+					<div class="cr-groups-fill-in-summary">
+						<strong>Incomplete event</strong>
+						<span><?php echo (int)$fillInNeededCount; ?> more student(s) needed.</span>
+					</div>
+					<?php if (!empty($eligibleFillInStudents)) { ?>
+						<div class="cr-groups-fill-in-list">
+							<strong>Eligible students from this school</strong>
+							<div class="cr-groups-fill-in-candidates">
+								<?php foreach ($eligibleFillInStudents as $candidate) { ?>
+									<span class="cr-groups-fill-in-candidate"><?php echo h($candidate['name']); ?> (<?php echo (int)$candidate['age']; ?> years, <?php echo (int)$candidate['events']; ?> events)</span>
+								<?php } ?>
+							</div>
+						</div>
+					<?php } else { ?>
+						<span>No eligible students found within this school.</span>
+					<?php } ?>
+				</div>
+			<?php } ?>
 
 
 

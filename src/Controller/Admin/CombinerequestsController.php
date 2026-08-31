@@ -122,17 +122,17 @@ class CombinerequestsController extends AppController {
 			$messageToSend = str_replace($toRepArray, $fromRepArray, $emailtemplateMessage['template']);
 			
 			//echo $messageToSend; exit;
-			
-			$email = new Email();
-			$email->setTemplate('default')
-                            ->setLayout('admintemplate')
-				->setEmailFormat('html')
-				->setTo($emailId)
-				->setCc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
-				->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-				->setSubject($subjectToSend)
-				->setViewVars(['content_for_layout' => $messageToSend])
-				->send();
+            try {
+                $email = new Email();
+                $email->setEmailFormat('html')
+                    ->setTo($emailId)
+                    ->setCc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
+                    ->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
+                    ->setSubject($subjectToSend)
+                    ->send($messageToSend);
+            } catch (\Throwable $exception) {
+                $this->log('Combined request approval email failed: ' . $exception->getMessage(), 'error');
+            }
 			
 			$this->Flash->success('Request approved successfully.');
 		
@@ -163,17 +163,17 @@ class CombinerequestsController extends AppController {
 			$messageToSend = str_replace($toRepArray, $fromRepArray, $emailtemplateMessage['template']);
 			
 			//echo $messageToSend; exit;
-			
-			$email = new Email();
-			$email->setTemplate('default')
-                            ->setLayout('admintemplate')
-				->setEmailFormat('html')
-				->setTo($emailId)
-				->setCc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
-				->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-				->setSubject($subjectToSend)
-				->setViewVars(['content_for_layout' => $messageToSend])
-				->send();
+            try {
+                $email = new Email();
+                $email->setEmailFormat('html')
+                    ->setTo($emailId)
+                    ->setCc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
+                    ->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
+                    ->setSubject($subjectToSend)
+                    ->send($messageToSend);
+            } catch (\Throwable $exception) {
+                $this->log('Combined request decline email failed: ' . $exception->getMessage(), 'error');
+            }
 			
 			$this->Flash->success('Request declined successfully.');
 		

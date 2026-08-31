@@ -80,16 +80,27 @@ $showSearch = isset($showSearch) ? (bool)$showSearch : true;
                         <?php
 						foreach($events as $event)
 						{
-							// to check position
-              $countpositions = $this->Resultpositions->find()->where(["Resultpositions.conventionseason_id" => $conventionSD->id,"Resultpositions.event_id" => $event->id,"Resultpositions.position >" => 0,"Resultpositions.position <=" => 3])->order(["Resultpositions.position" => "ASC"])->count();
-							//print_r($overallpositions[0]->id>0);
+                $overallpositions = $this->Resultpositions->find()->where(["Resultpositions.conventionseason_id" => $conventionSD->id,"Resultpositions.event_id" => $event->id,"Resultpositions.position >" => 0,"Resultpositions.position <=" => 3])->order(["Resultpositions.position" => "DESC"])->contain(['Users'])->all();
+                $combinedSchoolLabels = $combinedSchoolLabelsByEvent[$event->id] ?? [];
+                $displayPositions = [];
+                $seenCombinedEntries = [];
+                foreach ($overallpositions as $position) {
+                  $combinedLabel = $combinedSchoolLabels[(int)$position->user_id] ?? null;
+                  if ($combinedLabel !== null) {
+                    if (isset($seenCombinedEntries[$combinedLabel])) {
+                      continue;
+                    }
+                    $position->combined_school_name = $combinedLabel;
+                    $seenCombinedEntries[$combinedLabel] = true;
+                  }
+                  $displayPositions[] = $position;
+                }
+                $countpositions = count($displayPositions);
               if($countpositions>0)
 							{
           echo '<tr class="event-header" data-event-key="'.$event->id.'" data-search="'.h(strtolower($event->event_name.' '.$event->event_id_number)).'"><td colspan="3" class="overallpositions-event-title">'.$event->event_name.' ('.$event->event_id_number.')</td></tr>';
 								
-                $overallpositions = $this->Resultpositions->find()->where(["Resultpositions.conventionseason_id" => $conventionSD->id,"Resultpositions.event_id" => $event->id,"Resultpositions.position >" => 0,"Resultpositions.position <=" => 3])->order(["Resultpositions.position" => "DESC"])->contain(['Users'])->all();
-								
-								foreach($overallpositions as $ovpos)
+                  foreach($displayPositions as $ovpos)
 								{
 									$showName 			= '';
 									
@@ -120,11 +131,16 @@ $showSearch = isset($showSearch) ? (bool)$showSearch : true;
 									
 							
 						?> 
-              <?php $searchIndex = strtolower(trim($showName.' '.$ovpos->Users['first_name'].' '.$event->event_name.' '.$event->event_id_number)); ?>
+              <?php $schoolName = $ovpos->combined_school_name ?? $ovpos->Users['first_name']; ?>
+              <?php $isRecordBreaker = (int)$ovpos->position === 1 && !empty($brokenRecordEventIds[$event->id]); ?>
+              <?php $searchIndex = strtolower(trim($showName.' '.$schoolName.' '.$event->event_name.' '.$event->event_id_number)); ?>
               <tr class="event-entry" data-event-key="<?php echo $event->id; ?>" data-search="<?php echo h($searchIndex); ?>">
 								<td data-title="Position" width="5%"><?php echo $ovpos->position;?></td>
                                 <td data-title="Student / Group" width="45%"><?php echo $showName;?></td>
-								<td data-title="School" width="50%"><?php echo $ovpos->Users['first_name'];?> </td>
+                <td data-title="School" width="50%">
+                  <?php echo $schoolName;?>
+                  <?php if ($isRecordBreaker) { ?><span class="overallpositions-record-broken">Record Broken</span><?php } ?>
+                </td>
                             </tr>
 							
                         <?php
@@ -194,5 +210,16 @@ $('#results_table').dataTable({
 
     .pagination {
         border-radius: 0rem !important;
+    }
+
+    .overallpositions-record-broken {
+      display: inline-block;
+      margin-left: 8px;
+      padding: 1px 5px;
+      border-radius: 3px;
+      background: #00a65a;
+      color: #fff;
+      font-size: 11px;
+      white-space: nowrap;
     }
 </style>

@@ -66,6 +66,8 @@ return static function (RouteBuilder $routes): void {
     $routes->connect('/privacy_policy', ['controller' => 'pages', 'action' => 'privacyPolicy']);
     $routes->connect('/terms_and_conditions', ['controller' => 'pages', 'action' => 'termsAndConditions']);
 
+	// Keep legacy front-end user URLs out of the generic truck-slug route.
+	$routes->connect('/users/{action}/*', ['controller' => 'users']);
     $routes->connect('/{slug}', ['controller' => 'trucks', 'action' => 'list'],['pass' => ['slug']]);
 	
 	$routes->connect('/locations/{slug1}/{slug2}', ['controller' => 'trucks', 'action' => 'list'],['pass' => ['slug1','slug2']]);

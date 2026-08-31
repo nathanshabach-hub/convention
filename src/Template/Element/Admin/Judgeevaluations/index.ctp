@@ -14,7 +14,12 @@ use Cake\ORM\TableRegistry;
 $this->Evaluationquestions = TableRegistry::get('Evaluationquestions');
 ?>
 <div class="admin_loader" id="loaderID"><?php echo $this->Html->image('loader_large_blue.gif');?></div>
-<?php if (!$judgeevaluations->isEmpty()) { ?> 
+<?php
+$rowsToRender = isset($judgeEvaluationRows) && is_array($judgeEvaluationRows)
+    ? $judgeEvaluationRows
+    : (isset($judgeevaluations) ? $judgeevaluations->toList() : []);
+?>
+<?php if (!empty($rowsToRender)) { ?>
     <div class="panel-body">
         <div class="ersu_message"> <?php echo $this->Flash->render() ?></div>
         <?php echo $this->Form->create(null, ['id'=>'actionFrom', "method" => "Post"]);  ?>
@@ -47,7 +52,7 @@ $this->Evaluationquestions = TableRegistry::get('Evaluationquestions');
                     <tbody>
                         <?php
                         $cntrS = 0;
-                        foreach ($judgeevaluations as $datarecord)
+                        foreach ($rowsToRender as $datarecord)
                         {
                             $cntrS++;
                         ?>
@@ -75,7 +80,7 @@ $this->Evaluationquestions = TableRegistry::get('Evaluationquestions');
                                 }
                                 ?>
                                 </td>
-                                <td data-title="School"><?php echo $datarecord->Schools['first_name']; ?></td>
+                                <td data-title="School"><?php echo h($combinedSchoolLabels[(int)$datarecord->id] ?? $datarecord->Schools['first_name']); ?></td>
                                     <td data-title="Judge">
                                     <?php
                                         $judgeName = '-';
@@ -246,7 +251,7 @@ $this->Evaluationquestions = TableRegistry::get('Evaluationquestions');
     <div class="admin_no_record">No record found.</div>
 <?php } ?>
 
-<?php foreach ($judgeevaluations as $datarecord) { ?>
+<?php foreach ($rowsToRender as $datarecord) { ?>
     <div id="info<?php echo $datarecord->id; ?>" style="display: none;">
         <div class="nzwh-wrapper">
             <fieldset class="nzwh">

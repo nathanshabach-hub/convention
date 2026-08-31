@@ -900,6 +900,76 @@ class UsersController extends AppController{
         return $this->redirect(['controller'=>'users', 'action' => 'judges']);
     }
 
+    public function verifyaccount($slug=null, $returnAction='index') {
+        $allowedActions = ['index', 'teachers', 'judges', 'pendingjudges'];
+        $user = $this->Users->find()->where([
+            'Users.slug' => $slug,
+            'Users.user_type IN' => ['School', 'Teacher_Parent', 'Judge']
+        ])->first();
+
+        if ($user && in_array($returnAction, $allowedActions, true)) {
+            $this->Users->updateAll([
+                'activation_status' => '1',
+                'modified' => date('Y-m-d H:i:s')
+            ], ['id' => $user->id]);
+            $this->Flash->success('Account verified successfully.');
+        } else {
+            $this->Flash->error('Invalid action.');
+            $returnAction = 'index';
+        }
+
+        return $this->redirect(['controller' => 'users', 'action' => $returnAction]);
+    }
+
+    public function unverifyaccount($slug=null, $returnAction='index') {
+        $allowedActions = ['index', 'teachers', 'judges', 'pendingjudges'];
+        $user = $this->Users->find()->where([
+            'Users.slug' => $slug,
+            'Users.user_type IN' => ['School', 'Teacher_Parent', 'Judge']
+        ])->first();
+
+        if ($user && in_array($returnAction, $allowedActions, true)) {
+            $this->Users->updateAll([
+                'activation_status' => '0',
+                'modified' => date('Y-m-d H:i:s')
+            ], ['id' => $user->id]);
+            $this->Flash->success('Account marked as unverified.');
+        } else {
+            $this->Flash->error('Invalid action.');
+            $returnAction = 'index';
+        }
+
+        return $this->redirect(['controller' => 'users', 'action' => $returnAction]);
+    }
+
+    public function activatejudge($slug=null) {
+        return $this->updateJudgeStatus($slug, 1);
+    }
+
+    public function deactivatejudge($slug=null) {
+        return $this->updateJudgeStatus($slug, 0);
+    }
+
+    private function updateJudgeStatus($slug, $status) {
+        $judge = $this->Users->find()->where([
+            'Users.slug' => $slug,
+            '(Users.user_type = "Judge" OR (Users.user_type = "Teacher_Parent" AND Users.is_judge = "1"))',
+            'Users.status IN' => [0, 1, 2]
+        ])->first();
+
+        if ($judge) {
+            $this->Users->updateAll([
+                'status' => (string)$status,
+                'modified' => date('Y-m-d H:i:s')
+            ], ['id' => $judge->id]);
+            $this->Flash->success($status ? 'Judge account activated successfully.' : 'Judge account deactivated successfully.');
+        } else {
+            $this->Flash->error('Invalid action.');
+        }
+
+        return $this->redirect(['controller' => 'users', 'action' => 'judges']);
+    }
+
     public function editjudge($slug=null){
         $this->set('title', ADMIN_TITLE. 'Edit Judge');
         $this->viewBuilder()->setLayout('admin');

@@ -164,7 +164,7 @@
 }
 .jr-table {
 	margin-bottom: 0;
-	min-width: 760px;
+	min-width: 1000px;
 	width: 100%;
 }
 .jr-table thead th {
@@ -198,6 +198,12 @@
 .jr-judge-choice {
 	width: 16px;
 	height: 16px;
+	cursor: pointer;
+	accent-color: #1f6fb5;
+}
+.jr-interest-choice {
+	width: 17px;
+	height: 17px;
 	cursor: pointer;
 	accent-color: #1f6fb5;
 }
@@ -332,14 +338,16 @@
 									<th style="width:52px;">#</th>
 									<th style="width:100px;">Code</th>
 									<th>Event Name</th>
-									<th style="width:120px;">Judge 1</th>
-									<th style="width:120px;">Judge 2</th>
-									<th style="width:120px;">Judge 3</th>
+									<th style="width:140px;">Interest</th>
+									<th style="width:160px;">Judge 1</th>
+									<th style="width:160px;">Judge 2</th>
+									<th style="width:160px;">Judge 3</th>
 								</tr>
 							</thead>
 							<tbody>
 							<?php
 							$selectedJudgeEventIds = isset($selectedJudgeEventIds) && is_array($selectedJudgeEventIds) ? $selectedJudgeEventIds : [];
+							$selectedInterestEventIds = isset($selectedInterestEventIds) && is_array($selectedInterestEventIds) ? $selectedInterestEventIds : [];
 							$eventJudgeCounts = isset($eventJudgeCounts) && is_array($eventJudgeCounts) ? $eventJudgeCounts : [];
 							$eventsList = isset($eventsList) ? $eventsList : [];
 							$counter = 0;
@@ -357,6 +365,9 @@
 									<td><?php echo $counter; ?></td>
 									<td><?php echo h($eventrec->event_id_number); ?></td>
 									<td class="jr-event-name"><?php echo h($eventrec->event_name); ?></td>
+									<td class="jr-choice-cell">
+										<input type="checkbox" class="jr-interest-choice" name="Conventionregistrations[interest_event_ids][]" value="<?php echo $eid; ?>" <?php echo in_array($eid, $selectedInterestEventIds, true) ? 'checked' : ''; ?> />
+									</td>
 									<td class="jr-choice-cell">
 										<?php if ($otherOccupiedSlots >= 1) { ?>
 											<span class="jr-slot-taken" title="Already selected"></span>

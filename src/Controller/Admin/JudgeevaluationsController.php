@@ -36,6 +36,7 @@ class JudgeevaluationsController extends AppController {
 		$this->loadModel('Conventionseasonevents');
 		$this->loadModel('Conventionregistrations');
 		$this->loadModel('Eventsubmissions');
+        $this->loadModel('Crstudentevents');
         $this->loadModel('Users');
 		$this->loadModel('Judgeevaluationmarks');
     }
@@ -167,7 +168,81 @@ class JudgeevaluationsController extends AppController {
                 $judgeUsersById[$judgeUser->id] = $judgeName;
             }
         }
+
+        $judgeEvaluationRows = [];
+        $combinedSchoolLabels = [];
+        $groupedEvaluations = [];
+        foreach ($judgeEvaluations as $judgeEvaluation) {
+            $event = $judgeEvaluation->Events ?? null;
+            $submission = $judgeEvaluation->Eventsubmissions ?? null;
+            if (!$event || !$submission || (int)($event->group_event_yes_no ?? 0) !== 1) {
+                $judgeEvaluationRows[] = $judgeEvaluation;
+                continue;
+            }
+
+            $groupName = trim((string)($submission->group_name ?? ''));
+            $memberIds = $this->Crstudentevents->find()
+                ->select(['student_id'])
+                ->where([
+                    'Crstudentevents.conventionregistration_id' => (int)$submission->conventionregistration_id,
+                    'Crstudentevents.conventionseason_id' => (int)$submission->conventionseason_id,
+                    'Crstudentevents.convention_id' => (int)$submission->convention_id,
+                    'Crstudentevents.season_id' => (int)$submission->season_id,
+                    'Crstudentevents.season_year' => (int)$submission->season_year,
+                    'Crstudentevents.event_id' => (int)$submission->event_id,
+                    'Crstudentevents.group_name' => $groupName,
+                    'Crstudentevents.student_id >' => 0,
+                ])
+                ->extract('student_id')
+                ->map(static function ($studentId) {
+                    return (int)$studentId;
+                })
+                ->toList();
+            $memberIds = array_values(array_unique(array_filter($memberIds)));
+            sort($memberIds);
+            $groupKey = (int)$judgeEvaluation->event_id.'|'.$groupName.'|'.(!empty($memberIds) ? implode('-', $memberIds) : 'evaluation-'.$judgeEvaluation->id);
+            if (!isset($groupedEvaluations[$groupKey])) {
+                $groupedEvaluations[$groupKey] = [
+                    'primary' => $judgeEvaluation,
+                    'convention_registration_ids' => [],
+                ];
+            }
+            $groupedEvaluations[$groupKey]['convention_registration_ids'][] = (int)$submission->conventionregistration_id;
+        }
+
+        foreach ($groupedEvaluations as $groupedEvaluation) {
+            $primary = $groupedEvaluation['primary'];
+            $judgeEvaluationRows[] = $primary;
+            $submission = $primary->Eventsubmissions;
+            $registrationIds = array_values(array_unique(array_filter(array_map('intval', $groupedEvaluation['convention_registration_ids']))));
+            $schoolRows = $this->Crstudentevents->find()
+                ->contain(['Users'])
+                ->where([
+                    'Crstudentevents.conventionregistration_id IN' => $registrationIds,
+                    'Crstudentevents.conventionseason_id' => (int)$submission->conventionseason_id,
+                    'Crstudentevents.convention_id' => (int)$submission->convention_id,
+                    'Crstudentevents.season_id' => (int)$submission->season_id,
+                    'Crstudentevents.season_year' => (int)$submission->season_year,
+                    'Crstudentevents.event_id' => (int)$submission->event_id,
+                    'Crstudentevents.group_name' => (string)$submission->group_name,
+                    'Crstudentevents.student_id >' => 0,
+                ])
+                ->all();
+            $schoolNames = [];
+            foreach ($schoolRows as $schoolRow) {
+                $schoolName = trim((string)($schoolRow->Users['first_name'] ?? ''));
+                if ($schoolName !== '') {
+                    $schoolNames[] = $schoolName;
+                }
+            }
+            $schoolNames = array_values(array_unique($schoolNames));
+            if (count($schoolNames) > 1) {
+                $combinedSchoolLabels[(int)$primary->id] = implode(' + ', $schoolNames).' combined';
+            }
+        }
         $this->set('judgeevaluations', $judgeEvaluations);
+        $this->set('judgeEvaluationRows', $judgeEvaluationRows);
+        $this->set('combinedSchoolLabels', $combinedSchoolLabels);
         $this->set('judgeUsersById', $judgeUsersById);
         if ($this->request->is("ajax")) {
             $this->viewBuilder()->setLayout(($this->request->is("ajax")) ? "" : "default");

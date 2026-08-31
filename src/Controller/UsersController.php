@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Controller\AppController;
 use Cake\Event\EventInterface;
 use Cake\Mailer\Email;
+use Cake\Mailer\Mailer;
 use Cake\ORM\TableRegistry;
 use Cake\Core\Configure;
 use Cake\Core\Configure\Engine\PhpConfig;
@@ -31,7 +32,7 @@ class UsersController extends AppController {
     public function beforeFilter(EventInterface $event): void {
         parent::beforeFilter($event);
 
-        $this->Auth->allow(['login','registration','registerprevdetails','forgotpassword','resetpassword','teachersetpassword','dashboard','myschedule','myevents','editprofile','changepassword','teachers','editteacher','addteacher','archiveteacher','restoreteacher','students','addstudent','editstudent','archivestudent','restorestudent','generatestudentlogincode','judgesregistration','squad247','squad247submit','logout','judgesconfirmation','judgeeditprofile','applyforjudge','switchprofile','judgeexperience','judgingform','logintotest']);
+        $this->Auth->allow(['login','registration','registerprevdetails','forgotpassword','resetpassword','teachersetpassword','dashboard','myschedule','myevents','editprofile','changepassword','teachers','editteacher','addteacher','archiveteacher','restoreteacher','students','addstudent','editstudent','archivestudent','restorestudent','generatestudentlogincode','generateallstudentlogincodes','judgesregistration','squad247','squad247submit','logout','judgesconfirmation','judgeeditprofile','applyforjudge','switchprofile','judgeexperience','judgingform','logintotest']);
 
         $this->loadModel("Emailtemplates");
         $this->loadModel("Conventions");
@@ -1495,6 +1496,44 @@ class UsersController extends AppController {
         return $this->redirect(['controller' => 'users', 'action' => 'students']);
     }
 
+    public function generateallstudentlogincodes() {
+
+        $this->userLoginCheck();
+        $this->schoolAdminLoginCheck();
+
+        $schoolId = (int)$this->request->session()->read("user_id");
+        $students = $this->Users->find()->where([
+            'Users.school_id' => $schoolId,
+            'Users.user_type' => 'Student',
+            'OR' => [
+                'Users.customer_code IS' => null,
+                'Users.customer_code' => ''
+            ]
+        ])->all();
+
+        $generatedCount = 0;
+        foreach ($students as $student) {
+            $this->Users->updateAll([
+                'customer_code' => $this->generateUniqueStudentLoginCode()
+            ], [
+                'id' => $student->id,
+                'OR' => [
+                    'customer_code IS' => null,
+                    'customer_code' => ''
+                ]
+            ]);
+            $generatedCount++;
+        }
+
+        if ($generatedCount > 0) {
+            $this->Flash->success('Login codes generated for ' . $generatedCount . ' student' . ($generatedCount === 1 ? '' : 's') . '.');
+        } else {
+            $this->Flash->success('All students already have a login code.');
+        }
+
+        return $this->redirect(['controller' => 'users', 'action' => 'students']);
+    }
+
     protected function generateUniqueStudentLoginCode() {
         $seed = time();
         do {
@@ -1543,11 +1582,29 @@ class UsersController extends AppController {
         $this->set('title_for_layout', 'Judges Registration '.TITLE_FOR_PAGES);
         
         $this->set('header_menu_judgesreg_active', 'active');
+
+        $seasonId = $this->getCurrentSeason();
+        $seasonD = $this->Seasons->find()->where(['Seasons.id' => $seasonId])->first();
+        $conventionDD = $this->getCurrentSeasonConventions($seasonId, $seasonD ? $seasonD->season_year : null);
+        $conventionDD = array_filter($conventionDD, function ($label) {
+            return stripos($label, 'New Zealand') !== false || stripos($label, 'Indonesia') !== false;
+        });
+        $this->set('conventionDD', $conventionDD);
         
         $users = $this->Users->newEntity([]);
         if ($this->request->is('post')) {
             
             $data = $this->Users->patchEntity($users, $this->request->getData());
+
+            $conventionId = (int)$this->request->getData('convention_id');
+            $conventionSeason = $this->Conventionseasons->find()->where([
+                'Conventionseasons.convention_id' => $conventionId,
+                'Conventionseasons.season_id' => $seasonId,
+                'Conventionseasons.season_year' => $seasonD ? $seasonD->season_year : null,
+            ])->first();
+            if (!$conventionSeason) {
+                $this->Flash->error('Please select a valid convention.');
+            }
             
             $flagCheck				=	1;
             
@@ -1566,7 +1623,7 @@ class UsersController extends AppController {
                 $this->Flash->error('Email address already exists.');
             }
             
-            if (count($data->getErrors()) == 0 && $flagCheck)
+            if (count($data->getErrors()) == 0 && $flagCheck && $conventionSeason)
             {
                 //$this->prx($this->request->getData());
                 
@@ -1587,6 +1644,17 @@ class UsersController extends AppController {
                 $data->password = $password;
                 
                 if ($result = $this->Users->save($data)) {
+
+                    $conventionRegistration = $this->Conventionregistrations->newEntity([]);
+                    $conventionRegistration->conventionseason_id = $conventionSeason->id;
+                    $conventionRegistration->slug = 'convention-registration-' . $conventionId . '-' . $result->id . '-' . $seasonId . '-' . time();
+                    $conventionRegistration->convention_id = $conventionId;
+                    $conventionRegistration->user_id = $result->id;
+                    $conventionRegistration->season_id = $seasonId;
+                    $conventionRegistration->season_year = $seasonD ? $seasonD->season_year : null;
+                    $conventionRegistration->status = 0;
+                    $conventionRegistration->created = date('Y-m-d H:i:s');
+                    $this->Conventionregistrations->save($conventionRegistration);
                     
                     $first_name = $result->first_name;
                     $last_name 	= $result->last_name;
@@ -1606,15 +1674,17 @@ class UsersController extends AppController {
                     
                     //echo $messageToSend;exit;
                     
-                    $email = new Email();
-                    $email->template('default')
-                            ->layout('admintemplate')
-                        ->emailFormat('html')
-                        ->to($emailId)
-                        ->cc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
-                        ->from([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
-                        ->subject($subjectToSend)
-                        ->viewVars(['content_for_layout' => $messageToSend])
+                    $email = new Mailer('default');
+                    $email->viewBuilder()
+                        ->setClassName('App\\View\\AppView')
+                        ->setTemplate('default')
+                        ->setLayout('admintemplate');
+                    $email->setEmailFormat('html')
+                        ->setTo($emailId)
+                        ->setCc(ACCOUNTS_TEAM_ANOTHER_EMAIL)
+                        ->setFrom([HEADERS_FROM_EMAIL => HEADERS_FROM_NAME])
+                        ->setSubject($subjectToSend)
+                        ->setViewVars(['content_for_layout' => $messageToSend])
                         ->send();
                     
                     $this->Flash->success('Your account has been successfully created. Please check your email for your activation link. If you do not receive it within a few minutes, please check your spam folder or contact our support team.');

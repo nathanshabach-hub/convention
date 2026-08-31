@@ -41,8 +41,136 @@ class ResultsController extends AppController {
 		$this->loadModel('Resultpositions');
 		$this->loadModel('Crstudentevents');
 		$this->loadModel('Divisions');
+		$this->loadModel('Combinerequests');
 		
     }
+
+	private function getApprovedCombinedSchoolLabels($conventionSeasonId, $eventId): array
+	{
+		$requests = $this->Combinerequests->find()
+			->where([
+				'Combinerequests.conventionseason_id' => (int)$conventionSeasonId,
+				'Combinerequests.event_id' => (int)$eventId,
+				'Combinerequests.status' => 1,
+			])
+			->contain(['Users', 'Combineduser'])
+			->all();
+
+		$parents = [];
+		$schoolNames = [];
+		foreach ($requests as $request) {
+			$sourceId = (int)$request->user_id;
+			$targetId = (int)$request->combine_with_user_id;
+			if ($sourceId <= 0 || $targetId <= 0) {
+				continue;
+			}
+			$parents[$sourceId] = $parents[$sourceId] ?? $sourceId;
+			$parents[$targetId] = $parents[$targetId] ?? $targetId;
+			$schoolNames[$sourceId] = trim((string)($request->Users['first_name'] ?? ''));
+			$schoolNames[$targetId] = trim((string)($request->Combineduser['first_name'] ?? ''));
+
+			$sourceRoot = $sourceId;
+			while ($parents[$sourceRoot] !== $sourceRoot) {
+				$sourceRoot = $parents[$sourceRoot];
+			}
+			$targetRoot = $targetId;
+			while ($parents[$targetRoot] !== $targetRoot) {
+				$targetRoot = $parents[$targetRoot];
+			}
+			if ($sourceRoot !== $targetRoot) {
+				$parents[$targetRoot] = $sourceRoot;
+			}
+		}
+
+		$membersByRoot = [];
+		foreach (array_keys($parents) as $schoolId) {
+			$root = $schoolId;
+			while ($parents[$root] !== $root) {
+				$root = $parents[$root];
+			}
+			$membersByRoot[$root][] = $schoolId;
+		}
+
+		$labels = [];
+		foreach ($membersByRoot as $schoolIds) {
+			$names = [];
+			foreach ($schoolIds as $schoolId) {
+				if (!empty($schoolNames[$schoolId]) && !in_array($schoolNames[$schoolId], $names, true)) {
+					$names[] = $schoolNames[$schoolId];
+				}
+			}
+			if (count($names) < 2) {
+				continue;
+			}
+			$label = implode(' + ', $names) . ' Combined';
+			foreach ($schoolIds as $schoolId) {
+				$labels[$schoolId] = $label;
+			}
+		}
+
+		return $labels;
+	}
+
+	private function setOverallCombinedSchoolLabels($conventionSD, array $eventIds): void
+	{
+		$labelsByEvent = [];
+		foreach (array_unique(array_map('intval', $eventIds)) as $eventId) {
+			if ($eventId > 0) {
+				$labelsByEvent[$eventId] = $this->getApprovedCombinedSchoolLabels($conventionSD->id, $eventId);
+			}
+		}
+		$this->set('combinedSchoolLabelsByEvent', $labelsByEvent);
+	}
+
+	private function setOverallBrokenRecordEventIds($conventionSD): void
+	{
+		$timeToMilliseconds = static function ($timeValue) {
+			if ($timeValue === null || $timeValue === '') {
+				return null;
+			}
+			if (is_object($timeValue) && method_exists($timeValue, 'format')) {
+				$timeValue = $timeValue->format('H:i:s.u');
+			}
+			if (!preg_match('/^(\d{1,2}):(\d{2}):(\d{2})(?:\.(\d{1,6}))?$/', trim((string)$timeValue), $matches)) {
+				return null;
+			}
+			$fraction = isset($matches[4]) ? str_pad(substr($matches[4], 0, 3), 3, '0') : '000';
+			return ((((int)$matches[1] * 60 + (int)$matches[2]) * 60 + (int)$matches[3]) * 1000) + (int)$fraction;
+		};
+
+		$brokenEventIds = [];
+		$recordCandidates = $this->Conventionseasonevents->find()
+			->contain(['Events'])
+			->where([
+				'Conventionseasonevents.conventionseasons_id' => (int)$conventionSD->id,
+				'Conventionseasonevents.judging_ends' => 1,
+				'Conventionseasonevents.current_record IS NOT' => null,
+				'Conventionseasonevents.current_record !=' => '',
+			])
+			->all();
+		foreach ($recordCandidates as $recordCandidate) {
+			if (empty($recordCandidate->Events) || (string)$recordCandidate->Events['event_judging_type'] !== 'times') {
+				continue;
+			}
+			$currentRecord = $timeToMilliseconds($recordCandidate->current_record);
+			if ($currentRecord === null) {
+				continue;
+			}
+			$winningEvaluation = $this->Judgeevaluations->find()->where([
+				'Judgeevaluations.conventionseason_id' => (int)$conventionSD->id,
+				'Judgeevaluations.convention_id' => (int)$conventionSD->convention_id,
+				'Judgeevaluations.season_id' => (int)$conventionSD->season_id,
+				'Judgeevaluations.season_year' => (int)$conventionSD->season_year,
+				'Judgeevaluations.event_id' => (int)$recordCandidate->event_id,
+				'Judgeevaluations.withdraw_yes_no !=' => 1,
+				'Judgeevaluations.time_score IS NOT' => null,
+			])->order(['Judgeevaluations.time_score' => 'ASC'])->first();
+			if ($winningEvaluation && ($winningTime = $timeToMilliseconds($winningEvaluation->time_score)) !== null && $winningTime < $currentRecord) {
+				$brokenEventIds[(int)$recordCandidate->event_id] = true;
+			}
+		}
+		$this->set('brokenRecordEventIds', $brokenEventIds);
+	}
 
 	private function isAutoAwardEvent($eventD)
 	{
@@ -1576,6 +1704,8 @@ class ResultsController extends AppController {
 		// to get all Resultpositions of this convention season
 		$arrAllResults = array();
 		$eventsPlacedByStudent = [];
+		$combinedSchoolLabelsByEvent = [];
+		$combinedTeamStudentAwards = [];
 		$eventNames = [];
 		$divisionNames = [];
 		$allEvents = $this->Events->find()
@@ -1613,6 +1743,10 @@ class ResultsController extends AppController {
 			foreach($allResultsConventionSeason as $allresultcs)
 			{
 				$eventId = (int)($allresultcs->event_id ?? 0);
+				if (!isset($combinedSchoolLabelsByEvent[$eventId])) {
+					$combinedSchoolLabelsByEvent[$eventId] = $this->getApprovedCombinedSchoolLabels($conventionSD->id, $eventId);
+				}
+				$combinedSchoolLabel = $combinedSchoolLabelsByEvent[$eventId][(int)$allresultcs->user_id] ?? null;
 				$divisionId = $this->normalizeDivisionIdForManualArts(
 					(int)($allresultcs->division_id ?? 0),
 					(string)($allresultcs->event_id_number ?? '')
@@ -1626,6 +1760,13 @@ class ResultsController extends AppController {
 				// 1. if its individual student
 				if($allresultcs->student_id>0)
 				{
+					$awardKey = $combinedSchoolLabel === null ? null : $eventId.'|'.$combinedSchoolLabel.'|'.$allresultcs->student_id;
+					if ($awardKey !== null && isset($combinedTeamStudentAwards[$awardKey])) {
+						continue;
+					}
+					if ($awardKey !== null) {
+						$combinedTeamStudentAwards[$awardKey] = true;
+					}
 					$arrAllResults[$allresultcs->student_id] = ($arrAllResults[$allresultcs->student_id] ?? 0) + $allresultcs->points_obtained;
 					if ($position > 0) {
 						$eventsPlacedByStudent[$allresultcs->student_id][] = [
@@ -1645,6 +1786,13 @@ class ResultsController extends AppController {
 					$groupStudents = $this->Crstudentevents->find()->where(['Crstudentevents.group_name' => $allresultcs->group_name,'Crstudentevents.conventionregistration_id' => $allresultcs->conventionregistration_id,'Crstudentevents.conventionseason_id' => $allresultcs->conventionseason_id,'Crstudentevents.event_id' => $allresultcs->event_id])->all();
 					foreach($groupStudents as $groupst)
 					{
+						$awardKey = $combinedSchoolLabel === null ? null : $eventId.'|'.$combinedSchoolLabel.'|'.$groupst->student_id;
+						if ($awardKey !== null && isset($combinedTeamStudentAwards[$awardKey])) {
+							continue;
+						}
+						if ($awardKey !== null) {
+							$combinedTeamStudentAwards[$awardKey] = true;
+						}
 						$arrAllResults[$groupst->student_id] = ($arrAllResults[$groupst->student_id] ?? 0) + $allresultcs->points_obtained;
 						if ($position > 0) {
 							$eventsPlacedByStudent[$groupst->student_id][] = [
@@ -1946,6 +2094,8 @@ class ResultsController extends AppController {
 		$this->set('eventOrderSeed', $eventOrderSeed);
 		
 		$this->set('arrConvSeasonEvent', $arrConvSeasonEvent);
+		$this->setOverallCombinedSchoolLabels($conventionSD, $arrConvSeasonEvent);
+		$this->setOverallBrokenRecordEventIds($conventionSD);
 		
 		//$this->prx($arrConvSeasonEvent);
 		        
@@ -2006,6 +2156,8 @@ class ResultsController extends AppController {
 		$this->set('eventOrderSeed', $eventOrderSeed);
 		
 		$this->set('arrConvSeasonEvent', $arrConvSeasonEvent);
+		$this->setOverallCombinedSchoolLabels($conventionSD, $arrConvSeasonEvent);
+		$this->setOverallBrokenRecordEventIds($conventionSD);
 		
 		//$this->prx($arrConvSeasonEvent);
 		        
@@ -2056,6 +2208,8 @@ class ResultsController extends AppController {
 		$this->set('eventOrderSeed', $eventOrderSeed);
 
 		$this->set('arrConvSeasonEvent', $arrConvSeasonEvent);
+		$this->setOverallCombinedSchoolLabels($conventionSD, $arrConvSeasonEvent);
+		$this->setOverallBrokenRecordEventIds($conventionSD);
 	}
 
 	public function overallpositionscsv($slug_convention_season = null,$slug_convention = null) {
@@ -2108,6 +2262,7 @@ class ResultsController extends AppController {
 		fputcsv($fp, ['Event', 'Position', 'School']);
 
 		foreach ($events as $event) {
+			$combinedSchoolLabels = $this->getApprovedCombinedSchoolLabels($conventionSD->id, $event->id);
 			$overallpositions = $this->Resultpositions
 				->find()
 				->where([
@@ -2218,6 +2373,7 @@ class ResultsController extends AppController {
 		$jsonRows = [];
 
 		foreach ($events as $event) {
+			$combinedSchoolLabels = $this->getApprovedCombinedSchoolLabels($conventionSD->id, $event->id);
 			$overallpositions = $this->Resultpositions
 				->find()
 				->where([
@@ -2234,7 +2390,15 @@ class ResultsController extends AppController {
 				continue;
 			}
 
+			$seenCombinedEntries = [];
 			foreach ($overallpositions as $ovpos) {
+				$combinedSchoolLabel = $combinedSchoolLabels[(int)$ovpos->user_id] ?? null;
+				if ($combinedSchoolLabel !== null) {
+					if (isset($seenCombinedEntries[$combinedSchoolLabel])) {
+						continue;
+					}
+					$seenCombinedEntries[$combinedSchoolLabel] = true;
+				}
 				$showName = '';
 				if ((int)$ovpos->student_id > 0) {
 					$studentD = $this->Users->find()->where(['Users.id' => $ovpos->student_id])->first();
@@ -2266,7 +2430,9 @@ class ResultsController extends AppController {
 					'category' => trim((string)$event->event_name.' '.(string)$event->event_id_number),
 					'position' => (string)$ovpos->position,
 					'name' => $showName,
-					'school' => trim((string)($ovpos->Users['first_name'] ?? '')),
+					'school' => $combinedSchoolLabel === null
+						? trim((string)($ovpos->Users['first_name'] ?? ''))
+						: str_replace(' + ', "\n", $combinedSchoolLabel),
 				];
 			}
 		}
@@ -2500,7 +2666,25 @@ class ResultsController extends AppController {
 			$result_id = $checkResultsAlready->id;
 			
 			// to fetch result positions based on already saved results
-			$resultsPos 		= $this->Resultpositions->find()->where(['Resultpositions.result_id' => $checkResultsAlready->id])->order(['Resultpositions.position' => 'ASC'])->contain(['Users','Students'])->all();
+			$allResultsPos 		= $this->Resultpositions->find()->where(['Resultpositions.result_id' => $checkResultsAlready->id])->order(['Resultpositions.position' => 'ASC'])->contain(['Users','Students'])->all();
+			$combinedSchoolLabels = $this->getApprovedCombinedSchoolLabels($conventionSD->id, $eventD->id);
+			$resultsPos = [];
+			$resultPositionInputIds = [];
+			$combinedResultRows = [];
+			foreach ($allResultsPos as $resultPosition) {
+				$combinedLabel = $combinedSchoolLabels[(int)$resultPosition->user_id] ?? null;
+				if ($combinedLabel === null) {
+					$resultsPos[] = $resultPosition;
+					$resultPositionInputIds[$resultPosition->id] = $resultPosition->id;
+					continue;
+				}
+				if (!isset($combinedResultRows[$combinedLabel])) {
+					$resultPosition->combined_school_name = $combinedLabel;
+					$combinedResultRows[$combinedLabel] = $resultPosition;
+					$resultsPos[] = $resultPosition;
+				}
+				$resultPositionInputIds[$resultPosition->id] = $combinedResultRows[$combinedLabel]->id;
+			}
 			$this->set('resultsPos',$resultsPos);
 		}
 		else
@@ -2523,9 +2707,10 @@ class ResultsController extends AppController {
 			// make entry that original results modified
 			$this->Results->updateAll(['original_results_modified' => 1,'modified' => date('Y-m-d H:i:s')], ["id" => $result_id]);
 			
-			foreach($resultsPos as $resposdata)
+			foreach($allResultsPos as $resposdata)
 			{
-				$posVal = $postData['result_position_'.$resposdata->id];
+				$inputId = $resultPositionInputIds[$resposdata->id] ?? $resposdata->id;
+				$posVal = $postData['result_position_'.$inputId];
 				
 				if($posVal>=1 && $posVal<=6)
 				{

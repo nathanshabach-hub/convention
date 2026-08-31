@@ -6,11 +6,11 @@ $(document).ready(function () {
 <div class="container-fluid p-0">
 	<div class="row">
 		<?php echo $this->element('user_left_menu'); ?>
-		<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-			<h2 class="mt-3">Edit Profile</h2>
+		<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 profile-edit-page">
+			<h2 class="mt-3 profile-page-title">Edit Profile</h2>
 			  
 			<!-- dashboard-section-3 start-->
-			<div class="dashboard-form">
+			<div class="dashboard-form profile-edit-form">
 				<h2 class="form-title">Edit Profile</h2>
 				<?php echo $this->Form->create($users, ['id'=>'editprofile', 'type' => 'file', 'class' =>' ']); ?>
 					
@@ -96,6 +96,25 @@ $(document).ready(function () {
 					<div class="form-group">
 						<label for="name">Judge ?</label>
 						<?php echo ($userDetails->is_judge == 1) ? 'Yes': 'No'; ?>
+					</div>
+
+					<div class="form-group profile-volunteer-options">
+						<label class="profile-volunteer-heading">Volunteer / responsibility</label>
+						<div class="checkbox-group profile-checkbox-group">
+							<label><input type="checkbox" name="Users[is_sponsoring_students]" value="1" <?php echo (!empty($users->is_sponsoring_students) || !empty($userDetails->is_sponsoring_students)) ? 'checked' : ''; ?>> <span>I am sponsoring students.</span></label>
+							<label><input type="checkbox" name="Users[first_aid_officer]" value="1" <?php echo (!empty($users->first_aid_officer) || !empty($userDetails->first_aid_officer)) ? 'checked' : ''; ?>> <span>I am the First Aid Officer for the school/HSSP.</span></label>
+							<label><input type="checkbox" name="Users[volunteer_judge_and_sponsor]" value="1" <?php echo (!empty($users->volunteer_judge_and_sponsor) || !empty($userDetails->volunteer_judge_and_sponsor)) ? 'checked' : ''; ?>> <span>I am volunteering to judge and sponsor my students while judging (if applicable).</span></label>
+							<label><input type="checkbox" name="Users[scripture_award_application]" value="1" <?php echo (!empty($users->scripture_award_application) || !empty($userDetails->scripture_award_application)) ? 'checked' : ''; ?>> <span>I have submitted an Application for Scripture Award.</span></label>
+						</div>
+					</div>
+
+					<div class="form-group profile-experience-options">
+						<label class="profile-experience-heading">Your experience with the A.C.E. program:</label>
+						<div class="profile-experience-fields">
+							<span>Length of Time:</span>
+							<label>Years <input type="number" name="Users[ace_experience_years]" min="0" step="1" inputmode="numeric"></label>
+							<label>Months <input type="number" name="Users[ace_experience_months]" min="0" max="11" step="1" inputmode="numeric"></label>
+						</div>
 					</div>
 					
 					<div class="form-group">

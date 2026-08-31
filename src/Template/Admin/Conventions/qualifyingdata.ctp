@@ -106,6 +106,13 @@
 					<?php
 					}
 					?>
+
+					<div class="form-group">
+					  <label class="col-sm-2 control-label">Current Record</label>
+					  <div class="col-sm-10">
+						  <input class="form-control" type="text" name="current_record" id="current_record" value="<?php echo h((string)($convSeasEventD->current_record ?? '')); ?>" placeholder="Enter current record">
+					  </div>
+					</div>
                     
                     <div class="box-footer">
                         <label class="col-sm-2 control-label" for="inputPassword3">&nbsp;</label>

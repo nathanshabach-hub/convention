@@ -2,6 +2,44 @@
 use Cake\ORM\TableRegistry;
 $this->Eventsubmissions = TableRegistry::get('Eventsubmissions');
 $this->Judgeevaluations = TableRegistry::get('Judgeevaluations');
+$this->Crstudentevents = TableRegistry::get('Crstudentevents');
+
+$getUniqueEventSubmissionGroups = function ($conditions, $event) {
+	$submissions = $this->Eventsubmissions->find()->where($conditions)->all();
+	if ((int)($event->group_event_yes_no ?? 0) !== 1) {
+		return $submissions->toList();
+	}
+
+	$uniqueGroups = [];
+	foreach ($submissions as $submission) {
+		$groupName = trim((string)($submission->group_name ?? ''));
+		$memberIds = $this->Crstudentevents->find()
+			->select(['student_id'])
+			->where([
+				'Crstudentevents.conventionregistration_id' => (int)$submission->conventionregistration_id,
+				'Crstudentevents.conventionseason_id' => (int)$submission->conventionseason_id,
+				'Crstudentevents.convention_id' => (int)$submission->convention_id,
+				'Crstudentevents.season_id' => (int)$submission->season_id,
+				'Crstudentevents.season_year' => (int)$submission->season_year,
+				'Crstudentevents.event_id' => (int)$submission->event_id,
+				'Crstudentevents.group_name' => $groupName,
+				'Crstudentevents.student_id >' => 0,
+			])
+			->extract('student_id')
+			->map(static function ($studentId) {
+				return (int)$studentId;
+			})
+			->toList();
+		$memberIds = array_values(array_unique(array_filter($memberIds)));
+		sort($memberIds);
+		$groupKey = $groupName.'|'.(!empty($memberIds) ? implode('-', $memberIds) : 'submission-'.$submission->id);
+		if (!isset($uniqueGroups[$groupKey])) {
+			$uniqueGroups[$groupKey] = $submission;
+		}
+	}
+
+	return array_values($uniqueGroups);
+};
 ?>
 <div class="admin_loader" id="loaderID"><?php echo $this->Html->image('loader_large_blue.gif');?></div>
 <?php if (!$events->isEmpty()) { ?> 
@@ -34,7 +72,7 @@ $this->Judgeevaluations = TableRegistry::get('Judgeevaluations');
 						$condEventEntries = array();
 						//$condEventEntries[] = "(Eventsubmissions.conventionregistration_id = '".$conventionRegD->id."')";
 						//$condEventEntries[] = "(Eventsubmissions.conventionseason_id = '".$conventionRegD->conventionseason_id."')";
-						$condEventEntries[] = "(Eventsubmissions.convention_id = '".$conventionRegD->convention_id."' AND Eventsubmissions.season_id = '".$conventionRegD->season_id."' AND Eventsubmissions.season_year = '".$conventionRegD->season_year."' AND Eventsubmissions.event_id = '".$datarecord->id."')";
+						$condEventEntries[] = "(Eventsubmissions.conventionseason_id = '".$conventionRegD->conventionseason_id."' AND Eventsubmissions.convention_id = '".$conventionRegD->convention_id."' AND Eventsubmissions.season_id = '".$conventionRegD->season_id."' AND Eventsubmissions.season_year = '".$conventionRegD->season_year."' AND Eventsubmissions.event_id = '".$datarecord->id."')";
 						
 						if($datarecord->group_event_yes_no == 1)
 						{
@@ -45,7 +83,8 @@ $this->Judgeevaluations = TableRegistry::get('Judgeevaluations');
 							$condEventEntries[] = "(Eventsubmissions.student_id >0)";
 						}
 								
-						$totalEntriesSubmitted = $this->Eventsubmissions->find()->where($condEventEntries)->count();
+						$listTotalEntries = $getUniqueEventSubmissionGroups($condEventEntries, $datarecord);
+						$totalEntriesSubmitted = count($listTotalEntries);
 						echo $totalEntriesSubmitted;
 						?>
 						</td>
@@ -55,7 +94,6 @@ $this->Judgeevaluations = TableRegistry::get('Judgeevaluations');
 						<?php
 						$totalEntriesM = 0;
 						// to count that how many entries are marked
-						$listTotalEntries = $this->Eventsubmissions->find()->where($condEventEntries)->all();
 						foreach($listTotalEntries as $eventsub)
 						{
 							// to check if this entry has been marked or not

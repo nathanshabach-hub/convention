@@ -4,6 +4,117 @@ $this->Conventionregistrations = TableRegistry::getTableLocator()->get('Conventi
 $this->Eventsubmissions = TableRegistry::getTableLocator()->get('Eventsubmissions');
 $this->Judgeevaluations = TableRegistry::getTableLocator()->get('Judgeevaluations');
 $this->Conventionseasonroomevents = TableRegistry::getTableLocator()->get('Conventionseasonroomevents');
+$this->Conventionseasonevents = TableRegistry::getTableLocator()->get('Conventionseasonevents');
+$this->Crstudentevents = TableRegistry::getTableLocator()->get('Crstudentevents');
+$this->Combinerequests = TableRegistry::getTableLocator()->get('Combinerequests');
+
+$eventEntryCountCache = [];
+$countEventEntries = function ($conditions, $event) use (&$eventEntryCountCache) {
+	$cacheKey = (string)($event->id ?? $event['id'] ?? 0).'|'.md5(serialize($conditions));
+	if (isset($eventEntryCountCache[$cacheKey])) {
+		return $eventEntryCountCache[$cacheKey];
+	}
+
+	$submissions = $this->Eventsubmissions->find()->where($conditions)->all();
+	if ((int)($event->group_event_yes_no ?? 0) !== 1) {
+		return $eventEntryCountCache[$cacheKey] = $submissions->count();
+	}
+	$firstSubmission = $submissions->first();
+	if (!$firstSubmission) {
+		return $eventEntryCountCache[$cacheKey] = 0;
+	}
+	$hasApprovedCombinedRequest = $this->Combinerequests->find()
+		->where([
+			'Combinerequests.conventionseason_id' => (int)$firstSubmission->conventionseason_id,
+			'Combinerequests.event_id' => (int)($event->id ?? $event['id'] ?? 0),
+			'Combinerequests.status' => 1,
+		])
+		->count() > 0;
+	if (!$hasApprovedCombinedRequest) {
+		return $eventEntryCountCache[$cacheKey] = $submissions->count();
+	}
+
+	$uniqueGroups = [];
+	foreach ($submissions as $submission) {
+		$groupName = trim((string)($submission->group_name ?? ''));
+		$memberIds = $this->Crstudentevents->find()
+			->select(['student_id'])
+			->where([
+				'Crstudentevents.conventionregistration_id' => (int)$submission->conventionregistration_id,
+				'Crstudentevents.conventionseason_id' => (int)$submission->conventionseason_id,
+				'Crstudentevents.convention_id' => (int)$submission->convention_id,
+				'Crstudentevents.season_id' => (int)$submission->season_id,
+				'Crstudentevents.season_year' => (int)$submission->season_year,
+				'Crstudentevents.event_id' => (int)$submission->event_id,
+				'Crstudentevents.group_name' => $groupName,
+				'Crstudentevents.student_id >' => 0,
+			])
+			->extract('student_id')
+			->map(static function ($studentId) {
+				return (int)$studentId;
+			})
+			->toList();
+		$memberIds = array_values(array_unique(array_filter($memberIds)));
+		sort($memberIds);
+		$uniqueGroups[$groupName.'|'.(!empty($memberIds) ? implode('-', $memberIds) : 'submission-'.$submission->id)] = true;
+	}
+
+	return $eventEntryCountCache[$cacheKey] = count($uniqueGroups);
+};
+
+$timeToMilliseconds = static function ($timeValue) {
+	if ($timeValue === null || $timeValue === '') {
+		return null;
+	}
+	if (is_object($timeValue) && method_exists($timeValue, 'format')) {
+		$timeValue = $timeValue->format('H:i:s.u');
+	}
+	$timeValue = trim((string)$timeValue);
+	if (!preg_match('/^(\d{1,2}):(\d{2}):(\d{2})(?:\.(\d{1,6}))?$/', $timeValue, $matches)) {
+		return null;
+	}
+	$fraction = isset($matches[4]) ? str_pad(substr($matches[4], 0, 3), 3, '0') : '000';
+	return ((((int)$matches[1] * 60 + (int)$matches[2]) * 60 + (int)$matches[3]) * 1000) + (int)$fraction;
+};
+
+$brokenRecordEvents = [];
+$recordCandidates = $this->Conventionseasonevents->find()
+	->contain(['Events'])
+	->where([
+		'Conventionseasonevents.conventionseasons_id' => (int)$conventionSD->id,
+		'Conventionseasonevents.judging_ends' => 1,
+		'Conventionseasonevents.current_record IS NOT' => null,
+		'Conventionseasonevents.current_record !=' => '',
+	])
+	->all();
+foreach ($recordCandidates as $recordCandidate) {
+	if (empty($recordCandidate->Events) || (string)$recordCandidate->Events->event_judging_type !== 'times') {
+		continue;
+	}
+	$currentRecordMilliseconds = $timeToMilliseconds($recordCandidate->current_record);
+	if ($currentRecordMilliseconds === null) {
+		continue;
+	}
+	$winningEvaluation = $this->Judgeevaluations->find()
+		->where([
+			'Judgeevaluations.conventionseason_id' => (int)$conventionSD->id,
+			'Judgeevaluations.convention_id' => (int)$conventionSD->convention_id,
+			'Judgeevaluations.season_id' => (int)$conventionSD->season_id,
+			'Judgeevaluations.season_year' => (int)$conventionSD->season_year,
+			'Judgeevaluations.event_id' => (int)$recordCandidate->event_id,
+			'Judgeevaluations.withdraw_yes_no !=' => 1,
+			'Judgeevaluations.time_score IS NOT' => null,
+		])
+		->order(['Judgeevaluations.time_score' => 'ASC'])
+		->first();
+	if ($winningEvaluation && ($winningMilliseconds = $timeToMilliseconds($winningEvaluation->time_score)) !== null && $winningMilliseconds < $currentRecordMilliseconds) {
+		$brokenRecordEvents[] = $recordCandidate;
+	}
+}
+$brokenRecordEventIds = [];
+foreach ($brokenRecordEvents as $brokenRecordEvent) {
+	$brokenRecordEventIds[(int)$brokenRecordEvent->event_id] = true;
+}
 $closeOnly = ((string)$this->request->getQuery('close_only') === '1');
 $eventsToCloseCount = 0;
 foreach ($conventionseasonevents as $eventRow) {
@@ -80,6 +191,7 @@ foreach ($conventionseasonevents as $eventRow) {
                             <th class="sorting_paging col-action">Judging?</th>
                             <th class="sorting_paging col-action">Qualifying Score/Time</th>
                             <th class="sorting_paging col-action">Result</th>
+							<th class="sorting_paging col-action">Record Broken</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -142,7 +254,7 @@ foreach ($conventionseasonevents as $eventRow) {
 								$condTotalEntries[] = "(Eventsubmissions.convention_id = '".$datarecord->convention_id."')";
 								$condTotalEntries[] = "(Eventsubmissions.season_id = '".$datarecord->season_id."')";
 								$condTotalEntries[] = "(Eventsubmissions.event_id = '".$datarecord->Events['id']."')";
-								$totalEntriesEvent = $this->Eventsubmissions->find()->where($condTotalEntries)->count();
+								$totalEntriesEvent = $countEventEntries($condTotalEntries, $datarecord->Events);
 								$effectiveEntriesEvent = $this->Eventsubmissions->find()
 									->where($condTotalEntries)
 									->where(['Eventsubmissions.guideline_breach !=' => 2])
@@ -504,6 +616,14 @@ foreach ($conventionseasonevents as $eventRow) {
 										}
 									}
 									?>
+								</td>
+
+								<td data-title="Record Broken" class="col-action">
+									<?php if (isset($brokenRecordEventIds[(int)$datarecord->event_id])) { ?>
+										<?php echo $this->Html->link('<i class="fa fa-trophy"></i> Broken', ['controller'=>'conventions', 'action'=>'brokenrecordcertificatepdf',$slug_convention_season,$slug_convention,$datarecord->Events['slug']], ['escape'=>false, 'class'=>'btn btn-success btn-xs', 'title'=>'Generate this event\'s broken-record certificate', 'target'=>'_blank']); ?>
+									<?php } else { ?>
+										<span class="text-muted">&mdash;</span>
+									<?php } ?>
 								</td>
                                 
                             </tr>

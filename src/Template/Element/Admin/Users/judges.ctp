@@ -80,9 +80,22 @@
                                     <?php
                                     echo $this->Html->link('<i class="fa fa-pencil"></i>', ['controller' => 'users', 'action' => 'editjudge', $user->slug], [ 'escape' => false, 'title' => 'Edit Judge', 'class' => 'btn btn-info btn-xs action-list admin-data-action-btn']);
 
-                                    if($user->activation_status == 0 || $user->status == 0)
+                                    if($user->activation_status == 0)
                                     {
-                                        echo $this->Html->link('<i class="fa fa-check-circle"></i>', ['controller' => 'users', 'action' => 'activatejudgeaccount', $user->slug], [ 'escape' => false, 'title' => 'Activate Judge', 'class' => 'btn btn-success btn-xs action-list admin-data-action-btn', 'confirm' => 'Activate this judge account and bypass email verification?']);
+                                        echo $this->Html->link('<i class="fa fa-check-circle"></i>', ['controller' => 'users', 'action' => 'verifyaccount', $user->slug, 'judges'], [ 'escape' => false, 'title' => 'Mark as verified', 'class' => 'btn btn-success btn-xs action-list admin-data-action-btn', 'confirm' => 'Mark this judge account as verified?']);
+                                    }
+                                    else
+                                    {
+                                        echo $this->Html->link('<i class="fa fa-unlock"></i>', ['controller' => 'users', 'action' => 'unverifyaccount', $user->slug, 'judges'], [ 'escape' => false, 'title' => 'Mark as unverified', 'class' => 'btn btn-warning btn-xs action-list admin-data-action-btn', 'confirm' => 'Mark this judge account as unverified?']);
+                                    }
+
+                                    if($user->status == 0)
+                                    {
+                                        echo $this->Html->link('<i class="fa fa-check"></i>', ['controller' => 'users', 'action' => 'activatejudge', $user->slug], [ 'escape' => false, 'title' => 'Activate Judge', 'class' => 'btn btn-success btn-xs action-list admin-data-action-btn', 'confirm' => 'Activate this judge account?']);
+                                    }
+                                    elseif($user->status == 1)
+                                    {
+                                        echo $this->Html->link('<i class="fa fa-ban"></i>', ['controller' => 'users', 'action' => 'deactivatejudge', $user->slug], [ 'escape' => false, 'title' => 'Deactivate Judge', 'class' => 'btn btn-warning btn-xs action-list admin-data-action-btn', 'confirm' => 'Deactivate this judge account?']);
                                     }
 
                                     if($user->status == 1)

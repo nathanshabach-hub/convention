@@ -11,27 +11,47 @@
 
     <section class="content report-overview">
         <div class="dashboard-hero-card">
-            <div class="dashboard-hero-copy">
-                <h2>Convention Season Report</h2>
-                <p>
-                    Detailed statistics for <?php echo isset($conv_season->Conventions['name']) ? h($conv_season->Conventions['name']) : 'Selected Convention'; ?>
-                </p>
+            <div class="report-header-row">
+                <div class="dashboard-hero-copy">
+                </div>
+                <div class="dashboard-download-btn">
+                    <a href="<?php echo $this->Url->build(['action' => 'previewReport', '?' => ['convention_year' => $selectedReportYear]]); ?>" class="btn btn-info" target="_blank">
+                        <i class="fa fa-eye"></i> Preview Report
+                    </a>
+                    <a href="<?php echo $this->Url->build(['action' => 'downloadReport', '?' => ['convention_year' => $selectedReportYear]]); ?>" class="btn btn-primary">
+                        <i class="fa fa-download"></i> Download Report
+                    </a>
+                </div>
             </div>
-            <div class="dashboard-hero-icon" aria-hidden="true">
-                <i class="fa fa-bar-chart"></i>
-            </div>
-            <div class="dashboard-download-btn">
-                <a href="<?php echo $this->Url->build(['action' => 'previewReport']); ?>" class="btn btn-info" target="_blank">
-                    <i class="fa fa-eye"></i> Preview Report
-                </a>
-                <a href="<?php echo $this->Url->build(['action' => 'downloadReport']); ?>" class="btn btn-primary">
-                    <i class="fa fa-download"></i> Download Report
-                </a>
-            </div>
+        </div>
+
+        <div class="report-filter-card">
+            <?php echo $this->Form->create(null, ['type' => 'get', 'url' => ['action' => 'report'], 'class' => 'report-filter-form']); ?>
+                <div class="report-filter-group">
+                    <label for="convention-year-id">Convention Year</label>
+                    <?php
+                    echo $this->Form->control('convention_year', [
+                        'id' => 'convention-year-id',
+                        'type' => 'select',
+                        'label' => false,
+                        'options' => $reportYearOptions,
+                        'empty' => 'Select Convention Year',
+                        'value' => $selectedReportYear,
+                        'class' => 'form-control'
+                    ]);
+                    ?>
+                </div>
+                <button type="submit" class="btn btn-success report-filter-btn">Load Report</button>
+            <?php echo $this->Form->end(); ?>
         </div>
     </section>
 
     <section class="content">
+        <?php if (empty($hasReportData)) { ?>
+            <div class="alert alert-info">Please select a convention year to view report data.</div>
+        <?php } ?>
+
+        <?php if (!empty($hasReportData)) { ?>
         <!-- Place Winners Section -->
         <div class="row">
             <div class="col-md-12">
@@ -201,12 +221,13 @@
                 </div>
             </div>
         </div>
+        <?php } ?>
     </section>
 </div>
 
 <style>
     .admin-report {
-        padding: 15px;
+        padding: 18px;
         background-color: #f5f5f5;
         min-height: 100vh;
     }
@@ -229,44 +250,38 @@
     }
 
     .report-overview {
-        margin-bottom: 10px;
+        margin-bottom: 14px;
         padding: 0;
-        min-height: auto !important;
+        min-height: auto;
     }
 
     .dashboard-hero-card {
-        padding: 15px 20px !important;
-        margin-bottom: 0 !important;
-        margin-top: 0 !important;
-        position: relative;
+        padding: 16px 20px;
+        margin: 0;
     }
 
-    .dashboard-hero-copy {
-        padding: 0 !important;
-        margin: 0 !important;
+    .report-header-row {
+        align-items: flex-start;
+        display: flex;
+        gap: 16px;
+        justify-content: space-between;
+        flex-wrap: wrap;
     }
 
     .dashboard-hero-copy h2 {
-        margin: 0 0 5px 0 !important;
-        font-size: 24px !important;
+        margin: 0 0 5px;
+        font-size: 24px;
     }
 
     .dashboard-hero-copy p {
-        margin: 0 !important;
-        font-size: 14px !important;
-    }
-
-    .dashboard-hero-icon {
-        display: none !important;
+        margin: 0;
+        font-size: 14px;
     }
 
     .dashboard-download-btn {
-        position: absolute;
-        right: 20px;
-        top: 50%;
-        transform: translateY(-50%);
         display: flex;
         gap: 10px;
+        flex-wrap: wrap;
     }
 
     .dashboard-download-btn .btn {
@@ -302,10 +317,59 @@
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     }
 
-    .content {
+    .admin-report .content {
         padding: 0 !important;
         margin-top: 0 !important;
         margin-bottom: 0 !important;
+    }
+
+    .report-filter-card {
+        background: #fff;
+        border: 1px solid #d9e3ef;
+        border-radius: 8px;
+        margin: 12px 0 0;
+        padding: 14px;
+    }
+
+    .report-filter-form {
+        align-items: flex-end;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .report-filter-group {
+        display: flex;
+        flex: 1 1 320px;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .report-filter-group label {
+        color: #2f4d68;
+        font-size: 13px;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .report-filter-btn {
+        min-width: 120px;
+        padding: 8px 14px;
+    }
+
+    @media (max-width: 767px) {
+        .admin-report {
+            padding: 12px;
+        }
+
+        .dashboard-download-btn {
+            width: 100%;
+        }
+
+        .dashboard-download-btn .btn {
+            flex: 1 1 auto;
+            justify-content: center;
+        }
     }
 
     .info-box {

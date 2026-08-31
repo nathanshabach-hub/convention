@@ -57,40 +57,62 @@
 
 
 			<div class="col-lg-6 ">
-				<div class="ryt-box bg-white w-100">
+				<div class="ryt-box bg-white w-100 judge-registration-card">
 					<div class="ryt-box-text form-group">
 						<div class="ersu_message">
 							<?php echo $this->Flash->render() ?>
 						</div>
 						<?php echo $this->Form->create($users, ['id' => 'judgesreg_frm', 'type' => 'file']); ?>
-						<h2 class="mb-4">Judges Registration</h2>
-						<div>
-							
-							<div class="lables">
+						<div class="judge-registration-heading">
+							<span class="judge-registration-kicker">Join the team</span>
+							<h2>Judges Registration</h2>
+						</div>
+						<div class="judge-registration-accordion">
+							<details>
+								<summary><span>Choose a convention</span><small>Required</small></summary>
+								<div class="judge-registration-section account-details-section">
+									<div class="lables judge-registration-convention-field">
+										<span class="col-4">Convention</span>
+										<?php echo $this->Form->select('convention_id', $conventionDD, ['empty' => 'Select a convention', 'class' => 'form-select required']); ?>
+									</div>
+								</div>
+							</details>
+
+							<details>
+								<summary><span>Account details</span><small>5 fields</small></summary>
+								<div class="judge-registration-section">
+							<div class="judge-registration-name-row">
+							<div class="lables judge-registration-name-field">
 								<span class="col-4">First Name</span>
-								<?php echo $this->Form->input('Users.first_name', ['label' => false, 'type' => 'text', 'autocomplete' => 'off', 'div' => false, 'class' => 'form-control required', 'placeholder' => 'First Name']); ?>
+								<?php echo $this->Form->input('Users.first_name', ['label' => false, 'type' => 'text', 'autocomplete' => 'off', 'div' => false, 'class' => 'form-control required']); ?>
 							</div>
 							
-							<div class="lables">
+							<div class="lables judge-registration-name-field">
 								<span class="col-4">Surname</span>
-								<?php echo $this->Form->input('Users.last_name', ['label' => false, 'type' => 'text', 'autocomplete' => 'off', 'div' => false, 'class' => 'form-control required', 'placeholder' => 'Surname']); ?>
+								<?php echo $this->Form->input('Users.last_name', ['label' => false, 'type' => 'text', 'autocomplete' => 'off', 'div' => false, 'class' => 'form-control required']); ?>
+							</div>
 							</div>
 							
 							<div class="lables">
 								<span class="col-4">Email Address</span>
-								<?php echo $this->Form->input('Users.email_address', ['label' => false, 'type' => 'text', 'autocomplete' => 'off', 'div' => false, 'class' => 'form-control required email', 'placeholder' => 'Email Address']); ?>
+								<?php echo $this->Form->input('Users.email_address', ['label' => false, 'type' => 'text', 'autocomplete' => 'off', 'div' => false, 'class' => 'form-control required email']); ?>
 							</div>
 
 							<div class="lables">
 								<span class="col-4">Password</span>
-								<?php echo $this->Form->input('Users.password', ['id' => 'password', 'label' => '', 'type' => 'password', 'label' => false, 'div' => false, 'class' => "form-control required", 'placeholder' => 'Password', 'minlength'=>6]); ?>
+								<?php echo $this->Form->input('Users.password', ['id' => 'password', 'label' => '', 'type' => 'password', 'label' => false, 'div' => false, 'class' => "form-control required", 'minlength'=>6]); ?>
 							</div>
 							
 							<div class="lables">
 								<span class="col-4">Confirm Password</span>
-								<?php echo $this->Form->input('Users.confirm_password', ['id' => 'confirm_password','label' => '', 'type' => 'password', 'label' => false, 'div' => false, 'class' => "form-control required", 'placeholder' => 'Confirm Password', 'equalTo'=>'#password']); ?>
+								<?php echo $this->Form->input('Users.confirm_password', ['id' => 'confirm_password','label' => '', 'type' => 'password', 'label' => false, 'div' => false, 'class' => "form-control required", 'equalTo'=>'#password']); ?>
 							</div>
-							
+								</div>
+							</details>
+
+							<details>
+								<summary><span>Experience</span><small>2 questions</small></summary>
+								<div class="judge-registration-section">
 							<div class="lables">
 								<span class="col-4">Previous convention experience ? </span>
 								<?php echo $this->Form->input('Users.previous_convention_experience', ['id' => '', 'label' => false, 'type' => 'textarea', 'autocomplete' => 'off', 'div' => false, 'class' => 'form-control required', 'placeholder' => 'What is your previous convention experience?']); ?>
@@ -100,8 +122,10 @@
 								<span class="col-4">Other non-convention experience? </span>
 								<?php echo $this->Form->input('Users.non_convention_experience', ['label' => false, 'type' => 'textarea', 'autocomplete' => 'off', 'div' => false, 'class' => 'form-control required', 'placeholder' => 'What other non-convention experience do you have that would assist in your area of interest for judging?']); ?>
 							</div>
+								</div>
+							</details>
 
-							<div class="btns col-8 float-end">
+							<div class="judge-registration-actions btns">
 								<span class=" mb-3 w-100">
 									<?php echo $this->Html->link('Forgot Password?', ['controller' => 'users', 'action' => 'forgotpassword'], ['escape' => false, 'class' => 'text-primary ms-1']); ?>
 									<!--<a href="" class="text-primary ms-1">Forgot Password?</a>-->

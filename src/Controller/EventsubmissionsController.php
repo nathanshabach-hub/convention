@@ -1067,6 +1067,91 @@ class EventsubmissionsController extends AppController {
 		
 		$eventsubmissions = $this->Eventsubmissions->find()->where($condition)->contain(["Students","Users"])->order(['Eventsubmissions.id' => 'DESC'])->all();
 		$this->set('eventsubmissions',$eventsubmissions);
+
+		$eventsubmissionRows = [];
+		if ((int)$eventD->group_event_yes_no === 1) {
+			$groupedRows = [];
+			foreach ($eventsubmissions as $submission) {
+				$groupName = trim((string)($submission->group_name ?? ''));
+				$memberIds = $this->Crstudentevents->find()
+					->select(['student_id'])
+					->where([
+						'Crstudentevents.conventionregistration_id' => (int)$submission->conventionregistration_id,
+						'Crstudentevents.event_id' => (int)$submission->event_id,
+						'Crstudentevents.group_name' => $groupName,
+						'Crstudentevents.student_id >' => 0,
+					])
+					->extract('student_id')
+					->map(static function ($sid) {
+						return (int)$sid;
+					})
+					->toList();
+				$memberIds = array_values(array_unique(array_filter($memberIds)));
+				sort($memberIds);
+				$memberSignature = !empty($memberIds) ? implode('-', $memberIds) : 'submission-'.$submission->id;
+				$groupKey = $groupName.'|'.$memberSignature;
+
+				if (!isset($groupedRows[$groupKey])) {
+					$groupedRows[$groupKey] = [
+						'primary' => $submission,
+						'submission_ids' => [],
+						'convention_registration_ids' => [],
+						'school_pairs' => [],
+						'member_signature' => $memberSignature,
+					];
+				}
+
+				$groupedRows[$groupKey]['submission_ids'][] = (int)$submission->id;
+				$groupedRows[$groupKey]['convention_registration_ids'][] = (int)$submission->conventionregistration_id;
+				$schoolName = trim((string)($submission->Users['first_name'] ?? ''));
+				if ($schoolName !== '') {
+					$groupedRows[$groupKey]['school_pairs'][(int)$submission->user_id] = $schoolName;
+				}
+			}
+
+			foreach ($groupedRows as $rowData) {
+				$primary = $rowData['primary'];
+				$submissionIds = array_values(array_unique(array_filter(array_map('intval', (array)$rowData['submission_ids']))));
+				$conventionRegistrationIds = array_values(array_unique(array_filter(array_map('intval', (array)$rowData['convention_registration_ids']))));
+				$schoolPairs = (array)($rowData['school_pairs'] ?? []);
+				$schoolNames = [];
+				$currentSchoolUserId = (int)$conventionRegD->user_id;
+				if ($currentSchoolUserId > 0 && isset($schoolPairs[$currentSchoolUserId])) {
+					$schoolNames[] = trim((string)$schoolPairs[$currentSchoolUserId]);
+				}
+				foreach ($schoolPairs as $schoolUserId => $schoolName) {
+					if ((int)$schoolUserId === $currentSchoolUserId) {
+						continue;
+					}
+					$schoolNames[] = trim((string)$schoolName);
+				}
+				$schoolNames = array_values(array_unique(array_filter($schoolNames)));
+
+				$displaySchoolName = implode(' + ', $schoolNames);
+				if (count($schoolNames) > 1) {
+					$displaySchoolName .= ' combined';
+				}
+
+				$eventsubmissionRows[] = [
+					'record' => $primary,
+					'submission_ids_csv' => implode(',', $submissionIds),
+					'convention_registration_ids_csv' => implode(',', $conventionRegistrationIds),
+					'display_school_name' => $displaySchoolName !== '' ? $displaySchoolName : (string)($primary->Users['first_name'] ?? ''),
+					'member_signature' => (string)$rowData['member_signature'],
+				];
+			}
+		} else {
+			foreach ($eventsubmissions as $submission) {
+				$eventsubmissionRows[] = [
+					'record' => $submission,
+					'submission_ids_csv' => (string)((int)$submission->id),
+					'convention_registration_ids_csv' => (string)((int)$submission->conventionregistration_id),
+					'display_school_name' => (string)($submission->Users['first_name'] ?? ''),
+					'member_signature' => '',
+				];
+			}
+		}
+		$this->set('eventsubmissionRows', $eventsubmissionRows);
 		
 		
 		if ($this->request->is(['post']))
@@ -1078,7 +1163,13 @@ class EventsubmissionsController extends AppController {
 			for($cntrE=1;$cntrE<=$total_records;$cntrE++)
 			{
 				$time_score			= $this->request->getData()['time_score_'.$cntrE];
-				$submission_id		= $this->request->getData()['submission_id_'.$cntrE];
+				$submissionIdsRaw = trim((string)($this->request->getData()['submission_ids_'.$cntrE] ?? ($this->request->getData()['submission_id_'.$cntrE] ?? '')));
+				$submissionIds = array_values(array_unique(array_filter(array_map('intval', explode(',', str_replace(' ', '', $submissionIdsRaw))), static function ($sid) {
+					return $sid > 0;
+				})));
+				if (empty($submissionIds)) {
+					continue;
+				}
 				if(isset($this->request->getData()['withdrawn_'.$cntrE]))
 				{
 					$withdraw_yes_no = 1;
@@ -1093,51 +1184,52 @@ class EventsubmissionsController extends AppController {
 					$time_score = NULL;
 				}	
 				
-				$eventsubmissionD 	= $this->Eventsubmissions->find()->where(['Eventsubmissions.id' => $submission_id])->contain(["Users","Students"])->first();
-				
-				// now check if this any judge submitted time score for this event submission
-				$condCheckJS = array();
-				$condCheckJS[] = "(Judgeevaluations.eventsubmission_id = '".$submission_id."')";
-				$condCheckJS[] = "(Judgeevaluations.uploaded_by_user_id = '".$user_id."')";
-				
-				$checkJS = $this->Judgeevaluations->find()->where($condCheckJS)->first();
-				if($checkJS)
-				{
-					// update record
-					$this->Judgeevaluations->updateAll(
-					[
-						'time_score' 		=> $time_score,
-						'withdraw_yes_no' 	=> $withdraw_yes_no,
-					], 
-					[
-						"id" => $checkJS->id]
-					);
-				}
-				else
-				{
-					// insert new record
-					$judgeevaluations = $this->Judgeevaluations->newEntity([]);
-					$dataJ = $this->Judgeevaluations->patchEntity($judgeevaluations, array());
-					
-					$dataJ->slug 							= "judge-times-event-evaluation-".$eventsubmissionD->id.'-'.time();
-					$dataJ->eventsubmission_id				= $eventsubmissionD->id;
-					$dataJ->conventionregistration_id		= $eventsubmissionD->conventionregistration_id;
-					$dataJ->conventionseason_id				= $eventsubmissionD->conventionseason_id;
-					$dataJ->convention_id					= $eventsubmissionD->convention_id;
-					$dataJ->user_id							= $eventsubmissionD->user_id;
-					$dataJ->season_id						= $eventsubmissionD->season_id;
-					$dataJ->season_year						= $eventsubmissionD->season_year;
-					$dataJ->event_id						= $eventsubmissionD->event_id;
-					$dataJ->event_id_number					= $eventsubmissionD->event_id_number;
-					$dataJ->group_name						= $eventsubmissionD->group_name;
-					$dataJ->student_id						= $eventsubmissionD->student_id;
-					$dataJ->uploaded_by_user_id				= $user_id;
-					$dataJ->time_score						= $time_score;
-					$dataJ->withdraw_yes_no					= $withdraw_yes_no;
-					$dataJ->created 						= date('Y-m-d H:i:s');
+				foreach ($submissionIds as $submission_id) {
+					$eventsubmissionD = $this->Eventsubmissions->find()->where(['Eventsubmissions.id' => $submission_id])->contain(["Users","Students"])->first();
+					if (!$eventsubmissionD) {
+						continue;
+					}
 
-					$resultJ = $this->Judgeevaluations->save($dataJ);
-					
+					$condCheckJS = array();
+					$condCheckJS[] = "(Judgeevaluations.eventsubmission_id = '".$submission_id."')";
+					$condCheckJS[] = "(Judgeevaluations.uploaded_by_user_id = '".$user_id."')";
+
+					$checkJS = $this->Judgeevaluations->find()->where($condCheckJS)->first();
+					if($checkJS)
+					{
+						$this->Judgeevaluations->updateAll(
+						[
+							'time_score' 		=> $time_score,
+							'withdraw_yes_no' 	=> $withdraw_yes_no,
+						],
+						[
+							"id" => $checkJS->id]
+						);
+					}
+					else
+					{
+						$judgeevaluations = $this->Judgeevaluations->newEntity([]);
+						$dataJ = $this->Judgeevaluations->patchEntity($judgeevaluations, array());
+
+						$dataJ->slug 							= "judge-times-event-evaluation-".$eventsubmissionD->id.'-'.time();
+						$dataJ->eventsubmission_id				= $eventsubmissionD->id;
+						$dataJ->conventionregistration_id		= $eventsubmissionD->conventionregistration_id;
+						$dataJ->conventionseason_id				= $eventsubmissionD->conventionseason_id;
+						$dataJ->convention_id					= $eventsubmissionD->convention_id;
+						$dataJ->user_id							= $eventsubmissionD->user_id;
+						$dataJ->season_id						= $eventsubmissionD->season_id;
+						$dataJ->season_year						= $eventsubmissionD->season_year;
+						$dataJ->event_id						= $eventsubmissionD->event_id;
+						$dataJ->event_id_number					= $eventsubmissionD->event_id_number;
+						$dataJ->group_name						= $eventsubmissionD->group_name;
+						$dataJ->student_id						= $eventsubmissionD->student_id;
+						$dataJ->uploaded_by_user_id				= $user_id;
+						$dataJ->time_score						= $time_score;
+						$dataJ->withdraw_yes_no					= $withdraw_yes_no;
+						$dataJ->created 						= date('Y-m-d H:i:s');
+
+						$this->Judgeevaluations->save($dataJ);
+					}
 				}
 			}
 			
